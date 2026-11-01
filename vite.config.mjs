@@ -3,10 +3,10 @@ import { defineConfig } from "vite";
 export default defineConfig({
   server: {
     proxy: {
-      "/nba-stats": {
+      "/api/stats": {
         target: "https://stats.nba.com",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/nba-stats/, ""),
+        rewrite: (path) => path.replace(/^\/api\/stats/, "/stats"),
         configure: (proxy) => {
           proxy.on("proxyReq", (proxyReq) => {
             proxyReq.setHeader("Referer", "https://www.nba.com/");
@@ -18,10 +18,10 @@ export default defineConfig({
           });
         },
       },
-      "/nba-live": {
-        target: "https://cdn.nba.com/static/json/liveData",
+      "/api/live": {
+        target: "https://cdn.nba.com",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/nba-live/, ""),
+        rewrite: (path) => path.replace(/^\/api\/live/, "/static/json/liveData"),
       },
     },
   },

@@ -7,10 +7,8 @@ tags:
   - name: Stats
     description: NBA Stats API endpoints.
 servers:
-  - url: https://stats.nba.com
-    description: NBA Stats API (direct; may be blocked by browser CORS)
-  - url: /nba-stats
-    description: Local Vite proxy to the NBA Stats API
+  - url: /api
+    description: Same-origin Stats and Live API gateway
 paths:
   /stats/alltimeleadersgrids:
     get:
@@ -18,10 +16,8 @@ paths:
       tags: [Stats]
       summary: alltimeleadersgrids
       description: >-
-        Returns leader tables for 19 statistical categories. The NBA Stats API
-        may require NBA.com browser-style headers and may not allow browser
-        cross-origin requests; Swagger UI's Try it out depends on upstream
-        access and CORS behavior.
+        Returns leader tables for 19 statistical categories through the
+        same-origin API gateway.
       parameters:
         - name: LeagueID
           in: query
