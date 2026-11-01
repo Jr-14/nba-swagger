@@ -52,6 +52,8 @@ servers are not exposed in the Swagger document.
   custom domain is configured.
 - **Cloudflare account ID:** supplied by the project owner before workflow
   setup.
+- **GitHub Actions environment:** `prod`; the manual deployment job must target
+  this environment to receive its environment-scoped credentials.
 - **Credentials:** store a Cloudflare API token scoped to Pages deployment as a
   GitHub Actions secret
   (for example, `CLOUDFLARE_API_TOKEN`). Do not commit it or put it in this
