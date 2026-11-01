@@ -44,8 +44,11 @@ servers are not exposed in the Swagger document.
 
 ## Deployment configuration
 
-- **Deployment pipeline:** GitHub Actions builds the site and deploys the static
-  assets and Pages Function with Wrangler.
+- **CI:** `.github/workflows/ci.yml` type-checks and builds on pull requests and
+  pushes to `main`; it does not deploy.
+- **Deployment:** `.github/workflows/deploy-pages.yml` runs only via manual
+  dispatch from `main` and deploys the static assets and Pages Function with
+  Wrangler.
 - **Pages project:** `nba-swagger`.
 - **Production branch:** `main`.
 - **Public hostname:** use the default `nba-swagger.pages.dev` hostname; no
@@ -67,10 +70,9 @@ servers are not exposed in the Swagger document.
   without introducing new version pins as part of this deployment setup.
 
 The Pages project must exist before the first non-interactive Wrangler deploy.
-Pull requests and pushes to `main` run the build without deploying. Production
-deployment is started manually with GitHub Actions’ **Run workflow** action on
-the `main` branch; the static assets and Pages Function deploy from the same
-revision.
+Production deployment is started manually with GitHub Actions’ **Run workflow**
+action on the `main` branch; the static assets and Pages Function deploy from the
+same revision.
 
 ## Request handling
 

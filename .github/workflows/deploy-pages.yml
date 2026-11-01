@@ -1,22 +1,22 @@
 name: Deploy Swagger Pages
 
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: cloudflare-pages-${{ github.ref }}
-  cancel-in-progress: true
+  group: cloudflare-pages-production
+  cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment:
+      name: prod
+      url: https://nba-swagger.pages.dev
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -40,44 +40,6 @@ jobs:
 
       - name: Build static site
         run: pnpm build
-
-      - name: Upload Pages artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pages-dist
-          path: dist/
-          if-no-files-found: error
-
-  deploy:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: prod
-      url: https://nba-swagger.pages.dev
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 12
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Download Pages artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pages-dist
-          path: dist/
 
       - name: Deploy production site
         env:
