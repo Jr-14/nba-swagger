@@ -8,7 +8,9 @@ tags:
     description: NBA Stats API endpoints.
 servers:
   - url: /api
-    description: Same-origin Stats and Live API gateway
+    description: Same-origin proxy (Cloudflare Pages in production)
+  - url: https://stats.nba.com
+    description: NBA Stats API direct (browser CORS may block requests)
 paths:
   /stats/alltimeleadersgrids:
     get:
@@ -16,8 +18,8 @@ paths:
       tags: [Stats]
       summary: alltimeleadersgrids
       description: >-
-        Returns leader tables for 19 statistical categories through the
-        same-origin API gateway.
+        Returns leader tables for 19 statistical categories. Requests can use
+        either the same-origin proxy or the NBA Stats API directly.
       parameters:
         - name: LeagueID
           in: query
