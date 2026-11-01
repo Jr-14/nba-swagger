@@ -6,8 +6,8 @@
     "pnpm": ">=12"
   },
   "scripts": {
-    "dev": "vite --config vite.config.mjs docs --host 0.0.0.0",
-    "build": "vite build docs",
+    "dev": "vite --config vite.config.mjs src --host 0.0.0.0",
+    "build": "vite build src",
     "preview": "vite preview --host 0.0.0.0"
   },
   "devDependencies": {

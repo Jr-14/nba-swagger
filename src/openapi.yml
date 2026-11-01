@@ -7,10 +7,10 @@ tags:
   - name: Stats
     description: NBA Stats API endpoints.
 servers:
-  - url: /nba-stats
-    description: Local Vite proxy to the NBA Stats API
   - url: https://stats.nba.com
     description: NBA Stats API (direct; may be blocked by browser CORS)
+  - url: /nba-stats
+    description: Local Vite proxy to the NBA Stats API
 paths:
   /stats/alltimeleadersgrids:
     get:
