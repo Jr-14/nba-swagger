@@ -105,6 +105,38 @@ async function readJsonBody(response: Response): Promise<unknown> {
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 
+async function readErrorPreview(response: Response): Promise<string> {
+  const reader = response.body?.getReader();
+  if (!reader) return "";
+
+  const limit = 2_048;
+  const bytes = new Uint8Array(limit);
+  let length = 0;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      (async () => {
+        while (length < limit) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = value.subarray(0, limit - length);
+          bytes.set(chunk, length);
+          length += chunk.byteLength;
+        }
+        return new TextDecoder().decode(bytes.subarray(0, length));
+      })(),
+      new Promise<string>((resolve) => {
+        timer = setTimeout(() => resolve("[response preview timed out]"), 2_000);
+      }),
+    ]);
+  } catch {
+    return "[response preview unavailable]";
+  } finally {
+    clearTimeout(timer);
+    void reader.cancel().catch(() => {});
+  }
+}
+
 export const onRequest: PagesFunction = async ({ request }) => {
   if (request.method !== "GET") {
     return errorResponse(405, "method_not_allowed", "Only GET is supported", {
@@ -133,11 +165,27 @@ export const onRequest: PagesFunction = async ({ request }) => {
 
     const contentType = upstream.headers.get("content-type") ?? "";
     if (!contentType.toLowerCase().includes("json")) {
+      const bodyPreview = await readErrorPreview(upstream);
+      const location = upstream.headers.get("location");
+      let redirectDestination: string | undefined;
+      if (location) {
+        try {
+          const redirectUrl = new URL(location, route.url);
+          redirectDestination = redirectUrl.origin + redirectUrl.pathname;
+        } catch {
+          redirectDestination = "[invalid redirect URL]";
+        }
+      }
       console.error(JSON.stringify({
         event: "nba_upstream_non_json",
         requestId,
         endpoint,
         status: upstream.status,
+        contentType,
+        upstreamServer: upstream.headers.get("server"),
+        upstreamRay: upstream.headers.get("cf-ray"),
+        redirectDestination,
+        bodyPreview,
         durationMs: Date.now() - startedAt,
       }));
       return errorResponse(

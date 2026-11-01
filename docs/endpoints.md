@@ -4,7 +4,7 @@
 
 Base URL: `https://stats.nba.com`
 
-- `/stats/alltimeleadersgrids`
+- ✅ `/stats/alltimeleadersgrids`
 - `/stats/assistleaders`
 - `/stats/assisttracker`
 - `/stats/boxscoreadvancedv2`
