@@ -1,6 +1,6 @@
 const NBA_STATS_ORIGIN = "https://stats.nba.com";
 const NBA_LIVE_ORIGIN = "https://cdn.nba.com/static/json/liveData/";
-const UPSTREAM_TIMEOUT_MS = 10_000;
+const UPSTREAM_TIMEOUT_MS = 60_000;
 const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
 const MAX_QUERY_LENGTH = 2_048;
 
