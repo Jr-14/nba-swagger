@@ -1,0 +1,136 @@
+openapi: 3.0.3
+info:
+  title: NBA API
+  version: 1.0.0
+  description: OpenAPI documentation for NBA Stats and Live APIs.
+tags:
+  - name: Stats
+    description: NBA Stats API endpoints.
+servers:
+  - url: /nba-stats
+    description: Local Vite proxy to the NBA Stats API
+  - url: https://stats.nba.com
+    description: NBA Stats API (direct; may be blocked by browser CORS)
+paths:
+  /stats/alltimeleadersgrids:
+    get:
+      operationId: getAllTimeLeadersGrids
+      tags: [Stats]
+      summary: alltimeleadersgrids
+      description: >-
+        Returns leader tables for 19 statistical categories. The NBA Stats API
+        may require NBA.com browser-style headers and may not allow browser
+        cross-origin requests; Swagger UI's Try it out depends on upstream
+        access and CORS behavior.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier.
+          schema:
+            type: string
+            enum: ["00", "01", "10", "15", "20"]
+            default: "00"
+          example: "00"
+        - name: PerMode
+          in: query
+          required: true
+          description: Statistical totals or per-game values.
+          schema:
+            type: string
+            enum: [Totals, PerGame]
+            default: Totals
+        - name: SeasonType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, PlayIn, Playoffs]
+            default: Regular Season
+        - name: TopX
+          in: query
+          required: true
+          description: Number of leaders returned per category.
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Leader tables returned by the NBA Stats API.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: alltimeleadersgrids
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    description: One result set for each statistical category.
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum:
+                            - ASTLeaders
+                            - BLKLeaders
+                            - DREBLeaders
+                            - FG3ALeaders
+                            - FG3MLeaders
+                            - FG3_PCTLeaders
+                            - FGALeaders
+                            - FGMLeaders
+                            - FG_PCTLeaders
+                            - FTALeaders
+                            - FTMLeaders
+                            - FT_PCTLeaders
+                            - GPLeaders
+                            - OREBLeaders
+                            - PFLeaders
+                            - PTSLeaders
+                            - REBLeaders
+                            - STLLeaders
+                            - TOVLeaders
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          description: Rows aligned by position with the headers array.
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: boolean
+              examples:
+                pointsLeaders:
+                  summary: Points leader table
+                  value:
+                    resource: alltimeleadersgrids
+                    parameters:
+                      LeagueID: "00"
+                      PerMode: Totals
+                      SeasonType: Regular Season
+                      TopX: 10
+                    resultSets:
+                      - name: PTSLeaders
+                        headers: [PLAYER_ID, PLAYER_NAME, PTS, PTS_RANK, IS_ACTIVE_FLAG]
+                        rowSet:
+                          - [2544, LeBron James, 40474, 1, Y]
