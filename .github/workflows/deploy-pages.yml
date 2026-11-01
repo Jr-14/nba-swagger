@@ -35,11 +35,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type-check Pages Function
+      - name: Type-check proxy Worker
         run: pnpm typecheck
 
+      - name: Test proxy Worker
+        run: pnpm test
+
       - name: Build static site
-        run: pnpm build
+        env:
+          VITE_PROXY_URL: ${{ vars.VITE_PROXY_URL }}
+        run: |
+          if [ -z "$VITE_PROXY_URL" ]; then
+            echo "Set VITE_PROXY_URL in the prod environment to the deployed Worker URL ending in /api."
+            exit 1
+          fi
+          pnpm build
 
       - name: Deploy production site
         env:

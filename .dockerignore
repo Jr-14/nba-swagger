@@ -1,0 +1,13 @@
+# Send only the proof-of-concept sources and dependency manifests to Docker.
+# Credentials, .git, .env files, static build output, and node_modules stay out.
+**
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!shared/
+!shared/nba-headers.ts
+!containers/
+!containers/stats-probe/
+!containers/stats-probe/Dockerfile
+!containers/stats-probe/app.ts
+!containers/stats-probe/server.ts

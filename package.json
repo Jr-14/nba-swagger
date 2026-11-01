@@ -2,19 +2,34 @@
   "name": "nba-swagger",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "engines": {
     "pnpm": ">=12"
   },
   "scripts": {
     "dev": "vite --config vite.config.mjs src --host 0.0.0.0",
-    "build": "vite build src --outDir ../dist --emptyOutDir",
+    "dev:pages": "node scripts/dev-pages.mjs",
+    "dev:worker": "wrangler dev --config wrangler.worker.jsonc --port 8787 --var ALLOWED_ORIGIN:http://localhost:8788",
+    "dev:container": "wrangler dev --config wrangler.container.jsonc --port 8789 --var PROBE_TOKEN:local-test-only",
+    "build:container": "docker build --platform linux/amd64 -f containers/stats-probe/Dockerfile -t nba-swagger-stats-probe:local .",
+    "check:container-worker": "wrangler deploy --config wrangler.container.jsonc --dry-run --outdir .wrangler/container-build",
+    "diagnose:upstream": "node --experimental-strip-types scripts/diagnose-upstream.mjs",
+    "build:worker": "wrangler deploy --config wrangler.worker.jsonc --dry-run --outdir .wrangler/worker-build",
+    "build": "vite build src --config vite.config.mjs --outDir ../dist --emptyOutDir",
     "preview": "vite preview --host 0.0.0.0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc -p containers/stats-probe/tsconfig.json --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261031.1",
+    "@types/node": "^24.19.2",
     "typescript": "^7.0.2",
     "vite": "8.3.5",
     "wrangler": "4.156.0"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "^0.3.7",
+    "@hono/node-server": "^2.1.5",
+    "hono": "^4.13.14"
   }
 }

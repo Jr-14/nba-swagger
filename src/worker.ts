@@ -1,6 +1,18 @@
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { NBA_BROWSER_HEADERS } from "../shared/nba-headers.ts";
+
+type Bindings = {
+  ALLOWED_ORIGIN: string;
+};
+
+type ProxyEnvironment = {
+  Bindings: Bindings;
+};
+
 const NBA_STATS_ORIGIN = "https://stats.nba.com";
 const NBA_LIVE_ORIGIN = "https://cdn.nba.com/static/json/liveData/";
-const UPSTREAM_TIMEOUT_MS = 60_000;
+const UPSTREAM_TIMEOUT_MS = 180_000;
 const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
 const MAX_QUERY_LENGTH = 2_048;
 
@@ -10,12 +22,9 @@ interface UpstreamRoute {
 }
 
 const statsHeaders = {
+  ...NBA_BROWSER_HEADERS,
   accept: "application/json, text/plain, */*",
   "accept-language": "en-US,en;q=0.5",
-  origin: "https://www.nba.com",
-  referer: "https://www.nba.com/",
-  "user-agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
 };
 
 const liveHeaders = {
@@ -49,16 +58,10 @@ function errorResponse(
   return jsonResponse(status, { error: { code, message } }, extraHeaders);
 }
 
-function resolveUpstream(
+function resolveLiveUpstream(
   pathname: string,
-  searchParams: URLSearchParams,
+  search: string,
 ): UpstreamRoute | null {
-  if (pathname === "/api/stats/alltimeleadersgrids") {
-    const url = new URL("/stats/alltimeleadersgrids", NBA_STATS_ORIGIN);
-    url.search = searchParams.toString();
-    return { url, headers: statsHeaders };
-  }
-
   const livePath = pathname.startsWith("/api/live/")
     ? pathname.slice("/api/live/".length)
     : null;
@@ -75,7 +78,7 @@ function resolveUpstream(
   if (!fixedLivePaths.has(livePath) && !validGamePath) return null;
 
   const url = new URL(livePath, NBA_LIVE_ORIGIN);
-  url.search = searchParams.toString();
+  url.search = search;
   return { url, headers: liveHeaders };
 }
 
@@ -137,25 +140,10 @@ async function readErrorPreview(response: Response): Promise<string> {
   }
 }
 
-export const onRequest: PagesFunction = async ({ request }) => {
-  if (request.method !== "GET") {
-    return errorResponse(405, "method_not_allowed", "Only GET is supported", {
-      allow: "GET",
-    });
-  }
-
-  const requestUrl = new URL(request.url);
-  if (requestUrl.search.length > MAX_QUERY_LENGTH) {
-    return errorResponse(414, "query_too_large", "Query string exceeds the size limit");
-  }
-  const route = resolveUpstream(requestUrl.pathname, requestUrl.searchParams);
-  if (!route) {
-    return errorResponse(404, "not_found", "This API route is not enabled");
-  }
-
+async function proxyUpstream(route: UpstreamRoute, endpoint: string): Promise<Response> {
   const requestId = crypto.randomUUID();
   const startedAt = Date.now();
-  const endpoint = requestUrl.pathname.replace(/^\/api\//, "");
+  let phase = "fetch";
   try {
     const upstream = await fetch(route.url, {
       headers: route.headers,
@@ -164,6 +152,7 @@ export const onRequest: PagesFunction = async ({ request }) => {
     });
 
     const contentType = upstream.headers.get("content-type") ?? "";
+    phase = "body";
     if (!contentType.toLowerCase().includes("json")) {
       const bodyPreview = await readErrorPreview(upstream);
       const location = upstream.headers.get("location");
@@ -181,6 +170,7 @@ export const onRequest: PagesFunction = async ({ request }) => {
         requestId,
         endpoint,
         status: upstream.status,
+        upstreamHost: route.url.hostname,
         contentType,
         upstreamServer: upstream.headers.get("server"),
         upstreamRay: upstream.headers.get("cf-ray"),
@@ -214,6 +204,10 @@ export const onRequest: PagesFunction = async ({ request }) => {
       requestId,
       endpoint,
       status,
+      phase,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+      timeoutMs: UPSTREAM_TIMEOUT_MS,
+      upstreamHost: route.url.hostname,
       durationMs: Date.now() - startedAt,
     }));
     return isTimeout
@@ -227,4 +221,49 @@ export const onRequest: PagesFunction = async ({ request }) => {
           { "x-request-id": requestId },
         );
   }
-};
+}
+
+const app = new Hono<ProxyEnvironment>().basePath("/api");
+
+app.use("*", cors({
+  origin: (origin, c) => origin === c.env.ALLOWED_ORIGIN ? origin : null,
+  allowMethods: ["GET"],
+  allowHeaders: ["Accept"],
+  exposeHeaders: ["X-Request-ID"],
+  maxAge: 600,
+}));
+
+app.use("*", async (c, next) => {
+  // Reject HEAD too: Hono otherwise handles it automatically through GET routes.
+  if (c.req.method !== "GET") {
+    return errorResponse(405, "method_not_allowed", "Only GET is supported", {
+      allow: "GET",
+    });
+  }
+
+  if (new URL(c.req.url).search.length > MAX_QUERY_LENGTH) {
+    return errorResponse(414, "query_too_large", "Query string exceeds the size limit");
+  }
+  await next();
+});
+
+app.get("/stats/alltimeleadersgrids", (c) => {
+  const url = new URL("/stats/alltimeleadersgrids", NBA_STATS_ORIGIN);
+  // Preserve query encoding and order rather than reserializing through c.req.query().
+  url.search = new URL(c.req.url).search;
+  return proxyUpstream({ url, headers: statsHeaders }, "stats/alltimeleadersgrids");
+});
+
+app.get("/live/:resource/:file", (c) => {
+  const requestUrl = new URL(c.req.url);
+  const route = resolveLiveUpstream(requestUrl.pathname, requestUrl.search);
+  if (!route) return c.notFound();
+
+  return proxyUpstream(route, requestUrl.pathname.slice("/api/".length));
+});
+
+app.notFound(() => errorResponse(404, "not_found", "This API route is not enabled"));
+
+app.onError(() => errorResponse(500, "internal_error", "The API gateway encountered an error"));
+
+export default app;

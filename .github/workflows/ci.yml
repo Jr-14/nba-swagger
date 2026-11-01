@@ -34,8 +34,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type-check Pages Function
+      - name: Type-check proxy Worker
         run: pnpm typecheck
+
+      - name: Test proxy Worker
+        run: pnpm test
 
       - name: Build static site
         run: pnpm build
+
+      - name: Compile proxy Worker
+        run: pnpm build:worker
+
+      - name: Compile container probe and build its image
+        run: pnpm check:container-worker
