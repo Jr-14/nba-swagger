@@ -7,5 +7,6 @@ window.addEventListener("load", () => {
     deepLinking: true,
     presets: [SwaggerUIBundle.presets.apis],
     layout: "BaseLayout",
+    docExpansion: "none",
   });
 });
