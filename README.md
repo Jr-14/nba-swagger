@@ -1,6 +1,8 @@
 # nba-swagger
 NBA Swagger Docs. Documenting the undocumented
 
+https://nba-swagger.pages.dev/
+
 ## Development
 
 Requirements: Node 24, pnpm 12, and Docker.
