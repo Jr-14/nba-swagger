@@ -11958,6 +11958,111 @@ paths:
                 type: object
                 additionalProperties: true
               example: {}
+  /stats/playbyplayv3:
+    get:
+      operationId: getPlayByPlayV3
+      tags: [Stats]
+      summary: playbyplayv3
+      description: Returns game play-by-play actions using the nested V3 response format.
+      parameters:
+        - name: EndPeriod
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0 }
+        - name: GameID
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{10}$' }
+        - name: StartPeriod
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200':
+          description: Nested game metadata and play-by-play actions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, game]
+                properties:
+                  meta:
+                    type: object
+                    required: [version, request, time]
+                    properties:
+                      version: { type: integer }
+                      request: { type: string }
+                      time: { type: string, format: date-time }
+                  game:
+                    type: object
+                    required: [gameId, videoAvailable, actions]
+                    properties:
+                      gameId: { type: string }
+                      videoAvailable: { type: integer }
+                      actions:
+                        type: array
+                        items:
+                          type: object
+                          required: [actionNumber, clock, period, teamId, teamTricode, personId, playerName, playerNameI, xLegacy, yLegacy, shotDistance, shotResult, isFieldGoal, scoreHome, scoreAway, pointsTotal, location, description, actionType, subType, videoAvailable, shotValue, actionId]
+                          properties:
+                            actionNumber: { type: integer }
+                            clock: { type: string }
+                            period: { type: integer }
+                            teamId: { type: integer }
+                            teamTricode: { type: string }
+                            personId: { type: integer }
+                            playerName: { type: string }
+                            playerNameI: { type: string }
+                            xLegacy: { type: integer }
+                            yLegacy: { type: integer }
+                            shotDistance: { type: integer }
+                            shotResult: { type: string }
+                            isFieldGoal: { type: integer }
+                            scoreHome: { type: string }
+                            scoreAway: { type: string }
+                            pointsTotal: { type: integer }
+                            location: { type: string }
+                            description: { type: string }
+                            actionType: { type: string }
+                            subType: { type: string }
+                            videoAvailable: { type: integer }
+                            shotValue: { type: integer }
+                            actionId: { type: integer }
+              examples:
+                gamePlayByPlay:
+                  summary: Game play-by-play with initial period action
+                  value:
+                    meta:
+                      version: 1
+                      request: http://nba.cloud/games/0022200552/playbyplay?Format=json
+                      time: "2025-04-17T12:29:58.2958Z"
+                    game:
+                      gameId: "0022200552"
+                      videoAvailable: 1
+                      actions:
+                        - actionNumber: 2
+                          clock: PT12M00.00S
+                          period: 1
+                          teamId: 0
+                          teamTricode: ""
+                          personId: 0
+                          playerName: ""
+                          playerNameI: ""
+                          xLegacy: 0
+                          yLegacy: 0
+                          shotDistance: 0
+                          shotResult: ""
+                          isFieldGoal: 0
+                          scoreHome: "0"
+                          scoreAway: "0"
+                          pointsTotal: 0
+                          location: ""
+                          description: Start of 1st Period (7:11 PM EST)
+                          actionType: period
+                          subType: start
+                          videoAvailable: 0
+                          shotValue: 0
+                          actionId: 1
 components:
   parameters:
     LeagueID:

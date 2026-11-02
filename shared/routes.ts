@@ -83,6 +83,7 @@ const statsPaths = new Set([
   "matchupsrollup",
   "playbyplay",
   "playbyplayv2",
+  "playbyplayv3",
 ]);
 
 const fixedLivePaths = new Set([

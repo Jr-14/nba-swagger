@@ -83,7 +83,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/matchupsrollup`
 - ✅ `/stats/playbyplay` (deprecated upstream; use `/stats/playbyplayv3`)
 - ✅ `/stats/playbyplayv2` (deprecated upstream; use `/stats/playbyplayv3`)
-- `/stats/playbyplayv3`
+- ✅ `/stats/playbyplayv3`
 - `/stats/playerawards`
 - `/stats/playercareerbycollege`
 - `/stats/playercareerbycollegerollup`
