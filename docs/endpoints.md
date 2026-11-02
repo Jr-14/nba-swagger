@@ -35,7 +35,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/cumestatsteam`
 - ✅ `/stats/cumestatsteamgames`
 - ✅ `/stats/defensehub`
-- `/stats/draftboard`
+- ✅ `/stats/draftboard`
 - `/stats/draftcombinedrillresults`
 - `/stats/draftcombinenonstationaryshooting`
 - `/stats/draftcombineplayeranthro`

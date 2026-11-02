@@ -4922,6 +4922,139 @@ paths:
                       - name: DefenseHubStat10
                         headers: []
                         rowSet: []
+  /stats/draftboard:
+    get:
+      operationId: getDraftBoard
+      tags: [Stats]
+      summary: draftboard
+      description: >-
+        Returns draft selections and prospect information for a season, with
+        optional filters for team, round, pick, college, and top-N selection.
+        Known upstream issue: as of 2026-10-21, stats.nba.com returns HTTP 500
+        for all tested parameter combinations. Requests can use either the
+        proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: Season
+          in: query
+          required: true
+          description: Draft season year, such as 2019.
+          schema:
+            type: string
+            pattern: '^\d{4}$'
+          example: "2019"
+        - name: TopX
+          in: query
+          required: false
+          description: Optional limit for the top selections.
+          schema:
+            type: integer
+            nullable: true
+        - name: TeamID
+          in: query
+          required: false
+          description: Optional NBA team filter.
+          schema:
+            type: integer
+            nullable: true
+        - name: RoundPick
+          in: query
+          required: false
+          description: Optional pick within a draft round.
+          schema:
+            type: integer
+            nullable: true
+        - name: RoundNum
+          in: query
+          required: false
+          description: Optional draft round filter.
+          schema:
+            type: integer
+            nullable: true
+        - name: OverallPick
+          in: query
+          required: false
+          description: Optional overall pick filter.
+          schema:
+            type: integer
+            nullable: true
+        - name: College
+          in: query
+          required: false
+          description: Optional college or organization filter.
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Draft selections in one DraftBoard result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: draftboard
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [DraftBoard]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                draftSelections:
+                  summary: Draft selections result structure
+                  value:
+                    resource: draftboard
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2019"
+                      TopX: ""
+                      TeamID: ""
+                      RoundPick: ""
+                      RoundNum: ""
+                      OverallPick: ""
+                      College: ""
+                    resultSets:
+                      - name: DraftBoard
+                        headers: [PERSON_ID, PLAYER_NAME, SEASON, ROUND_NUMBER, ROUND_PICK, OVERALL_PICK, TEAM_ID, TEAM_CITY, TEAM_NAME, TEAM_ABBREVIATION, ORGANIZATION, ORGANIZATION_TYPE, HEIGHT, WEIGHT, POSITION, JERSEY_NUMBER, BIRTHDATE, AGE]
+                        rowSet: []
 components:
   parameters:
     LeagueID:

@@ -59,7 +59,8 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `/api/stats/commonplayoffseries`, `/api/stats/commonteamroster`,
   `/api/stats/commonteamyears`, `/api/stats/cumestatsplayer`,
   `/api/stats/cumestatsplayergames`, `/api/stats/cumestatsteam`,
-  `/api/stats/cumestatsteamgames`, and `/api/stats/defensehub`.
+  `/api/stats/cumestatsteamgames`, `/api/stats/defensehub`, and
+  `/api/stats/draftboard`.
   The assist endpoints are deprecated
   upstream and currently return the NBA.com homepage instead of JSON;
   `boxscoreadvancedv2`, `boxscorefourfactorsv2`, `boxscoremiscv2`,
@@ -69,6 +70,8 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `BoxScoreTraditionalV3` is the recommended replacement.
   `boxscoresummaryv2` can return incomplete or missing data for games on or
   after 2025-04-10; `BoxScoreSummaryV3` is the recommended replacement.
+  `draftboard` currently returns HTTP 500 for all parameter combinations tested
+  upstream as of 2026-10-21.
 - Enabled Live routes: scoreboard, odds, boxscore, and play-by-play under
   `/api/live/`. Scoreboard, boxscore, odds, and play-by-play are documented
   under the Live API tag in Swagger. Game-specific paths require a ten-digit ID.

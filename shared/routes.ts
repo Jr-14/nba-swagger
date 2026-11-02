@@ -35,6 +35,7 @@ const statsPaths = new Set([
   "cumestatsteam",
   "cumestatsteamgames",
   "defensehub",
+  "draftboard",
 ]);
 
 const fixedLivePaths = new Set([
