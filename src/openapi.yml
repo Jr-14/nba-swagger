@@ -4167,6 +4167,81 @@ paths:
                         headers: [TEAM_ID, SEASON, COACH_ID, FIRST_NAME, LAST_NAME, COACH_NAME, IS_ASSISTANT, COACH_TYPE, SORT_SEQUENCE, SUB_SORT_SEQUENCE]
                         rowSet:
                           - [1610612739, "2025", 201690, Kenny, Atkinson, Kenny Atkinson, 1, Head Coach, null, 1]
+  /stats/commonteamyears:
+    get:
+      operationId: getCommonTeamYears
+      tags: [Stats]
+      summary: commonteamyears
+      description: >-
+        Returns the active year range and abbreviation, when available, for each
+        team in a league. Requests can use either the proxy Worker or the NBA
+        Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            default: "00"
+          example: "00"
+      responses:
+        '200':
+          description: League team-year ranges in one TeamYears result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: commonteamyears
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [TeamYears]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: string
+                                - type: 'null'
+              examples:
+                teamYears:
+                  summary: Team year ranges for the NBA
+                  value:
+                    resource: commonteamyears
+                    parameters:
+                      LeagueID: "00"
+                    resultSets:
+                      - name: TeamYears
+                        headers: [LEAGUE_ID, TEAM_ID, MIN_YEAR, MAX_YEAR, ABBREVIATION]
+                        rowSet:
+                          - ["00", 1610610023, "1949", "1949", null]
+                          - ["00", 1610610024, "1947", "1954", null]
+                          - ["00", 1610610025, "1946", "1949", null]
 components:
   parameters:
     LeagueID:
