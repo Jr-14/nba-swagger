@@ -32,6 +32,7 @@ const statsPaths = new Set([
   "commonteamyears",
   "cumestatsplayer",
   "cumestatsplayergames",
+  "cumestatsteam",
 ]);
 
 const fixedLivePaths = new Set([
