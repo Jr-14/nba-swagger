@@ -92,7 +92,7 @@ test("unknown routes, methods, and oversized queries do not reach NBA", async ()
   const fetch = mock.method(globalThis, "fetch", () => {
     throw new Error("No upstream request should be made");
   });
-  assert.equal((await invoke("/api/stats/commonplayerinfo")).status, 404);
+  assert.equal((await invoke("/api/stats/commonplayerinfox")).status, 404);
   assert.equal((await invoke("/api/live/https://example.com")).status, 404);
   assert.equal((await invoke(statsPath, { method: "POST" })).status, 405);
   assert.equal((await invoke(statsPath, { method: "HEAD" })).status, 405);

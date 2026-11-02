@@ -37,7 +37,7 @@ test("gateway forwards only safe request data to one stable container", async ()
 
 test("gateway route, method, and query guards do not start containers", async () => {
   const h = harness();
-  assert.equal((await h.invoke("/api/stats/commonplayerinfo")).status, 404);
+  assert.equal((await h.invoke("/api/stats/commonplayerinfox")).status, 404);
   assert.equal((await h.invoke("/api/live/https://example.com")).status, 404);
   assert.equal((await h.invoke("/probe")).status, 404);
   assert.equal((await h.invoke(statsPath, { method: "POST" })).status, 405);

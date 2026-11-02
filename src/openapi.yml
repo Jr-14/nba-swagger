@@ -3883,6 +3883,97 @@ paths:
                         headers: [PERSON_ID, DISPLAY_LAST_COMMA_FIRST, DISPLAY_FIRST_LAST, ROSTERSTATUS, FROM_YEAR, TO_YEAR, PLAYERCODE, PLAYER_SLUG, TEAM_ID, TEAM_CITY, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CODE, TEAM_SLUG, GAMES_PLAYED_FLAG, OTHERLEAGUE_EXPERIENCE_CH]
                         rowSet:
                           - [76001, "Abdelnaby, Alaa", Alaa Abdelnaby, 0, "1990", "1994", HISTADD_alaa_abdelnaby, alaa_abdelnaby, 0, "", "", "", "", null, Y, "00"]
+  /stats/commonplayerinfo:
+    get:
+      operationId: getCommonPlayerInfo
+      tags: [Stats]
+      summary: commonplayerinfo
+      description: >-
+        Returns biographical, roster, career, and draft information for a player,
+        available seasons, and headline statistics. Requests can use either the
+        proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: PlayerID
+          in: query
+          required: true
+          description: NBA player identifier.
+          schema:
+            type: integer
+          example: 1628378
+        - name: LeagueID
+          in: query
+          required: false
+          description: Optional league identifier; may be empty or null.
+          schema:
+            type: string
+            nullable: true
+          example: "00"
+      responses:
+        '200':
+          description: Player information, headline stats, and available seasons.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: commonplayerinfo
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [AvailableSeasons, CommonPlayerInfo, PlayerHeadlineStats]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: boolean
+                                - type: 'null'
+              examples:
+                playerInfo:
+                  summary: Player information and headline stats
+                  value:
+                    resource: commonplayerinfo
+                    parameters:
+                      - PlayerID: 1628378
+                      - LeagueID: "00"
+                    resultSets:
+                      - name: CommonPlayerInfo
+                        headers: [PERSON_ID, FIRST_NAME, LAST_NAME, DISPLAY_FIRST_LAST, DISPLAY_LAST_COMMA_FIRST, DISPLAY_FI_LAST, PLAYER_SLUG, BIRTHDATE, SCHOOL, COUNTRY, LAST_AFFILIATION, HEIGHT, WEIGHT, SEASON_EXP, JERSEY, POSITION, ROSTERSTATUS, GAMES_PLAYED_CURRENT_SEASON_FLAG, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CODE, TEAM_CITY, PLAYERCODE, FROM_YEAR, TO_YEAR, DLEAGUE_FLAG, NBA_FLAG, GAMES_PLAYED_FLAG, DRAFT_YEAR, DRAFT_ROUND, DRAFT_NUMBER, GREATEST_75_FLAG]
+                        rowSet:
+                          - [1628378, Donovan, Mitchell, Donovan Mitchell, "Mitchell, Donovan", D. Mitchell, donovan-mitchell, "1996-09-07T00:00:00", Louisville, USA, Louisville/USA, "6-2", "215", 8, "45", Guard, Active, Y, 1610612739, Cavaliers, CLE, cavaliers, Cleveland, donovan_mitchell, 2017, 2025, N, Y, Y, "2017", "1", "13", N]
+                      - name: PlayerHeadlineStats
+                        headers: [PLAYER_ID, PLAYER_NAME, TimeFrame, PTS, AST, REB, PIE]
+                        rowSet:
+                          - [1628378, Donovan Mitchell, "2025-26", 28.8, 5.9, 4.4, 0]
+                      - name: AvailableSeasons
+                        headers: [SEASON_ID]
+                        rowSet:
+                          - ["12017"]
 components:
   parameters:
     LeagueID:
