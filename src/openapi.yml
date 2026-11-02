@@ -10286,6 +10286,231 @@ paths:
                           columnNames: [TEAM_ID, TEAM_NAME, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT]
                       rowSet:
                         - [1610612737, "Atlanta Hawks", 989, 1505, 0.657, 501, 1142, 0.439, 168, 401, 0.419, 110, 291, 0.378, 132, 325, 0.406, 596, 1651, 0.361, 0, 0, 0.0, 242, 616, 0.393]
+  /stats/leaguedashteamstats:
+    get:
+      operationId: getLeagueDashTeamStats
+      tags: [Stats]
+      summary: leaguedashteamstats
+      description: >-
+        Returns team statistics and rankings, with season, measure, pace, and
+        team/game filters. Requests can use either the proxy Worker or NBA Stats
+        API directly.
+      parameters:
+        - name: Conference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: DateFrom
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: DateTo
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: Division
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest], nullable: true }
+        - name: GameScope
+          in: query
+          required: false
+          schema: { type: string, enum: [Yesterday, Last 10], nullable: true }
+        - name: GameSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [First Half, Second Half, Overtime], nullable: true }
+        - name: GameSubtype
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: ISTRound
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: LastNGames
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: LeagueID
+          in: query
+          required: false
+          schema: { type: string, pattern: '^\d{2}$', nullable: true }
+        - name: Location
+          in: query
+          required: false
+          schema: { type: string, enum: [Home, Road], nullable: true }
+        - name: MeasureType
+          in: query
+          required: true
+          schema: { type: string, enum: [Base, Advanced, Misc, Four Factors, Scoring, Opponent, Usage, Defense], default: Base }
+        - name: Month
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, maximum: 12, default: 0 }
+        - name: OpponentTeamID
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: Outcome
+          in: query
+          required: false
+          schema: { type: string, enum: [W, L], nullable: true }
+        - name: PaceAdjust
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: PerMode
+          in: query
+          required: true
+          schema: { type: string, enum: [Totals, PerGame, MinutesPer, Per48, Per40, Per36, PerMinute, PerPossession, PerPlay, Per100Possessions, Per100Plays], default: Totals }
+        - name: Period
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: PlayerExperience
+          in: query
+          required: false
+          schema: { type: string, enum: [Rookie, Sophomore, Veteran], nullable: true }
+        - name: PlayerPosition
+          in: query
+          required: false
+          schema: { type: string, enum: [F, C, G, C-F, F-C, F-G, G-F], nullable: true }
+        - name: PlusMinus
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: PORound
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: Rank
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - name: SeasonSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true }
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season }
+        - name: ShotClockRange
+          in: query
+          required: false
+          schema: { type: string, enum: [24-22, 22-18 Very Early, 18-15 Early, 15-7 Average, 7-4 Late, 4-0 Very Late, ShotClock Off], nullable: true }
+        - name: StarterBench
+          in: query
+          required: false
+          schema: { type: string, enum: [Starters, Bench], nullable: true }
+        - name: TeamID
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: TwoWay
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: VsConference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: VsDivision
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true }
+      responses:
+        '200':
+          description: Team statistics and rankings in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: leaguedashteamstats
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [LeagueDashTeamStats]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                teamStats:
+                  summary: Team totals and rank columns
+                  value:
+                    resource: leaguedashteamstats
+                    parameters:
+                      MeasureType: Base
+                      PerMode: Totals
+                      PlusMinus: N
+                      PaceAdjust: N
+                      Rank: N
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PORound: null
+                      Outcome: null
+                      Location: null
+                      Month: 0
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: 0
+                      VsConference: null
+                      VsDivision: null
+                      TeamID: null
+                      Conference: null
+                      Division: null
+                      GameSegment: null
+                      Period: 0
+                      ShotClockRange: null
+                      LastNGames: 0
+                      GameScope: null
+                      PlayerExperience: null
+                      PlayerPosition: null
+                      StarterBench: null
+                      TwoWay: 0
+                      GameSubtype: null
+                      ISTRound: null
+                    resultSets:
+                      - name: LeagueDashTeamStats
+                        headers: [TEAM_ID, TEAM_NAME, GP, W, L, W_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, TOV, STL, BLK, BLKA, PF, PFD, PTS, PLUS_MINUS, GP_RANK, W_RANK, L_RANK, W_PCT_RANK, MIN_RANK, FGM_RANK, FGA_RANK, FG_PCT_RANK, FG3M_RANK, FG3A_RANK, FG3_PCT_RANK, FTM_RANK, FTA_RANK, FT_PCT_RANK, OREB_RANK, DREB_RANK, REB_RANK, AST_RANK, TOV_RANK, STL_RANK, BLK_RANK, BLKA_RANK, PF_RANK, PFD_RANK, PTS_RANK, PLUS_MINUS_RANK]
+                        rowSet:
+                          - [1610612737, "Atlanta Hawks", 58, 27, 31, 0.466, 2794.0, 2496, 5315, 0.47, 838, 2267, 0.37, 953, 1234, 0.772, 592, 1870, 2462, 1760, 830.0, 535, 271, 297, 1154, 1075, 6783, -95.0, 1, 17, 20, 19, 3, 2, 2, 14, 5, 8, 6, 26, 24, 21, 22, 10, 17, 1, 17, 5, 17, 23, 20, 24, 6, 19]
 components:
   parameters:
     LeagueID:
