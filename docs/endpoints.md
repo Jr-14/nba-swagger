@@ -31,7 +31,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/commonteamroster`
 - ✅ `/stats/commonteamyears`
 - ✅ `/stats/cumestatsplayer`
-- `/stats/cumestatsplayergames`
+- ✅ `/stats/cumestatsplayergames`
 - `/stats/cumestatsteam`
 - `/stats/cumestatsteamgames`
 - `/stats/defensehub`
