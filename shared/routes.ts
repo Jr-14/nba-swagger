@@ -3,6 +3,11 @@ export interface UpstreamRoute {
   family: "stats" | "live";
 }
 
+const statsPaths = new Set([
+  "alltimeleadersgrids",
+  "assistleaders",
+]);
+
 const fixedLivePaths = new Set([
   "odds/odds_todaysGames.json",
   "scoreboard/todaysScoreboard_00.json",
@@ -11,8 +16,11 @@ const fixedLivePaths = new Set([
 // One route allowlist shared by the gateway and Node service. Query parameter
 // definitions remain in OpenAPI, not in a second validator.
 export function resolveUpstream(requestUrl: URL): UpstreamRoute | null {
-  if (requestUrl.pathname === "/api/stats/alltimeleadersgrids") {
-    const url = new URL("https://stats.nba.com/stats/alltimeleadersgrids");
+  const statsPrefix = "/api/stats/";
+  if (requestUrl.pathname.startsWith(statsPrefix)) {
+    const endpoint = requestUrl.pathname.slice(statsPrefix.length);
+    if (!statsPaths.has(endpoint)) return null;
+    const url = new URL(`https://stats.nba.com/stats/${endpoint}`);
     url.search = requestUrl.search;
     return { url, family: "stats" };
   }

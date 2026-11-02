@@ -44,7 +44,9 @@ and manifests needed for the image; credentials and `.git` are excluded.
 
 ## Request handling
 
-- Enabled Stats route: `/api/stats/alltimeleadersgrids`.
+- Enabled Stats routes: `/api/stats/alltimeleadersgrids` and
+  `/api/stats/assistleaders`. `assistleaders` is documented and routed, but is
+  deprecated upstream and currently returns the NBA.com homepage instead of JSON.
 - Enabled Live routes: scoreboard, odds, boxscore, and play-by-play under
   `/api/live/`. Game-specific paths require the existing ten-digit game ID shape.
 - The inventory in `docs/endpoints.md` does not automatically enable other Stats
