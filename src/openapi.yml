@@ -6239,6 +6239,94 @@ paths:
                         headers: [LEAGUE_ID, TEAM_ID, TEAM, PERSON_ID, PLAYER, SEASON_TYPE, ACTIVE_WITH_TEAM, GP, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, PF, STL, TOV, BLK, PTS]
                         rowSet:
                           - ["00", 1610612739, Cleveland Cavaliers, 36, Sarunas Marciulionis, Regular Season, 0, 1, 3, 9, 0.333, 1, 3, 0.333, 0, 0, 0.0, 2, 2, 4, 2, 3, 0, 2, 0, 7]
+  /stats/gamerotation:
+    get:
+      operationId: getGameRotation
+      tags: [Stats]
+      summary: gamerotation
+      description: >-
+        Returns player rotation intervals for both teams in an NBA game, including
+        real-time substitutions, player points, point differential, and usage.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: Ten-digit NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+        - name: LeagueID
+          in: query
+          required: false
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+      responses:
+        '200':
+          description: Rotation intervals for the away and home teams.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: gamerotation
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [AwayTeam, HomeTeam]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                gameRotation:
+                  summary: Player rotation intervals from one game
+                  value:
+                    resource: gamerotation
+                    parameters:
+                      GameID: "0022200552"
+                      LeagueID: "00"
+                    resultSets:
+                      - name: AwayTeam
+                        headers: [GAME_ID, TEAM_ID, TEAM_CITY, TEAM_NAME, PERSON_ID, PLAYER_FIRST, PLAYER_LAST, IN_TIME_REAL, OUT_TIME_REAL, PLAYER_PTS, PT_DIFF, USG_PCT]
+                        rowSet:
+                          - ["0022200552", 1610612741, Chicago, Bulls, 201609, Goran, Dragic, 7200.0, 11840.0, 2, 6.0, 0.118]
+                      - name: HomeTeam
+                        headers: [GAME_ID, TEAM_ID, TEAM_CITY, TEAM_NAME, PERSON_ID, PLAYER_FIRST, PLAYER_LAST, IN_TIME_REAL, OUT_TIME_REAL, PLAYER_PTS, PT_DIFF, USG_PCT]
+                        rowSet:
+                          - ["0022200552", 1610612739, Cleveland, Cavaliers, 201567, Kevin, Love, 0.0, 4980.0, 5, -9.0, 0.222]
 components:
   parameters:
     LeagueID:

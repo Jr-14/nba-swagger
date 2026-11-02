@@ -47,7 +47,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/franchisehistory`
 - ✅ `/stats/franchiseleaders`
 - ✅ `/stats/franchiseplayers`
-- `/stats/gamerotation`
+- ✅ `/stats/gamerotation`
 - `/stats/glalumboxscoresimilarityscore`
 - `/stats/gravityleaders`
 - `/stats/homepageleaders`

@@ -47,6 +47,7 @@ const statsPaths = new Set([
   "franchisehistory",
   "franchiseleaders",
   "franchiseplayers",
+  "gamerotation",
 ]);
 
 const fixedLivePaths = new Set([
