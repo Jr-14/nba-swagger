@@ -49,11 +49,11 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `/api/stats/boxscoreadvancedv2`, `/api/stats/boxscoreadvancedv3`,
   `/api/stats/boxscoredefensivev2`, `/api/stats/boxscorefourfactorsv2`,
   `/api/stats/boxscorefourfactorsv3`, `/api/stats/boxscorehustlev2`, and
-  `/api/stats/boxscorematchupsv3`.
+  `/api/stats/boxscorematchupsv3`, and `/api/stats/boxscoremiscv2`.
   The assist endpoints are deprecated
   upstream and currently return the NBA.com homepage instead of JSON;
-  `boxscoreadvancedv2` and `boxscorefourfactorsv2` are deprecated upstream and
-  return an empty JSON object.
+  `boxscoreadvancedv2`, `boxscorefourfactorsv2`, and `boxscoremiscv2` are
+  deprecated upstream and return an empty JSON object.
 - Enabled Live routes: scoreboard, odds, boxscore, and play-by-play under
   `/api/live/`. Game-specific paths require the existing ten-digit game ID shape.
 - The inventory in `docs/endpoints.md` does not automatically enable other Stats
