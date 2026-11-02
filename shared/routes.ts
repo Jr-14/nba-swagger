@@ -72,6 +72,7 @@ const statsPaths = new Set([
   "leaguedashteamstats",
   "leaguegamefinder",
   "leaguegamelog",
+  "leaguehustlestatsplayer",
 ]);
 
 const fixedLivePaths = new Set([
