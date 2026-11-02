@@ -66,7 +66,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/leaguedashptdefend`
 - ✅ `/stats/leaguedashptstats`
 - ✅ `/stats/leaguedashptteamdefend`
-- `/stats/leaguedashteamclutch`
+- ✅ `/stats/leaguedashteamclutch`
 - `/stats/leaguedashteamptshot`
 - `/stats/leaguedashteamshotlocations`
 - `/stats/leaguedashteamstats`
