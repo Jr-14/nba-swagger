@@ -875,6 +875,152 @@ paths:
                           pacePer40: 81.89
                           possessions: 109.0
                           PIE: 0.479
+  /stats/boxscoredefensivev2:
+    get:
+      operationId: getBoxScoreDefensiveV2
+      tags: [Stats]
+      summary: boxscoredefensivev2
+      description: >-
+        Returns player and team defensive matchup statistics for a game. Despite
+        the V2 name, the response is nested JSON grouped by home and away teams.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+      responses:
+        '200':
+          description: Nested defensive box score grouped by home and away teams.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, boxScoreDefensive]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/BoxScoreDefensiveV2Meta'
+                  boxScoreDefensive:
+                    type: object
+                    required: [gameId, awayTeamId, homeTeamId, homeTeam, awayTeam]
+                    properties:
+                      gameId:
+                        type: string
+                        pattern: '^\d{10}$'
+                      awayTeamId:
+                        type: integer
+                      homeTeamId:
+                        type: integer
+                      homeTeam:
+                        $ref: '#/components/schemas/BoxScoreDefensiveV2Team'
+                      awayTeam:
+                        $ref: '#/components/schemas/BoxScoreDefensiveV2Team'
+              examples:
+                gameBoxScore:
+                  summary: Defensive box score for one game
+                  value:
+                    meta:
+                      version: 1
+                      request: http://nba.cloud/games/0022200552/boxscoredefensive?Format=json
+                      time: "2026-02-22T05:12:31.1231Z"
+                    boxScoreDefensive:
+                      gameId: "0022200552"
+                      awayTeamId: 1610612741
+                      homeTeamId: 1610612739
+                      homeTeam:
+                        teamId: 1610612739
+                        teamCity: Cleveland
+                        teamName: Cavaliers
+                        teamTricode: CLE
+                        teamSlug: cavaliers
+                        players:
+                          - personId: 1630205
+                            firstName: Lamar
+                            familyName: Stevens
+                            nameI: L. Stevens
+                            playerSlug: lamar-stevens
+                            position: F
+                            comment: ""
+                            jerseyNum: "8"
+                            statistics:
+                              matchupMinutes: "7:04"
+                              partialPossessions: 40.2
+                              switchesOn: 0
+                              playerPoints: 17
+                              defensiveRebounds: 1
+                              matchupAssists: 2
+                              matchupTurnovers: 0
+                              steals: 0
+                              blocks: 0
+                              matchupFieldGoalsMade: 8
+                              matchupFieldGoalsAttempted: 12
+                              matchupFieldGoalPercentage: 0.667
+                              matchupThreePointersMade: 1
+                              matchupThreePointersAttempted: 3
+                              matchupThreePointerPercentage: 0.333
+                          - personId: 201567
+                            firstName: Kevin
+                            familyName: Love
+                            nameI: K. Love
+                            playerSlug: kevin-love
+                            position: F
+                            comment: ""
+                            jerseyNum: "0"
+                            statistics:
+                              matchupMinutes: "14:09"
+                              partialPossessions: 77.1
+                              switchesOn: 0
+                              playerPoints: 18
+                              defensiveRebounds: 16
+                              matchupAssists: 3
+                              matchupTurnovers: 0
+                              steals: 0
+                              blocks: 0
+                              matchupFieldGoalsMade: 6
+                              matchupFieldGoalsAttempted: 15
+                              matchupFieldGoalPercentage: 0.4
+                              matchupThreePointersMade: 1
+                              matchupThreePointersAttempted: 5
+                              matchupThreePointerPercentage: 0.2
+                        statistics:
+                          minutes: null
+                      awayTeam:
+                        teamId: 1610612741
+                        teamCity: Chicago
+                        teamName: Bulls
+                        teamTricode: CHI
+                        teamSlug: bulls
+                        players:
+                          - personId: 201942
+                            firstName: DeMar
+                            familyName: DeRozan
+                            nameI: D. DeRozan
+                            playerSlug: demar-derozan
+                            position: F
+                            comment: ""
+                            jerseyNum: "11"
+                            statistics:
+                              matchupMinutes: "18:36"
+                              partialPossessions: 92.5
+                              switchesOn: 0
+                              playerPoints: 22
+                              defensiveRebounds: 2
+                              matchupAssists: 5
+                              matchupTurnovers: 3
+                              steals: 4
+                              blocks: 1
+                              matchupFieldGoalsMade: 10
+                              matchupFieldGoalsAttempted: 17
+                              matchupFieldGoalPercentage: 0.588
+                              matchupThreePointersMade: 2
+                              matchupThreePointersAttempted: 6
+                              matchupThreePointerPercentage: 0.333
+                        statistics:
+                          minutes: null
 components:
   parameters:
     LeagueID:
@@ -1027,3 +1173,113 @@ components:
           type: number
         PIE:
           type: number
+    BoxScoreDefensiveV2Meta:
+      type: object
+      required: [version, request, time]
+      properties:
+        version:
+          type: integer
+        request:
+          type: string
+        time:
+          type: string
+          format: date-time
+    BoxScoreDefensiveV2Team:
+      type: object
+      required: [teamId, teamCity, teamName, teamTricode, teamSlug, players, statistics]
+      properties:
+        teamId:
+          type: integer
+        teamCity:
+          type: string
+        teamName:
+          type: string
+        teamTricode:
+          type: string
+        teamSlug:
+          type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScoreDefensiveV2Player'
+        statistics:
+          $ref: '#/components/schemas/BoxScoreDefensiveV2TeamStatistics'
+    BoxScoreDefensiveV2Player:
+      type: object
+      required: [personId, firstName, familyName, nameI, playerSlug, position, comment, jerseyNum, statistics]
+      properties:
+        personId:
+          type: integer
+        firstName:
+          type: string
+        familyName:
+          type: string
+        nameI:
+          type: string
+        playerSlug:
+          type: string
+        position:
+          type: string
+        comment:
+          type: string
+        jerseyNum:
+          type: string
+        statistics:
+          $ref: '#/components/schemas/BoxScoreDefensiveV2PlayerStatistics'
+    BoxScoreDefensiveV2PlayerStatistics:
+      type: object
+      required:
+        - matchupMinutes
+        - partialPossessions
+        - switchesOn
+        - playerPoints
+        - defensiveRebounds
+        - matchupAssists
+        - matchupTurnovers
+        - steals
+        - blocks
+        - matchupFieldGoalsMade
+        - matchupFieldGoalsAttempted
+        - matchupFieldGoalPercentage
+        - matchupThreePointersMade
+        - matchupThreePointersAttempted
+        - matchupThreePointerPercentage
+      properties:
+        matchupMinutes:
+          type: string
+        partialPossessions:
+          type: number
+        switchesOn:
+          type: integer
+        playerPoints:
+          type: integer
+        defensiveRebounds:
+          type: integer
+        matchupAssists:
+          type: integer
+        matchupTurnovers:
+          type: integer
+        steals:
+          type: integer
+        blocks:
+          type: integer
+        matchupFieldGoalsMade:
+          type: integer
+        matchupFieldGoalsAttempted:
+          type: integer
+        matchupFieldGoalPercentage:
+          type: number
+        matchupThreePointersMade:
+          type: integer
+        matchupThreePointersAttempted:
+          type: integer
+        matchupThreePointerPercentage:
+          type: number
+    BoxScoreDefensiveV2TeamStatistics:
+      type: object
+      required: [minutes]
+      properties:
+        minutes:
+          type: string
+          nullable: true
+          description: Currently returned as null by the upstream API.
