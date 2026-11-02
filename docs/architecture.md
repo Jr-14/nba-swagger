@@ -53,11 +53,13 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `/api/stats/boxscoremiscv3`, `/api/stats/boxscoreplayertrackv3`,
   `/api/stats/boxscorescoringv2`, `/api/stats/boxscorescoringv3`, and
   `/api/stats/boxscoresummaryv2`, `/api/stats/boxscoresummaryv3`,
-  `/api/stats/boxscoretraditionalv2`, and `/api/stats/boxscoretraditionalv3`.
+  `/api/stats/boxscoretraditionalv2`, `/api/stats/boxscoretraditionalv3`, and
+  `/api/stats/boxscoreusagev2`.
   The assist endpoints are deprecated
   upstream and currently return the NBA.com homepage instead of JSON;
-  `boxscoreadvancedv2`, `boxscorefourfactorsv2`, `boxscoremiscv2`, and
-  `boxscorescoringv2` are deprecated upstream and return an empty JSON object.
+  `boxscoreadvancedv2`, `boxscorefourfactorsv2`, `boxscoremiscv2`,
+  `boxscorescoringv2`, and `boxscoreusagev2` are deprecated upstream and return
+  an empty JSON object.
   `boxscoretraditionalv2` no longer publishes data as of the 2025-26 season;
   `BoxScoreTraditionalV3` is the recommended replacement.
   `boxscoresummaryv2` can return incomplete or missing data for games on or
