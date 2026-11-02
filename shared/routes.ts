@@ -57,6 +57,7 @@ const statsPaths = new Set([
   "iststandings",
   "leaderstiles",
   "leaguedashlineups",
+  "leaguedashoppptshot",
 ]);
 
 const fixedLivePaths = new Set([
