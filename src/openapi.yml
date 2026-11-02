@@ -7976,6 +7976,269 @@ paths:
                         headers: [PLAYER_ID, PLAYER_NAME, TEAM_ID, TEAM_ABBREVIATION, AGE, PLAYER_HEIGHT, PLAYER_HEIGHT_INCHES, PLAYER_WEIGHT, COLLEGE, COUNTRY, DRAFT_YEAR, DRAFT_ROUND, DRAFT_NUMBER, GP, PTS, REB, AST, NET_RATING, OREB_PCT, DREB_PCT, USG_PCT, TS_PCT, AST_PCT]
                         rowSet:
                           - [1630639, A.J. Lawson, 1610612761, TOR, 25.0, 6-6, 78, "179", South Carolina, Canada, Undrafted, Undrafted, Undrafted, 13, 49, 23, 3, -14.4, 0.056, 0.16, 0.186, 0.545, 0.045]
+  /stats/leaguedashplayerclutch:
+    get:
+      operationId: getLeagueDashPlayerClutch
+      tags: [Stats]
+      summary: leaguedashplayerclutch
+      description: >-
+        Returns player statistics and rankings in clutch situations, with filters
+        for clutch time, score margin, season, and player/team context. Requests
+        can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: AheadBehind
+          in: query
+          required: true
+          schema: { type: string, enum: [Ahead or Behind, Behind or Tied, Ahead or Tied] }
+        - name: ClutchTime
+          in: query
+          required: true
+          schema: { type: string, enum: [Last 5 Minutes, Last 4 Minutes, Last 3 Minutes, Last 2 Minutes, Last 1 Minute, Last 30 Seconds, Last 10 Seconds] }
+        - name: LastNGames
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: MeasureType
+          in: query
+          required: true
+          schema: { type: string, enum: [Base, Advanced, Misc, Four Factors, Scoring, Opponent, Usage, Defense], default: Base }
+        - name: Month
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, maximum: 12, default: 0 }
+        - name: OpponentTeamID
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: PaceAdjust
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: PerMode
+          in: query
+          required: true
+          schema: { type: string, enum: [Totals, PerGame, MinutesPer, Per48, Per40, Per36, PerMinute, PerPossession, PerPlay, Per100Possessions, Per100Plays], default: Totals }
+        - name: Period
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: PlusMinus
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: PointDiff
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 5 }
+        - name: Rank
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season }
+        - name: College
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: Conference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: Country
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: DateFrom
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: DateTo
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: Division
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest], nullable: true }
+        - name: DraftPick
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: DraftYear
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: GameScope
+          in: query
+          required: false
+          schema: { type: string, enum: [Yesterday, Last 10], nullable: true }
+        - name: GameSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [First Half, Second Half, Overtime], nullable: true }
+        - name: Height
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: LeagueID
+          in: query
+          required: false
+          schema: { type: string, pattern: '^\d{2}$', nullable: true }
+        - name: Location
+          in: query
+          required: false
+          schema: { type: string, enum: [Home, Road], nullable: true }
+        - name: Outcome
+          in: query
+          required: false
+          schema: { type: string, enum: [W, L], nullable: true }
+        - name: PORound
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: PlayerExperience
+          in: query
+          required: false
+          schema: { type: string, enum: [Rookie, Sophomore, Veteran], nullable: true }
+        - name: PlayerPosition
+          in: query
+          required: false
+          schema: { type: string, enum: [F, C, G, C-F, F-C, F-G, G-F], nullable: true }
+        - name: SeasonSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true }
+        - name: ShotClockRange
+          in: query
+          required: false
+          schema: { type: string, enum: [24-22, 22-18 Very Early, 18-15 Early, 15-7 Average, 7-4 Late, 4-0 Very Late, ShotClock Off], nullable: true }
+        - name: StarterBench
+          in: query
+          required: false
+          schema: { type: string, enum: [Starters, Bench], nullable: true }
+        - name: TeamID
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: VsConference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: VsDivision
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true }
+        - name: Weight
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: ISTRound
+          in: query
+          required: false
+          schema: { type: string, enum: [Group, East Group A, East Group B, East Group C, West Group A, West Group B, West Group C, Knockout, Championship], nullable: true }
+      responses:
+        '200':
+          description: Player clutch statistics and rankings in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: leaguedashplayerclutch
+                  parameters:
+                    description: Echo of supplied query parameters and upstream defaults.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [LeagueDashPlayerClutch]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                playerClutchStats:
+                  summary: Player statistics in clutch situations
+                  value:
+                    resource: leaguedashplayerclutch
+                    parameters:
+                      MeasureType: Base
+                      PerMode: Totals
+                      PlusMinus: N
+                      PaceAdjust: N
+                      Rank: N
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PORound: null
+                      Outcome: null
+                      Location: null
+                      Month: 0
+                      SeasonSegment: null
+                      ClutchTime: Last 5 Minutes
+                      AheadBehind: Ahead or Behind
+                      PointDiff: 5
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: 0
+                      VsConference: null
+                      VsDivision: null
+                      TeamID: null
+                      Conference: null
+                      Division: null
+                      GameSegment: null
+                      Period: 0
+                      ShotClockRange: null
+                      LastNGames: 0
+                      GameScope: null
+                      PlayerExperience: null
+                      PlayerPosition: null
+                      StarterBench: null
+                      DraftYear: null
+                      DraftPick: null
+                      College: null
+                      Country: null
+                      Height: null
+                      Weight: null
+                      TwoWay: 0
+                      GameSubtype: ""
+                      ActiveRoster: 0
+                      ISTRound: null
+                    resultSets:
+                      - name: LeagueDashPlayerClutch
+                        headers: [GROUP_SET, PLAYER_ID, PLAYER_NAME, NICKNAME, TEAM_ID, TEAM_ABBREVIATION, AGE, GP, W, L, W_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, TOV, STL, BLK, BLKA, PF, PFD, PTS, PLUS_MINUS, NBA_FANTASY_PTS, DD2, TD3, WNBA_FANTASY_PTS, GP_RANK, W_RANK, L_RANK, W_PCT_RANK, MIN_RANK, FGM_RANK, FGA_RANK, FG_PCT_RANK, FG3M_RANK, FG3A_RANK, FG3_PCT_RANK, FTM_RANK, FTA_RANK, FT_PCT_RANK, OREB_RANK, DREB_RANK, REB_RANK, AST_RANK, TOV_RANK, STL_RANK, BLK_RANK, BLKA_RANK, PF_RANK, PFD_RANK, PTS_RANK, PLUS_MINUS_RANK, NBA_FANTASY_PTS_RANK, DD2_RANK, TD3_RANK, WNBA_FANTASY_PTS_RANK, TEAM_COUNT]
+                        rowSet:
+                          - [Players, 1630639, A.J. Lawson, A.J., 1610612761, TOR, 25.0, 1, 1, 0, 1.0, 0.25, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0.0, 0, 0, 0.0, 401, 349, 1, 1, 429, 328, 366, 328, 214, 304, 214, 271, 284, 271, 258, 331, 350, 296, 257, 226, 163, 1, 1, 304, 344, 174, 386, 180, 22, 387, 1]
 components:
   parameters:
     LeagueID:
