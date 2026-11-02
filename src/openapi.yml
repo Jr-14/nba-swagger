@@ -11085,6 +11085,101 @@ paths:
                         headers: [TEAM_ID, TEAM_NAME, MIN, CONTESTED_SHOTS, CONTESTED_SHOTS_2PT, CONTESTED_SHOTS_3PT, DEFLECTIONS, CHARGES_DRAWN, SCREEN_ASSISTS, SCREEN_AST_PTS, OFF_LOOSE_BALLS_RECOVERED, DEF_LOOSE_BALLS_RECOVERED, LOOSE_BALLS_RECOVERED, PCT_LOOSE_BALLS_RECOVERED_OFF, PCT_LOOSE_BALLS_RECOVERED_DEF, OFF_BOXOUTS, DEF_BOXOUTS, BOX_OUTS, PCT_BOX_OUTS_OFF, PCT_BOX_OUTS_DEF]
                         rowSet:
                           - [1610612737, "Atlanta Hawks", 2769.0, 2541, 1572, 969, 1140, 10, 437, 1020, 139, 149, 288, 0.483, 0.517, 53, 285, 338, 0.157, 0.843]
+  /stats/leagueleaders:
+    get:
+      operationId: getLeagueLeaders
+      tags: [Stats]
+      summary: leagueleaders
+      deprecated: true
+      description: >-
+        Returns league leaders for a selected statistic and season. This NBA
+        endpoint is deprecated and may return the NBA.com homepage instead of
+        data; use leaguedashplayerstats for player totals and rankings.
+        Requests can use either the proxy Worker or NBA Stats API directly.
+      parameters:
+        - name: ActiveFlag
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: LeagueID
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{2}$', default: "00" }
+        - name: PerMode
+          in: query
+          required: true
+          schema: { type: string, enum: [Totals, PerGame, Per48], default: Totals }
+        - name: Scope
+          in: query
+          required: true
+          schema: { type: string, enum: [RS, S, Rookies], default: S }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Playoffs, All Star, Pre Season], default: Regular Season }
+        - name: StatCategory
+          in: query
+          required: true
+          schema: { type: string, enum: [PTS, AST, REB, STL, BLK, TOV, FG_PCT, FG3_PCT, FT_PCT, EFF, AST_TOV, STL_TOV], default: PTS }
+      responses:
+        '200':
+          description: League leader rows for the selected statistic.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSet]
+                properties:
+                  resource:
+                    type: string
+                    example: leagueleaders
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    type: object
+                    additionalProperties: true
+                  resultSet:
+                    type: object
+                    required: [name, headers, rowSet]
+                    properties:
+                      name:
+                        type: string
+                        enum: [LeagueLeaders]
+                      headers:
+                        type: array
+                        items: { type: string }
+                      rowSet:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            oneOf:
+                              - { type: integer }
+                              - { type: number }
+                              - { type: string }
+                              - { type: 'null' }
+              examples:
+                leagueLeaders:
+                  summary: Points leaders
+                  value:
+                    resource: leagueleaders
+                    parameters:
+                      LeagueID: "00"
+                      PerMode: Totals
+                      StatCategory: PTS
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      Scope: S
+                      ActiveFlag: null
+                    resultSet:
+                      name: LeagueLeaders
+                      headers: [PLAYER_ID, RANK, PLAYER, TEAM_ID, TEAM, GP, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS, EFF, AST_TOV, STL_TOV]
+                      rowSet:
+                        - [1628983, 1, "Shai Gilgeous-Alexander", 1610612760, OKC, 49, 1632, 534, 964, 0.554, 87, 223, 0.39, 403, 452, 0.892, 27, 191, 218, 314, 64, 38, 103, 101, 1558, 1610, 3.05, 0.62]
 components:
   parameters:
     LeagueID:

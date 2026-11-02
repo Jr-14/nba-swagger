@@ -74,7 +74,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/leaguegamelog`
 - ✅ `/stats/leaguehustlestatsplayer`
 - ✅ `/stats/leaguehustlestatsteam`
-- `/stats/leagueleaders`
+- ✅ `/stats/leagueleaders` (deprecated upstream)
 - `/stats/leaguelineupviz`
 - `/stats/leagueplayerondetails`
 - `/stats/leagueseasonmatchups`
