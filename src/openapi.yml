@@ -4766,6 +4766,162 @@ paths:
                           - ["02/20/2026 Cavaliers at Hornets", "0022500802"]
                           - ["02/19/2026 Nets at Cavaliers", "0022500793"]
                           - ["02/11/2026 Wizards at Cavaliers", "0022500776"]
+  /stats/defensehub:
+    get:
+      operationId: getDefenseHub
+      tags: [Stats]
+      summary: defensehub
+      description: >-
+        Returns defense-oriented team or player rankings, including defensive
+        rebounds, steals, blocks, defensive rating, plus/minus, and opponent
+        field-goal percentages. Requests can use either the proxy Worker or the
+        NBA Stats API directly.
+      parameters:
+        - name: GameScope
+          in: query
+          required: true
+          description: Game period scope for the rankings.
+          schema:
+            type: string
+            enum: [Season, Last 10, Yesterday, Finals]
+          example: Season
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: PlayerOrTeam
+          in: query
+          required: true
+          description: Whether to return player or team rankings.
+          schema:
+            type: string
+            enum: [Player, Team]
+          example: Team
+        - name: PlayerScope
+          in: query
+          required: true
+          description: Player grouping for the rankings.
+          schema:
+            type: string
+            enum: [All Players, Rookies]
+          example: All Players
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2019-20.
+          schema:
+            type: string
+          example: "2019-20"
+        - name: SeasonType
+          in: query
+          required: true
+          description: Season segment to include.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs]
+          example: Regular Season
+      responses:
+        '200':
+          description: Defense ranking tables for the supplied scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: defensehub
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum:
+                            - DefenseHubStat1
+                            - DefenseHubStat2
+                            - DefenseHubStat3
+                            - DefenseHubStat4
+                            - DefenseHubStat5
+                            - DefenseHubStat6
+                            - DefenseHubStat7
+                            - DefenseHubStat8
+                            - DefenseHubStat9
+                            - DefenseHubStat10
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                defenseRankings:
+                  summary: Team defense ranking tables
+                  value:
+                    resource: defensehub
+                    parameters:
+                      GameScope: Season
+                      LeagueID: "00"
+                      PlayerOrTeam: Team
+                      PlayerScope: All Players
+                      Season: "2019-20"
+                      SeasonType: Regular Season
+                    resultSets:
+                      - name: DefenseHubStat1
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, DREB]
+                        rowSet: []
+                      - name: DefenseHubStat2
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, STL]
+                        rowSet: []
+                      - name: DefenseHubStat3
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, BLK]
+                        rowSet: []
+                      - name: DefenseHubStat4
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, TM_DEF_RATING]
+                        rowSet: []
+                      - name: DefenseHubStat5
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, OVERALL_PM]
+                        rowSet: []
+                      - name: DefenseHubStat6
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, THREEP_DFGPCT]
+                        rowSet: []
+                      - name: DefenseHubStat7
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, TWOP_DFGPCT]
+                        rowSet: []
+                      - name: DefenseHubStat8
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, FIFETEENF_DFGPCT]
+                        rowSet: []
+                      - name: DefenseHubStat9
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, DEF_RIM_PCT]
+                        rowSet: []
+                      - name: DefenseHubStat10
+                        headers: []
+                        rowSet: []
 components:
   parameters:
     LeagueID:
