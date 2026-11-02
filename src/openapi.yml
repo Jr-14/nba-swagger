@@ -1312,6 +1312,166 @@ paths:
                           oppFreeThrowAttemptRate: 0.489
                           oppTeamTurnoverPercentage: 0.093
                           oppOffensiveReboundPercentage: 0.269
+  /stats/boxscorehustlev2:
+    get:
+      operationId: getBoxScoreHustleV2
+      tags: [Stats]
+      summary: boxscorehustlev2
+      description: >-
+        Returns player and team hustle statistics for a game, covering contested
+        shots, deflections, charges drawn, screen assists, loose balls recovered,
+        and box outs. Despite the V2 name, the response is nested JSON grouped
+        by home and away teams. Requests can use either the proxy Worker or the
+        NBA Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+      responses:
+        '200':
+          description: Nested hustle box score grouped by home and away teams.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, boxScoreHustle]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/BoxScoreHustleV2Meta'
+                  boxScoreHustle:
+                    type: object
+                    required: [gameId, awayTeamId, homeTeamId, homeTeam, awayTeam]
+                    properties:
+                      gameId:
+                        type: string
+                        pattern: '^\d{10}$'
+                      awayTeamId:
+                        type: integer
+                      homeTeamId:
+                        type: integer
+                      homeTeam:
+                        $ref: '#/components/schemas/BoxScoreHustleV2Team'
+                      awayTeam:
+                        $ref: '#/components/schemas/BoxScoreHustleV2Team'
+              examples:
+                gameBoxScore:
+                  summary: Hustle box score for one game
+                  value:
+                    meta:
+                      version: 1
+                      request: http://nba.cloud/games/0022200552/boxscorehustle?Format=json
+                      time: "2026-02-22T05:13:07.137Z"
+                    boxScoreHustle:
+                      gameId: "0022200552"
+                      awayTeamId: 1610612741
+                      homeTeamId: 1610612739
+                      homeTeam:
+                        teamId: 1610612739
+                        teamCity: Cleveland
+                        teamName: Cavaliers
+                        teamTricode: CLE
+                        teamSlug: cavaliers
+                        players:
+                          - personId: 201567
+                            firstName: Kevin
+                            familyName: Love
+                            nameI: K. Love
+                            playerSlug: kevin-love
+                            position: F
+                            comment: ""
+                            jerseyNum: "0"
+                            statistics:
+                              minutes: "37:48"
+                              points: 12
+                              contestedShots: 6
+                              contestedShots2pt: 3
+                              contestedShots3pt: 3
+                              deflections: 1
+                              chargesDrawn: 0
+                              screenAssists: 4
+                              screenAssistPoints: 10
+                              looseBallsRecoveredOffensive: 0
+                              looseBallsRecoveredDefensive: 0
+                              looseBallsRecoveredTotal: 0
+                              offensiveBoxOuts: 0
+                              defensiveBoxOuts: 4
+                              boxOutPlayerTeamRebounds: 4
+                              boxOutPlayerRebounds: 4
+                              boxOuts: 4
+                        statistics:
+                          minutes: "265.0:00"
+                          points: 145
+                          contestedShots: 55
+                          contestedShots2pt: 34
+                          contestedShots3pt: 21
+                          deflections: 11
+                          chargesDrawn: 0
+                          screenAssists: 13
+                          screenAssistPoints: 30
+                          looseBallsRecoveredOffensive: 3
+                          looseBallsRecoveredDefensive: 0
+                          looseBallsRecoveredTotal: 3
+                          offensiveBoxOuts: 3
+                          defensiveBoxOuts: 10
+                          boxOutPlayerTeamRebounds: 12
+                          boxOutPlayerRebounds: 8
+                          boxOuts: 13
+                      awayTeam:
+                        teamId: 1610612741
+                        teamCity: Chicago
+                        teamName: Bulls
+                        teamTricode: CHI
+                        teamSlug: bulls
+                        players:
+                          - personId: 201942
+                            firstName: DeMar
+                            familyName: DeRozan
+                            nameI: D. DeRozan
+                            playerSlug: demar-derozan
+                            position: F
+                            comment: ""
+                            jerseyNum: "11"
+                            statistics:
+                              minutes: "45:55"
+                              points: 44
+                              contestedShots: 8
+                              contestedShots2pt: 6
+                              contestedShots3pt: 2
+                              deflections: 3
+                              chargesDrawn: 0
+                              screenAssists: 0
+                              screenAssistPoints: 0
+                              looseBallsRecoveredOffensive: 0
+                              looseBallsRecoveredDefensive: 0
+                              looseBallsRecoveredTotal: 0
+                              offensiveBoxOuts: 0
+                              defensiveBoxOuts: 0
+                              boxOutPlayerTeamRebounds: 0
+                              boxOutPlayerRebounds: 0
+                              boxOuts: 0
+                        statistics:
+                          minutes: "265.0:00"
+                          points: 134
+                          contestedShots: 51
+                          contestedShots2pt: 21
+                          contestedShots3pt: 30
+                          deflections: 14
+                          chargesDrawn: 0
+                          screenAssists: 7
+                          screenAssistPoints: 14
+                          looseBallsRecoveredOffensive: 3
+                          looseBallsRecoveredDefensive: 1
+                          looseBallsRecoveredTotal: 4
+                          offensiveBoxOuts: 2
+                          defensiveBoxOuts: 7
+                          boxOutPlayerTeamRebounds: 9
+                          boxOutPlayerRebounds: 5
+                          boxOuts: 9
 components:
   parameters:
     LeagueID:
@@ -1658,3 +1818,111 @@ components:
           type: number
         oppOffensiveReboundPercentage:
           type: number
+    BoxScoreHustleV2Meta:
+      type: object
+      required: [version, request, time]
+      properties:
+        version:
+          type: integer
+        request:
+          type: string
+        time:
+          type: string
+          format: date-time
+    BoxScoreHustleV2Team:
+      type: object
+      required: [teamId, teamCity, teamName, teamTricode, teamSlug, players, statistics]
+      properties:
+        teamId:
+          type: integer
+        teamCity:
+          type: string
+        teamName:
+          type: string
+        teamTricode:
+          type: string
+        teamSlug:
+          type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScoreHustleV2Player'
+        statistics:
+          $ref: '#/components/schemas/BoxScoreHustleV2Statistics'
+    BoxScoreHustleV2Player:
+      type: object
+      required: [personId, firstName, familyName, nameI, playerSlug, position, comment, jerseyNum, statistics]
+      properties:
+        personId:
+          type: integer
+        firstName:
+          type: string
+        familyName:
+          type: string
+        nameI:
+          type: string
+        playerSlug:
+          type: string
+        position:
+          type: string
+        comment:
+          type: string
+        jerseyNum:
+          type: string
+        statistics:
+          $ref: '#/components/schemas/BoxScoreHustleV2Statistics'
+    BoxScoreHustleV2Statistics:
+      type: object
+      required:
+        - minutes
+        - points
+        - contestedShots
+        - contestedShots2pt
+        - contestedShots3pt
+        - deflections
+        - chargesDrawn
+        - screenAssists
+        - screenAssistPoints
+        - looseBallsRecoveredOffensive
+        - looseBallsRecoveredDefensive
+        - looseBallsRecoveredTotal
+        - offensiveBoxOuts
+        - defensiveBoxOuts
+        - boxOutPlayerTeamRebounds
+        - boxOutPlayerRebounds
+        - boxOuts
+      properties:
+        minutes:
+          type: string
+        points:
+          type: integer
+        contestedShots:
+          type: integer
+        contestedShots2pt:
+          type: integer
+        contestedShots3pt:
+          type: integer
+        deflections:
+          type: integer
+        chargesDrawn:
+          type: integer
+        screenAssists:
+          type: integer
+        screenAssistPoints:
+          type: integer
+        looseBallsRecoveredOffensive:
+          type: integer
+        looseBallsRecoveredDefensive:
+          type: integer
+        looseBallsRecoveredTotal:
+          type: integer
+        offensiveBoxOuts:
+          type: integer
+        defensiveBoxOuts:
+          type: integer
+        boxOutPlayerTeamRebounds:
+          type: integer
+        boxOutPlayerRebounds:
+          type: integer
+        boxOuts:
+          type: integer

@@ -47,8 +47,9 @@ and manifests needed for the image; credentials and `.git` are excluded.
 - Enabled Stats routes: `/api/stats/alltimeleadersgrids`,
   `/api/stats/assistleaders`, `/api/stats/assisttracker`,
   `/api/stats/boxscoreadvancedv2`, `/api/stats/boxscoreadvancedv3`,
-  `/api/stats/boxscoredefensivev2`, `/api/stats/boxscorefourfactorsv2`, and
-  `/api/stats/boxscorefourfactorsv3`. The assist endpoints are deprecated
+  `/api/stats/boxscoredefensivev2`, `/api/stats/boxscorefourfactorsv2`,
+  `/api/stats/boxscorefourfactorsv3`, and `/api/stats/boxscorehustlev2`.
+  The assist endpoints are deprecated
   upstream and currently return the NBA.com homepage instead of JSON;
   `boxscoreadvancedv2` and `boxscorefourfactorsv2` are deprecated upstream and
   return an empty JSON object.
