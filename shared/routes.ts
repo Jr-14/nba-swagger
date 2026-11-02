@@ -87,6 +87,7 @@ const statsPaths = new Set([
   "playerawards",
   "playercareerbycollege",
   "playercareerbycollegerollup",
+  "playercareerstats",
 ]);
 
 const fixedLivePaths = new Set([
