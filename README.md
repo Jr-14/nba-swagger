@@ -1,5 +1,5 @@
-# nba-swagger
-NBA Swagger Docs. Documenting the undocumented
+# NBA Swagger
+NBA Swagger Docs for the unofficial NBA API
 
 https://nba-swagger.pages.dev/
 
