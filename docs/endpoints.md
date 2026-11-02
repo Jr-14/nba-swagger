@@ -28,7 +28,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/commonallplayers`
 - ✅ `/stats/commonplayerinfo`
 - ✅ `/stats/commonplayoffseries`
-- `/stats/commonteamroster`
+- ✅ `/stats/commonteamroster`
 - `/stats/commonteamyears`
 - `/stats/cumestatsplayer`
 - `/stats/cumestatsplayergames`

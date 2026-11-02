@@ -4069,6 +4069,104 @@ paths:
                           - ["0042300102", 1610612738, 1610612748, "004230010", 2]
                           - ["0042300103", 1610612748, 1610612738, "004230010", 3]
                           - ["0042300104", 1610612748, 1610612738, "004230010", 4]
+  /stats/commonteamroster:
+    get:
+      operationId: getCommonTeamRoster
+      tags: [Stats]
+      summary: commonteamroster
+      description: >-
+        Returns a team's roster for a season and its coaching staff when
+        available. The response contains CommonTeamRoster and Coaches result
+        sets. Requests can use either the proxy Worker or the NBA Stats API
+        directly.
+      parameters:
+        - name: TeamID
+          in: query
+          required: true
+          description: NBA team identifier.
+          schema:
+            type: integer
+          example: 1610612739
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2025-26.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2025-26"
+        - name: LeagueID
+          in: query
+          required: false
+          description: Optional league identifier; may be empty or null.
+          schema:
+            type: string
+            nullable: true
+          example: "00"
+      responses:
+        '200':
+          description: Team roster and coaching staff when returned upstream.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: commonteamroster
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    description: Roster data and, when available, coaching staff data.
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [CommonTeamRoster, Coaches]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: boolean
+                                - type: 'null'
+              examples:
+                roster:
+                  summary: Team roster and coaching staff
+                  value:
+                    resource: commonteamroster
+                    parameters:
+                      TeamID: 1610612739
+                      LeagueID: "00"
+                      Season: "2025-26"
+                    resultSets:
+                      - name: CommonTeamRoster
+                        headers: [TeamID, SEASON, LeagueID, PLAYER, NICKNAME, PLAYER_SLUG, NUM, POSITION, HEIGHT, WEIGHT, BIRTH_DATE, AGE, EXP, SCHOOL, PLAYER_ID, HOW_ACQUIRED]
+                        rowSet:
+                          - [1610612739, "2025", "00", Darius Brown, Darius, darius-brown, null, G, "6-2", "192", "JUL 28, 1999", 26, R, Utah State, 1642468, Signed on 10/14/24]
+                      - name: Coaches
+                        headers: [TEAM_ID, SEASON, COACH_ID, FIRST_NAME, LAST_NAME, COACH_NAME, IS_ASSISTANT, COACH_TYPE, SORT_SEQUENCE, SUB_SORT_SEQUENCE]
+                        rowSet:
+                          - [1610612739, "2025", 201690, Kenny, Atkinson, Kenny Atkinson, 1, Head Coach, null, 1]
 components:
   parameters:
     LeagueID:
