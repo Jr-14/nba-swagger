@@ -78,6 +78,7 @@ const statsPaths = new Set([
   "leaguelineupviz",
   "leagueplayerondetails",
   "leagueseasonmatchups",
+  "leaguestandings",
 ]);
 
 const fixedLivePaths = new Set([
