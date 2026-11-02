@@ -18,6 +18,7 @@ const statsPaths = new Set([
   "boxscoremiscv3",
   "boxscoreplayertrackv3",
   "boxscorescoringv2",
+  "boxscorescoringv3",
 ]);
 
 const fixedLivePaths = new Set([

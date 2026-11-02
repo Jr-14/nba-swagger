@@ -2634,6 +2634,198 @@ paths:
                         headers: [GAME_ID, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CITY, MIN, PCT_FGA_2PT, PCT_FGA_3PT, PCT_PTS_2PT, PCT_PTS_2PT_MR, PCT_PTS_3PT, PCT_PTS_FB, PCT_PTS_FT, PCT_PTS_OFF_TOV, PCT_PTS_PAINT, PCT_AST_2PM, PCT_UAST_2PM, PCT_AST_3PM, PCT_UAST_3PM, PCT_AST_FGM, PCT_UAST_FGM]
                         rowSet:
                           - ["0022300061", 1610612747, Lakers, LAL, Los Angeles, "240:00", 0.678, 0.322, 0.579, 0.037, 0.28, 0.187, 0.14, 0.168, 0.542, 0.419, 0.581, 1, 0, 0.561, 0.439]
+  /stats/boxscorescoringv3:
+    get:
+      operationId: getBoxScoreScoringV3
+      tags: [Stats]
+      summary: boxscorescoringv3
+      description: >-
+        Returns player and team scoring distribution statistics for a game,
+        including shot-attempt, scoring-type, and assisted/unassisted breakdowns.
+        Unlike V2, the V3 response is nested JSON grouped by home and away teams.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+        - name: EndPeriod
+          in: query
+          required: true
+          description: Period to end at; 0 includes all periods.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: EndRange
+          in: query
+          required: true
+          description: End of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+        - name: RangeType
+          in: query
+          required: true
+          description: Range type; 0 selects the full period range.
+          schema:
+            type: string
+            default: "0"
+        - name: StartPeriod
+          in: query
+          required: true
+          description: Period to start at; 0 starts at the beginning of the game.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: StartRange
+          in: query
+          required: true
+          description: Start of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+      responses:
+        '200':
+          description: Nested scoring distribution box score grouped by teams.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, boxScoreScoring]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/BoxScoreAdvancedV3Meta'
+                  boxScoreScoring:
+                    type: object
+                    required: [gameId, awayTeamId, homeTeamId, homeTeam, awayTeam]
+                    properties:
+                      gameId:
+                        type: string
+                        pattern: '^\d{10}$'
+                      awayTeamId:
+                        type: integer
+                      homeTeamId:
+                        type: integer
+                      homeTeam:
+                        $ref: '#/components/schemas/BoxScoreScoringV3Team'
+                      awayTeam:
+                        $ref: '#/components/schemas/BoxScoreScoringV3Team'
+              examples:
+                gameBoxScore:
+                  summary: Scoring distribution box score for one game
+                  value:
+                    meta:
+                      version: 1
+                      request: http://nba.cloud/games/0022200552/boxscorescoring?Format=json
+                      time: "2026-02-22T05:12:43.1243Z"
+                    boxScoreScoring:
+                      gameId: "0022200552"
+                      awayTeamId: 1610612741
+                      homeTeamId: 1610612739
+                      homeTeam:
+                        teamId: 1610612739
+                        teamCity: Cleveland
+                        teamName: Cavaliers
+                        teamTricode: CLE
+                        teamSlug: cavaliers
+                        players:
+                          - personId: 1630205
+                            firstName: Lamar
+                            familyName: Stevens
+                            nameI: L. Stevens
+                            playerSlug: lamar-stevens
+                            position: F
+                            comment: ""
+                            jerseyNum: ""
+                            statistics:
+                              minutes: "19:09"
+                              percentageFieldGoalsAttempted2pt: 0.6
+                              percentageFieldGoalsAttempted3pt: 0.4
+                              percentagePoints2pt: 1.0
+                              percentagePointsMidrange2pt: 0.0
+                              percentagePoints3pt: 0.0
+                              percentagePointsFastBreak: 0.0
+                              percentagePointsFreeThrow: 0.0
+                              percentagePointsOffTurnovers: 0.0
+                              percentagePointsPaint: 1.0
+                              percentageAssisted2pt: 1.0
+                              percentageUnassisted2pt: 0.0
+                              percentageAssisted3pt: 0.0
+                              percentageUnassisted3pt: 0.0
+                              percentageAssistedFGM: 1.0
+                              percentageUnassistedFGM: 0.0
+                        statistics:
+                          minutes: "265:00"
+                          percentageFieldGoalsAttempted2pt: 0.5
+                          percentageFieldGoalsAttempted3pt: 0.5
+                          percentagePoints2pt: 0.441
+                          percentagePointsMidrange2pt: 0.055
+                          percentagePoints3pt: 0.331
+                          percentagePointsFastBreak: 0.041
+                          percentagePointsFreeThrow: 0.228
+                          percentagePointsOffTurnovers: 0.062
+                          percentagePointsPaint: 0.386
+                          percentageAssisted2pt: 0.5
+                          percentageUnassisted2pt: 0.5
+                          percentageAssisted3pt: 0.688
+                          percentageUnassisted3pt: 0.313
+                          percentageAssistedFGM: 0.563
+                          percentageUnassistedFGM: 0.438
+                      awayTeam:
+                        teamId: 1610612741
+                        teamCity: Chicago
+                        teamName: Bulls
+                        teamTricode: CHI
+                        teamSlug: bulls
+                        players:
+                          - personId: 201942
+                            firstName: DeMar
+                            familyName: DeRozan
+                            nameI: D. DeRozan
+                            playerSlug: demar-derozan
+                            position: F
+                            comment: ""
+                            jerseyNum: ""
+                            statistics:
+                              minutes: "45:55"
+                              percentageFieldGoalsAttempted2pt: 0.813
+                              percentageFieldGoalsAttempted3pt: 0.188
+                              percentagePoints2pt: 0.636
+                              percentagePointsMidrange2pt: 0.364
+                              percentagePoints3pt: 0.136
+                              percentagePointsFastBreak: 0.045
+                              percentagePointsFreeThrow: 0.227
+                              percentagePointsOffTurnovers: 0.068
+                              percentagePointsPaint: 0.273
+                              percentageAssisted2pt: 0.286
+                              percentageUnassisted2pt: 0.714
+                              percentageAssisted3pt: 0.0
+                              percentageUnassisted3pt: 1.0
+                              percentageAssistedFGM: 0.25
+                              percentageUnassistedFGM: 0.75
+                        statistics:
+                          minutes: "265:00"
+                          percentageFieldGoalsAttempted2pt: 0.653
+                          percentageFieldGoalsAttempted3pt: 0.347
+                          percentagePoints2pt: 0.552
+                          percentagePointsMidrange2pt: 0.149
+                          percentagePoints3pt: 0.224
+                          percentagePointsFastBreak: 0.09
+                          percentagePointsFreeThrow: 0.224
+                          percentagePointsOffTurnovers: 0.097
+                          percentagePointsPaint: 0.403
+                          percentageAssisted2pt: 0.378
+                          percentageUnassisted2pt: 0.622
+                          percentageAssisted3pt: 0.8
+                          percentageUnassisted3pt: 0.2
+                          percentageAssistedFGM: 0.468
+                          percentageUnassistedFGM: 0.532
 components:
   parameters:
     LeagueID:
@@ -4051,3 +4243,97 @@ components:
         assists:
           type: integer
       additionalProperties: true
+    BoxScoreScoringV3Team:
+      type: object
+      required: [teamId, teamCity, teamName, teamTricode, teamSlug, players, statistics]
+      properties:
+        teamId:
+          type: integer
+        teamCity:
+          type: string
+        teamName:
+          type: string
+        teamTricode:
+          type: string
+        teamSlug:
+          type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScoreScoringV3Player'
+        statistics:
+          $ref: '#/components/schemas/BoxScoreScoringV3Statistics'
+    BoxScoreScoringV3Player:
+      type: object
+      required: [personId, firstName, familyName, nameI, playerSlug, position, comment, jerseyNum, statistics]
+      properties:
+        personId:
+          type: integer
+        firstName:
+          type: string
+        familyName:
+          type: string
+        nameI:
+          type: string
+        playerSlug:
+          type: string
+        position:
+          type: string
+        comment:
+          type: string
+        jerseyNum:
+          type: string
+        statistics:
+          $ref: '#/components/schemas/BoxScoreScoringV3Statistics'
+    BoxScoreScoringV3Statistics:
+      type: object
+      required:
+        - minutes
+        - percentageFieldGoalsAttempted2pt
+        - percentageFieldGoalsAttempted3pt
+        - percentagePoints2pt
+        - percentagePointsMidrange2pt
+        - percentagePoints3pt
+        - percentagePointsFastBreak
+        - percentagePointsFreeThrow
+        - percentagePointsOffTurnovers
+        - percentagePointsPaint
+        - percentageAssisted2pt
+        - percentageUnassisted2pt
+        - percentageAssisted3pt
+        - percentageUnassisted3pt
+        - percentageAssistedFGM
+        - percentageUnassistedFGM
+      properties:
+        minutes:
+          type: string
+        percentageFieldGoalsAttempted2pt:
+          type: number
+        percentageFieldGoalsAttempted3pt:
+          type: number
+        percentagePoints2pt:
+          type: number
+        percentagePointsMidrange2pt:
+          type: number
+        percentagePoints3pt:
+          type: number
+        percentagePointsFastBreak:
+          type: number
+        percentagePointsFreeThrow:
+          type: number
+        percentagePointsOffTurnovers:
+          type: number
+        percentagePointsPaint:
+          type: number
+        percentageAssisted2pt:
+          type: number
+        percentageUnassisted2pt:
+          type: number
+        percentageAssisted3pt:
+          type: number
+        percentageUnassisted3pt:
+          type: number
+        percentageAssistedFGM:
+          type: number
+        percentageUnassistedFGM:
+          type: number
