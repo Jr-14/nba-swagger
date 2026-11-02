@@ -9006,6 +9006,231 @@ paths:
                         headers: [PLAYER_ID, PLAYER_NAME, NICKNAME, TEAM_ID, TEAM_ABBREVIATION, AGE, GP, W, L, W_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, TOV, STL, BLK, BLKA, PF, PFD, PTS, PLUS_MINUS, NBA_FANTASY_PTS, DD2, TD3, WNBA_FANTASY_PTS, GP_RANK, W_RANK, L_RANK, W_PCT_RANK, MIN_RANK, FGM_RANK, FGA_RANK, FG_PCT_RANK, FG3M_RANK, FG3A_RANK, FG3_PCT_RANK, FTM_RANK, FTA_RANK, FT_PCT_RANK, OREB_RANK, DREB_RANK, REB_RANK, AST_RANK, TOV_RANK, STL_RANK, BLK_RANK, BLKA_RANK, PF_RANK, PFD_RANK, PTS_RANK, PLUS_MINUS_RANK, NBA_FANTASY_PTS_RANK, DD2_RANK, TD3_RANK, WNBA_FANTASY_PTS_RANK, TEAM_COUNT]
                         rowSet:
                           - [1630639, "A.J. Lawson", "A.J.", 1610612761, TOR, 25.0, 13, 6, 7, 0.462, 109.13166666666666, 16, 41, 0.39, 8, 22, 0.364, 9, 9, 1.0, 7, 16, 23, 3, 4, 4, 3, 2, 15, 7, 49, -31, 98.1, 0, 0, 97.0, 440, 423, 103, 318, 444, 434, 431, 448, 373, 388, 193, 394, 418, 1, 408, 429, 431, 476, 454, 437, 382, 86, 102, 423, 429, 344, 439, 226, 28, 434, 1]
+  /stats/leaguedashptdefend:
+    get:
+      operationId: getLeagueDashPtDefend
+      tags: [Stats]
+      summary: leaguedashptdefend
+      description: >-
+        Returns player defended-shot statistics, including frequency, field goals
+        allowed, and comparison with normal shooting percentages. Requests can use
+        either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: College
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: Conference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: Country
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: DateFrom
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: DateTo
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: DefenseCategory
+          in: query
+          required: true
+          schema: { type: string, enum: [Overall, 2 Pointers, 3 Pointers, Less Than 6Ft, Less Than 10Ft, Greater Than 15Ft], default: Overall }
+        - name: Division
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true }
+        - name: DraftPick
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: DraftYear
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: GameSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [First Half, Second Half, Overtime], nullable: true }
+        - name: Height
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: ISTRound
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: LastNGames
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, nullable: true }
+        - name: LeagueID
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{2}$', default: "00" }
+        - name: Location
+          in: query
+          required: false
+          schema: { type: string, enum: [Home, Road], nullable: true }
+        - name: Month
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, maximum: 12, nullable: true }
+        - name: OpponentTeamID
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: Outcome
+          in: query
+          required: false
+          schema: { type: string, enum: [W, L], nullable: true }
+        - name: PerMode
+          in: query
+          required: true
+          schema: { type: string, enum: [Totals, PerGame], default: Totals }
+        - name: Period
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, nullable: true }
+        - name: PlayerExperience
+          in: query
+          required: false
+          schema: { type: string, enum: [Rookie, Sophomore, Veteran], nullable: true }
+        - name: PlayerID
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: PlayerPosition
+          in: query
+          required: false
+          schema: { type: string, enum: [Forward, Center, Guard], nullable: true }
+        - name: PORound
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - name: SeasonSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true }
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season }
+        - name: StarterBench
+          in: query
+          required: false
+          schema: { type: string, enum: [Starters, Bench], nullable: true }
+        - name: TeamID
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: VsConference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: VsDivision
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true }
+        - name: Weight
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+      responses:
+        '200':
+          description: Player defended-shot data in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: leaguedashptdefend
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [LeagueDashPTDefend]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                playerDefendedShots:
+                  summary: Player defended-shot results
+                  value:
+                    resource: leaguedashptdefend
+                    parameters:
+                      PerMode: Totals
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PlayerID: null
+                      TeamID: null
+                      Outcome: null
+                      Location: null
+                      Month: null
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: null
+                      vsConfernce: null
+                      vsDivision: null
+                      Conference: null
+                      Division: null
+                      GameSegment: null
+                      Period: null
+                      LastNGames: null
+                      DraftYear: null
+                      DraftPick: null
+                      College: null
+                      Country: null
+                      Height: null
+                      Weight: null
+                      PlayerExperience: null
+                      PlayerPosition: null
+                      StarterBench: null
+                      PORound: null
+                      DefenseCategory: Overall
+                      ISTRound: null
+                    resultSets:
+                      - name: LeagueDashPTDefend
+                        headers: [CLOSE_DEF_PERSON_ID, PLAYER_NAME, PLAYER_LAST_TEAM_ID, PLAYER_LAST_TEAM_ABBREVIATION, PLAYER_POSITION, AGE, GP, G, FREQ, D_FGM, D_FGA, D_FG_PCT, NORMAL_FG_PCT, PCT_PLUSMINUS]
+                        rowSet:
+                          - [1642270, "Donovan Clingan", 1610612757, POR, C, 21.0, 53, 53, 1.0, 496, 1079, 0.46, 0.493, -0.033]
 components:
   parameters:
     LeagueID:
