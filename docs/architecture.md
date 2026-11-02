@@ -47,10 +47,11 @@ and manifests needed for the image; credentials and `.git` are excluded.
 - Enabled Stats routes: `/api/stats/alltimeleadersgrids`,
   `/api/stats/assistleaders`, `/api/stats/assisttracker`,
   `/api/stats/boxscoreadvancedv2`, `/api/stats/boxscoreadvancedv3`,
-  `/api/stats/boxscoredefensivev2`, and `/api/stats/boxscorefourfactorsv2`.
-  The assist endpoints are deprecated upstream and currently return the NBA.com
-  homepage instead of JSON; `boxscoreadvancedv2` and `boxscorefourfactorsv2`
-  are deprecated upstream and return an empty JSON object.
+  `/api/stats/boxscoredefensivev2`, `/api/stats/boxscorefourfactorsv2`, and
+  `/api/stats/boxscorefourfactorsv3`. The assist endpoints are deprecated
+  upstream and currently return the NBA.com homepage instead of JSON;
+  `boxscoreadvancedv2` and `boxscorefourfactorsv2` are deprecated upstream and
+  return an empty JSON object.
 - Enabled Live routes: scoreboard, odds, boxscore, and play-by-play under
   `/api/live/`. Game-specific paths require the existing ten-digit game ID shape.
 - The inventory in `docs/endpoints.md` does not automatically enable other Stats
