@@ -4615,6 +4615,157 @@ paths:
                         headers: [CITY, NICKNAME, TEAM_ID, W, L, W_HOME, L_HOME, W_ROAD, L_ROAD, TEAM_TURNOVERS, TEAM_REBOUNDS, GP, GS, ACTUAL_MINUTES, ACTUAL_SECONDS, FG, FGA, FG_PCT, FG3, FG3A, FG3_PCT, FT, FTA, FT_PCT, OFF_REB, DEF_REB, TOT_REB, AST, PF, STL, TOTAL_TURNOVERS, BLK, PTS, AVG_REB, AVG_PTS, DQ]
                         rowSet:
                           - [Cleveland, Cavaliers, 1610612739, 1, 0, 1, 0, 0, 0, 0, 10, 1, 5, 265, 0, 48, 92, 0.522, 16, 46, 0.348, 33, 45, 0.733, 13, 34, 57, 27, 27, 1, 10, 3, 145, 57, 145, 2]
+  /stats/cumestatsteamgames:
+    get:
+      operationId: getCumeStatsTeamGames
+      tags: [Stats]
+      summary: cumestatsteamgames
+      description: >-
+        Returns matchup descriptions and game IDs for a team's games in the
+        selected season, with optional filters for location, outcome, season,
+        opponent conference, division, or team. Requests can use either the
+        proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            default: "00"
+          example: "00"
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2025-26.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          description: Season segment to include.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs, All Star]
+          example: Regular Season
+        - name: TeamID
+          in: query
+          required: true
+          description: NBA team identifier.
+          schema:
+            type: integer
+          example: 1610612739
+        - name: Location
+          in: query
+          required: false
+          description: Optional home/away location filter.
+          schema:
+            type: string
+            enum: [Home, Road]
+            nullable: true
+        - name: Outcome
+          in: query
+          required: false
+          description: Optional game outcome filter.
+          schema:
+            type: string
+            enum: [W, L]
+            nullable: true
+        - name: SeasonID
+          in: query
+          required: false
+          description: Optional season identifier filter.
+          schema:
+            type: string
+            nullable: true
+        - name: VsConference
+          in: query
+          required: false
+          description: Optional opponent conference filter.
+          schema:
+            type: string
+            enum: [East, West]
+            nullable: true
+        - name: VsDivision
+          in: query
+          required: false
+          description: Optional opponent division filter.
+          schema:
+            type: string
+            nullable: true
+        - name: VsTeamID
+          in: query
+          required: false
+          description: Optional opponent team identifier.
+          schema:
+            type: integer
+            nullable: true
+      responses:
+        '200':
+          description: Team matchup descriptions and corresponding game identifiers.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: cumestatsteamgames
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [CumeStatsTeamGames]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            prefixItems:
+                              - type: string
+                              - type: string
+                                pattern: '^\d{10}$'
+              examples:
+                teamGames:
+                  summary: Recent game matchups for one team
+                  value:
+                    resource: cumestatsteamgames
+                    parameters:
+                      LeagueID: "00"
+                      SeasonID: "2025-26"
+                      SeasonType: Regular Season
+                      TeamID: 1610612739
+                      Location: null
+                      Outcome: null
+                      VsTeamID: null
+                      VsDivision: null
+                      VsConference: null
+                    resultSets:
+                      - name: CumeStatsTeamGames
+                        headers: [MATCHUP, GAME_ID]
+                        rowSet:
+                          - ["02/20/2026 Cavaliers at Hornets", "0022500802"]
+                          - ["02/19/2026 Nets at Cavaliers", "0022500793"]
+                          - ["02/11/2026 Wizards at Cavaliers", "0022500776"]
 components:
   parameters:
     LeagueID:
