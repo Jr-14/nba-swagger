@@ -5975,6 +5975,85 @@ paths:
                         headers: [PLAYER_ID, PLAYER_NAME, PLAYER_POSITION, TEAM_ID, TEAM_ABBREVIATION, GP, MIN, FAN_DUEL_PTS, NBA_FANTASY_PTS, PTS, REB, AST, BLK, STL, TOV, FG3M, FGA, FG_PCT, FTA, FT_PCT]
                         rowSet:
                           - [203999, "Nikola Jokić", C, 1610612743, DEN, 41, 34.2, 59.7, 61.8, 28.6, 12.3, 10.5, 0.73, 1.39, 3.7, 1.9, 17.1, 0.586, 7.9, 0.833]
+  /stats/franchisehistory:
+    get:
+      operationId: getFranchiseHistory
+      tags: [Stats]
+      summary: franchisehistory
+      description: >-
+        Returns historical records for NBA franchises and defunct teams, including
+        seasons active, regular-season results, playoff appearances, and titles.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+      responses:
+        '200':
+          description: Historical franchise and defunct-team records.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: franchisehistory
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [FranchiseHistory, DefunctTeams]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                franchiseRecords:
+                  summary: Current and defunct franchise records
+                  value:
+                    resource: franchisehistory
+                    parameters:
+                      LeagueID: "00"
+                    resultSets:
+                      - name: FranchiseHistory
+                        headers: [LEAGUE_ID, TEAM_ID, TEAM_CITY, TEAM_NAME, START_YEAR, END_YEAR, YEARS, GAMES, WINS, LOSSES, WIN_PCT, PO_APPEARANCES, DIV_TITLES, CONF_TITLES, LEAGUE_TITLES]
+                        rowSet:
+                          - ["00", 1610612737, Atlanta, Hawks, "1949", "2025", 77, 6079, 2995, 3084, 0.493, 49, 12, 0, 1]
+                      - name: DefunctTeams
+                        headers: [LEAGUE_ID, TEAM_ID, TEAM_CITY, TEAM_NAME, START_YEAR, END_YEAR, YEARS, GAMES, WINS, LOSSES, WIN_PCT, PO_APPEARANCES, DIV_TITLES, CONF_TITLES, LEAGUE_TITLES]
+                        rowSet:
+                          - ["00", 1610610023, Anderson, Packers, "1949", "1949", 1, 64, 37, 27, 0.578, 1, 0, 0, 0]
 components:
   parameters:
     LeagueID:
