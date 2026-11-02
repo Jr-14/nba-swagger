@@ -1752,6 +1752,186 @@ paths:
                         headers: [GAME_ID, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CITY, MIN, PTS_OFF_TOV, PTS_2ND_CHANCE, PTS_FB, PTS_PAINT, OPP_PTS_OFF_TOV, OPP_PTS_2ND_CHANCE, OPP_PTS_FB, OPP_PTS_PAINT, BLK, BLKA, PF, PFD]
                         rowSet:
                           - ["0022300061", 1610612747, Lakers, LAL, Los Angeles, "240:00", 18, 4, 20, 58, 20, 17, 20, 52, 4, 6, 18, 15]
+  /stats/boxscoremiscv3:
+    get:
+      operationId: getBoxScoreMiscV3
+      tags: [Stats]
+      summary: boxscoremiscv3
+      description: >-
+        Returns player and team miscellaneous box score statistics for a game,
+        including scoring situations, blocks, and fouls. Unlike V2, the V3
+        response is nested JSON grouped by home and away teams. Requests can use
+        either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+        - name: EndPeriod
+          in: query
+          required: true
+          description: Period to end at; 0 includes all periods.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: EndRange
+          in: query
+          required: true
+          description: End of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+        - name: RangeType
+          in: query
+          required: true
+          description: Range type; 0 selects the full period range.
+          schema:
+            type: string
+            default: "0"
+        - name: StartPeriod
+          in: query
+          required: true
+          description: Period to start at; 0 starts at the beginning of the game.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: StartRange
+          in: query
+          required: true
+          description: Start of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+      responses:
+        '200':
+          description: Nested miscellaneous box score grouped by home and away teams.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, boxScoreMisc]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/BoxScoreMiscV3Meta'
+                  boxScoreMisc:
+                    type: object
+                    required: [gameId, awayTeamId, homeTeamId, homeTeam, awayTeam]
+                    properties:
+                      gameId:
+                        type: string
+                        pattern: '^\d{10}$'
+                      awayTeamId:
+                        type: integer
+                      homeTeamId:
+                        type: integer
+                      homeTeam:
+                        $ref: '#/components/schemas/BoxScoreMiscV3Team'
+                      awayTeam:
+                        $ref: '#/components/schemas/BoxScoreMiscV3Team'
+              examples:
+                gameBoxScore:
+                  summary: Miscellaneous box score for one game
+                  value:
+                    meta:
+                      version: 1
+                      request: http://nba.cloud/games/0022200552/boxscoremisc?Format=json
+                      time: "2026-02-22T05:12:35.1235Z"
+                    boxScoreMisc:
+                      gameId: "0022200552"
+                      awayTeamId: 1610612741
+                      homeTeamId: 1610612739
+                      homeTeam:
+                        teamId: 1610612739
+                        teamCity: Cleveland
+                        teamName: Cavaliers
+                        teamTricode: CLE
+                        teamSlug: cavaliers
+                        players:
+                          - personId: 1630205
+                            firstName: Lamar
+                            familyName: Stevens
+                            nameI: L. Stevens
+                            playerSlug: lamar-stevens
+                            position: F
+                            comment: ""
+                            jerseyNum: "8"
+                            statistics:
+                              minutes: "19:09"
+                              pointsOffTurnovers: 0
+                              pointsSecondChance: 0
+                              pointsFastBreak: 0
+                              pointsPaint: 4
+                              oppPointsOffTurnovers: 6
+                              oppPointsSecondChance: 6
+                              oppPointsFastBreak: 6
+                              oppPointsPaint: 18
+                              blocks: 0
+                              blocksAgainst: 0
+                              foulsPersonal: 0
+                              foulsDrawn: 0
+                        statistics:
+                          minutes: "265:00"
+                          pointsOffTurnovers: 9
+                          pointsSecondChance: 24
+                          pointsFastBreak: 6
+                          pointsPaint: 56
+                          oppPointsOffTurnovers: 13
+                          oppPointsSecondChance: 16
+                          oppPointsFastBreak: 12
+                          oppPointsPaint: 54
+                          blocks: 3
+                          blocksAgainst: 2
+                          foulsPersonal: 27
+                          foulsDrawn: 33
+                      awayTeam:
+                        teamId: 1610612741
+                        teamCity: Chicago
+                        teamName: Bulls
+                        teamTricode: CHI
+                        teamSlug: bulls
+                        players:
+                          - personId: 201942
+                            firstName: DeMar
+                            familyName: DeRozan
+                            nameI: D. DeRozan
+                            playerSlug: demar-derozan
+                            position: F
+                            comment: ""
+                            jerseyNum: "11"
+                            statistics:
+                              minutes: "45:55"
+                              pointsOffTurnovers: 3
+                              pointsSecondChance: 2
+                              pointsFastBreak: 2
+                              pointsPaint: 12
+                              oppPointsOffTurnovers: 6
+                              oppPointsSecondChance: 17
+                              oppPointsFastBreak: 6
+                              oppPointsPaint: 52
+                              blocks: 1
+                              blocksAgainst: 2
+                              foulsPersonal: 4
+                              foulsDrawn: 10
+                        statistics:
+                          minutes: "265:00"
+                          pointsOffTurnovers: 13
+                          pointsSecondChance: 16
+                          pointsFastBreak: 12
+                          pointsPaint: 54
+                          oppPointsOffTurnovers: 9
+                          oppPointsSecondChance: 24
+                          oppPointsFastBreak: 6
+                          oppPointsPaint: 56
+                          blocks: 2
+                          blocksAgainst: 3
+                          foulsPersonal: 33
+                          foulsDrawn: 27
 components:
   parameters:
     LeagueID:
@@ -2358,4 +2538,100 @@ components:
         matchupFreeThrowsAttempted:
           type: integer
         shootingFouls:
+          type: integer
+    BoxScoreMiscV3Meta:
+      type: object
+      required: [version, request, time]
+      properties:
+        version:
+          type: integer
+        request:
+          type: string
+        time:
+          type: string
+          format: date-time
+    BoxScoreMiscV3Team:
+      type: object
+      required: [teamId, teamCity, teamName, teamTricode, teamSlug, players, statistics]
+      properties:
+        teamId:
+          type: integer
+        teamCity:
+          type: string
+        teamName:
+          type: string
+        teamTricode:
+          type: string
+        teamSlug:
+          type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScoreMiscV3Player'
+        statistics:
+          $ref: '#/components/schemas/BoxScoreMiscV3Statistics'
+    BoxScoreMiscV3Player:
+      type: object
+      required: [personId, firstName, familyName, nameI, playerSlug, position, comment, jerseyNum, statistics]
+      properties:
+        personId:
+          type: integer
+        firstName:
+          type: string
+        familyName:
+          type: string
+        nameI:
+          type: string
+        playerSlug:
+          type: string
+        position:
+          type: string
+        comment:
+          type: string
+        jerseyNum:
+          type: string
+        statistics:
+          $ref: '#/components/schemas/BoxScoreMiscV3Statistics'
+    BoxScoreMiscV3Statistics:
+      type: object
+      required:
+        - minutes
+        - pointsOffTurnovers
+        - pointsSecondChance
+        - pointsFastBreak
+        - pointsPaint
+        - oppPointsOffTurnovers
+        - oppPointsSecondChance
+        - oppPointsFastBreak
+        - oppPointsPaint
+        - blocks
+        - blocksAgainst
+        - foulsPersonal
+        - foulsDrawn
+      properties:
+        minutes:
+          type: string
+        pointsOffTurnovers:
+          type: integer
+        pointsSecondChance:
+          type: integer
+        pointsFastBreak:
+          type: integer
+        pointsPaint:
+          type: integer
+        oppPointsOffTurnovers:
+          type: integer
+        oppPointsSecondChance:
+          type: integer
+        oppPointsFastBreak:
+          type: integer
+        oppPointsPaint:
+          type: integer
+        blocks:
+          type: integer
+        blocksAgainst:
+          type: integer
+        foulsPersonal:
+          type: integer
+        foulsDrawn:
           type: integer
