@@ -10969,6 +10969,122 @@ paths:
                         headers: [PLAYER_ID, PLAYER_NAME, TEAM_ID, TEAM_ABBREVIATION, AGE, G, MIN, CONTESTED_SHOTS, CONTESTED_SHOTS_2PT, CONTESTED_SHOTS_3PT, DEFLECTIONS, CHARGES_DRAWN, SCREEN_ASSISTS, SCREEN_AST_PTS, OFF_LOOSE_BALLS_RECOVERED, DEF_LOOSE_BALLS_RECOVERED, LOOSE_BALLS_RECOVERED, PCT_LOOSE_BALLS_RECOVERED_OFF, PCT_LOOSE_BALLS_RECOVERED_DEF, OFF_BOXOUTS, DEF_BOXOUTS, BOX_OUT_PLAYER_TEAM_REBS, BOX_OUT_PLAYER_REBS, BOX_OUTS, PCT_BOX_OUTS_OFF, PCT_BOX_OUTS_DEF, PCT_BOX_OUTS_TEAM_REB, PCT_BOX_OUTS_REB]
                         rowSet:
                           - [1630639, "A.J. Lawson", 1610612761, TOR, 25.0, 7, 72.0, 10, 8, 2, 6, 0, 0, 0, 0, 0, 0, 0.0, 0.0, 0, 2, 2, 1, 2, 0.0, 1.0, 1.0, 0.5]
+  /stats/leaguehustlestatsteam:
+    get:
+      operationId: getLeagueHustleStatsTeam
+      tags: [Stats]
+      summary: leaguehustlestatsteam
+      description: >-
+        Returns team hustle statistics, including contested shots, deflections,
+        charges, screen assists, loose-ball recoveries, and box-outs. Requests can
+        use either the proxy Worker or NBA Stats API directly.
+      parameters:
+        - { name: College, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Conference, in: query, required: false, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: Country, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DateFrom, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Division, in: query, required: false, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest], nullable: true } }
+        - { name: DraftPick, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DraftYear, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Height, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: ISTRound, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, pattern: '^\d{2}$', nullable: true } }
+        - { name: Location, in: query, required: false, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: Month, in: query, required: false, schema: { type: integer, minimum: 0, maximum: 12, nullable: true } }
+        - { name: OpponentTeamID, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: Outcome, in: query, required: false, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: PerMode, in: query, required: true, schema: { type: string, enum: [Totals, PerGame, Per48, Per40, Per36, PerMinute], default: Totals } }
+        - { name: PlayerExperience, in: query, required: false, schema: { type: string, enum: [Rookie, Sophomore, Veteran], nullable: true } }
+        - { name: PlayerPosition, in: query, required: false, schema: { type: string, enum: [Forward, Center, Guard], nullable: true } }
+        - { name: PORound, in: query, required: false, schema: { type: integer, nullable: true } }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - { name: SeasonSegment, in: query, required: false, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: TeamID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: VsConference, in: query, required: false, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: false, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+        - { name: Weight, in: query, required: false, schema: { type: string, nullable: true } }
+      responses:
+        '200':
+          description: Team hustle statistics in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: leaguehustlestatsteam
+                  parameters:
+                    description: Upstream echo of the supplied parameters.
+                    type: object
+                    additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [HustleStatsTeam]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                teamHustleStats:
+                  summary: Team hustle statistics
+                  value:
+                    resource: leaguehustlestatsteam
+                    parameters:
+                      LeagueID: "00"
+                      SeasonYear: "2025-26"
+                      SeasonType: Regular Season
+                      PORound: null
+                      PerMode: Totals
+                      Outcome: null
+                      Location: null
+                      MonthNum: null
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OppTeamID: null
+                      vsConfernce: null
+                      vsDivision: null
+                      TeamID: null
+                      Conference: null
+                      Division: null
+                      PlayerExperience: null
+                      PlayerPosition: null
+                      DraftYear: null
+                      DraftPick: null
+                      College: null
+                      Country: null
+                      Height: null
+                      Weight: null
+                      LastNGames: null
+                      ISTRound: null
+                    resultSets:
+                      - name: HustleStatsTeam
+                        headers: [TEAM_ID, TEAM_NAME, MIN, CONTESTED_SHOTS, CONTESTED_SHOTS_2PT, CONTESTED_SHOTS_3PT, DEFLECTIONS, CHARGES_DRAWN, SCREEN_ASSISTS, SCREEN_AST_PTS, OFF_LOOSE_BALLS_RECOVERED, DEF_LOOSE_BALLS_RECOVERED, LOOSE_BALLS_RECOVERED, PCT_LOOSE_BALLS_RECOVERED_OFF, PCT_LOOSE_BALLS_RECOVERED_DEF, OFF_BOXOUTS, DEF_BOXOUTS, BOX_OUTS, PCT_BOX_OUTS_OFF, PCT_BOX_OUTS_DEF]
+                        rowSet:
+                          - [1610612737, "Atlanta Hawks", 2769.0, 2541, 1572, 969, 1140, 10, 437, 1020, 139, 149, 288, 0.483, 0.517, 53, 285, 338, 0.157, 0.843]
 components:
   parameters:
     LeagueID:
