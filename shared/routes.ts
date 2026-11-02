@@ -62,6 +62,7 @@ const statsPaths = new Set([
   "leaguedashplayerclutch",
   "leaguedashplayerptshot",
   "leaguedashplayershotlocations",
+  "leaguedashplayerstats",
 ]);
 
 const fixedLivePaths = new Set([
