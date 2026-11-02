@@ -5477,6 +5477,140 @@ paths:
                         headers: [SEASON, PLAYER_ID, FIRST_NAME, LAST_NAME, PLAYER_NAME, POSITION, HEIGHT_WO_SHOES, HEIGHT_WO_SHOES_FT_IN, HEIGHT_W_SHOES, HEIGHT_W_SHOES_FT_IN, WEIGHT, WINGSPAN, WINGSPAN_FT_IN, STANDING_REACH, STANDING_REACH_FT_IN, BODY_FAT_PCT, HAND_LENGTH, HAND_WIDTH, STANDING_VERTICAL_LEAP, MAX_VERTICAL_LEAP, LANE_AGILITY_TIME, MODIFIED_LANE_AGILITY_TIME, THREE_QUARTER_SPRINT, BENCH_PRESS, SPOT_FIFTEEN_CORNER_LEFT, SPOT_FIFTEEN_BREAK_LEFT, SPOT_FIFTEEN_TOP_KEY, SPOT_FIFTEEN_BREAK_RIGHT, SPOT_FIFTEEN_CORNER_RIGHT, SPOT_COLLEGE_CORNER_LEFT, SPOT_COLLEGE_BREAK_LEFT, SPOT_COLLEGE_TOP_KEY, SPOT_COLLEGE_BREAK_RIGHT, SPOT_COLLEGE_CORNER_RIGHT, SPOT_NBA_CORNER_LEFT, SPOT_NBA_BREAK_LEFT, SPOT_NBA_TOP_KEY, SPOT_NBA_BREAK_RIGHT, SPOT_NBA_CORNER_RIGHT, OFF_DRIB_FIFTEEN_BREAK_LEFT, OFF_DRIB_FIFTEEN_TOP_KEY, OFF_DRIB_FIFTEEN_BREAK_RIGHT, OFF_DRIB_COLLEGE_BREAK_LEFT, OFF_DRIB_COLLEGE_TOP_KEY, OFF_DRIB_COLLEGE_BREAK_RIGHT, ON_MOVE_FIFTEEN, ON_MOVE_COLLEGE]
                         rowSet:
                           - ["2025", 1641891, Izan, Almansa, Izan Almansa, C, 81.25, "6' 9.25''", null, null, "220.40", 85.75, "7' 1.75''", 109.5, "9' 1.50''", null, 9.25, 9.5, 28, 34, 11.46, 2.93, 3.33, null, null, null, null, null, null, "12-25", null, null, null, null, null, null, null, null, null, null, null, null, "13-30", null, null, null, "8-25"]
+  /stats/drafthistory:
+    get:
+      operationId: getDraftHistory
+      tags: [Stats]
+      summary: drafthistory
+      description: >-
+        Returns NBA draft selections and player/organization details, with
+        optional filters for season, team, round, pick, college, and top-N picks.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: College
+          in: query
+          required: false
+          description: Optional college or organization filter.
+          schema:
+            type: string
+            nullable: true
+        - name: OverallPick
+          in: query
+          required: false
+          description: Optional overall pick number.
+          schema:
+            type: integer
+            nullable: true
+        - name: RoundNum
+          in: query
+          required: false
+          description: Optional draft round number.
+          schema:
+            type: integer
+            nullable: true
+        - name: RoundPick
+          in: query
+          required: false
+          description: Optional pick within a draft round.
+          schema:
+            type: integer
+            nullable: true
+        - name: Season
+          in: query
+          required: false
+          description: Optional four-digit draft season year.
+          schema:
+            type: string
+            pattern: '^\d{4}$'
+            nullable: true
+          example: "2025"
+        - name: TeamID
+          in: query
+          required: false
+          description: Optional NBA team filter.
+          schema:
+            type: integer
+            nullable: true
+        - name: TopX
+          in: query
+          required: false
+          description: Optional limit for the top selections.
+          schema:
+            type: integer
+            nullable: true
+      responses:
+        '200':
+          description: Draft selections in one DraftHistory result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: drafthistory
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [DraftHistory]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                draftHistory:
+                  summary: Recent draft selections
+                  value:
+                    resource: drafthistory
+                    parameters:
+                      LeagueID: "00"
+                      Season: null
+                      TeamID: null
+                      RoundNum: null
+                      RoundPick: null
+                      OverallPick: null
+                      TopX: null
+                      College: null
+                    resultSets:
+                      - name: DraftHistory
+                        headers: [PERSON_ID, PLAYER_NAME, SEASON, ROUND_NUMBER, ROUND_PICK, OVERALL_PICK, DRAFT_TYPE, TEAM_ID, TEAM_CITY, TEAM_NAME, TEAM_ABBREVIATION, ORGANIZATION, ORGANIZATION_TYPE, PLAYER_PROFILE_FLAG]
+                        rowSet:
+                          - [1642843, Cooper Flagg, "2025", 1, 1, 1, Draft, 1610612742, Dallas, Mavericks, DAL, Duke, College/University, 1]
+                          - [1642844, Dylan Harper, "2025", 1, 2, 2, Draft, 1610612759, San Antonio, Spurs, SAS, Rutgers, College/University, 1]
 components:
   parameters:
     LeagueID:

@@ -41,6 +41,7 @@ const statsPaths = new Set([
   "draftcombineplayeranthro",
   "draftcombinespotshooting",
   "draftcombinestats",
+  "drafthistory",
 ]);
 
 const fixedLivePaths = new Set([
