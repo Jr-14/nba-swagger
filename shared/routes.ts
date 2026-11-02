@@ -51,6 +51,7 @@ const statsPaths = new Set([
   "glalumboxscoresimilarityscore",
   "gravityleaders",
   "homepageleaders",
+  "homepagev2",
 ]);
 
 const fixedLivePaths = new Set([

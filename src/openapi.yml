@@ -6715,6 +6715,166 @@ paths:
                         headers: [PTS, FG_PCT, FG3_PCT, FT_PCT, EFG_PCT, TS_PCT, PTS_PER48]
                         rowSet:
                           - [120.9, 0.5, 0.396, 0.832, 0.575, 0.616, 119.8]
+  /stats/homepagev2:
+    get:
+      operationId: getHomePageV2
+      tags: [Stats]
+      summary: homepagev2
+      description: >-
+        Returns eight ranked team or player leader tables for points, rebounds,
+        assists, steals, field-goal percentage, free-throw percentage, three-point
+        percentage, and blocks. Requests can use either the proxy Worker or the
+        NBA Stats API directly.
+      parameters:
+        - name: GameScope
+          in: query
+          required: true
+          description: Game range used to calculate the leaders.
+          schema:
+            type: string
+            enum: [Season, Last 10, Yesterday, Finals]
+          example: Season
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: PlayerOrTeam
+          in: query
+          required: true
+          description: Whether to return player or team leaders.
+          schema:
+            type: string
+            enum: [Player, Team]
+          example: Team
+        - name: PlayerScope
+          in: query
+          required: true
+          description: Player population to include when PlayerOrTeam is Player.
+          schema:
+            type: string
+            enum: [All Players, Rookies]
+          example: All Players
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2025-26.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          description: Season segment type.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs]
+          example: Regular Season
+        - name: StatType
+          in: query
+          required: true
+          description: Statistical definition used to calculate the leader tables.
+          schema:
+            type: string
+            enum: [Traditional, Advanced, Tracking]
+          example: Traditional
+      responses:
+        '200':
+          description: Eight leader result sets, one for each statistic category.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: homepagev2
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    minItems: 8
+                    maxItems: 8
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [HomePageStat1, HomePageStat2, HomePageStat3, HomePageStat4, HomePageStat5, HomePageStat6, HomePageStat7, HomePageStat8]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                teamLeaders:
+                  summary: Team leaders in eight statistical categories
+                  value:
+                    resource: homepagev2
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      GameScope: Season
+                      PlayerScope: All Players
+                      PlayerOrTeam: Team
+                      StatType: Traditional
+                    resultSets:
+                      - name: HomePageStat1
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, PTS]
+                        rowSet:
+                          - [1, 1610612743, DEN, Denver Nuggets, 120.9]
+                      - name: HomePageStat2
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, REB]
+                        rowSet:
+                          - [1, 1610612745, HOU, Houston Rockets, 48.5]
+                      - name: HomePageStat3
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, AST]
+                        rowSet:
+                          - [1, 1610612737, ATL, Atlanta Hawks, 30.3]
+                      - name: HomePageStat4
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, STL]
+                        rowSet:
+                          - [1, 1610612765, DET, Detroit Pistons, 10.64]
+                      - name: HomePageStat5
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, FG_PCT]
+                        rowSet:
+                          - [1, 1610612747, LAL, Los Angeles Lakers, 0.5]
+                      - name: HomePageStat6
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, FT_PCT]
+                        rowSet:
+                          - [1, 1610612746, LAC, LA Clippers, 0.832]
+                      - name: HomePageStat7
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, FG3_PCT]
+                        rowSet:
+                          - [1, 1610612743, DEN, Denver Nuggets, 0.396]
+                      - name: HomePageStat8
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, BLK]
+                        rowSet:
+                          - [1, 1610612765, DET, Detroit Pistons, 6.29]
 components:
   parameters:
     LeagueID:
