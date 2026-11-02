@@ -6054,6 +6054,90 @@ paths:
                         headers: [LEAGUE_ID, TEAM_ID, TEAM_CITY, TEAM_NAME, START_YEAR, END_YEAR, YEARS, GAMES, WINS, LOSSES, WIN_PCT, PO_APPEARANCES, DIV_TITLES, CONF_TITLES, LEAGUE_TITLES]
                         rowSet:
                           - ["00", 1610610023, Anderson, Packers, "1949", "1949", 1, 64, 37, 27, 0.578, 1, 0, 0, 0]
+  /stats/franchiseleaders:
+    get:
+      operationId: getFranchiseLeaders
+      tags: [Stats]
+      summary: franchiseleaders
+      description: >-
+        Returns all-time franchise leaders for points, assists, rebounds, blocks,
+        and steals. Requests can use either the proxy Worker or the NBA Stats API
+        directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: false
+          description: Optional league identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            nullable: true
+            default: "00"
+          example: "00"
+        - name: TeamID
+          in: query
+          required: true
+          description: NBA team identifier.
+          schema:
+            type: integer
+          example: 1610612739
+      responses:
+        '200':
+          description: One record of franchise leaders across five statistical categories.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: franchiseleaders
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [FranchiseLeaders]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                teamLeaders:
+                  summary: Cleveland franchise leaders
+                  value:
+                    resource: franchiseleaders
+                    parameters:
+                      LeagueID: "00"
+                      TeamID: 1610612739
+                    resultSets:
+                      - name: FranchiseLeaders
+                        headers: [TEAM_ID, PTS, PTS_PERSON_ID, PTS_PLAYER, AST, AST_PERSON_ID, AST_PLAYER, REB, REB_PERSON_ID, REB_PLAYER, BLK, BLK_PERSON_ID, BLK_PLAYER, STL, STL_PERSON_ID, STL_PLAYER]
+                        rowSet:
+                          - [1610612739, 23119, 2544, "LeBron James", 6228, 2544, "LeBron James", 6190, 2544, "LeBron James", 1269, 980, "Zydrunas Ilgauskas", 1376, 2544, "LeBron James"]
 components:
   parameters:
     LeagueID:
