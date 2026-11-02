@@ -13,7 +13,7 @@ if (
 ) {
   throw new Error("PAGES_PORT and WORKER_PORT must be distinct valid port numbers");
 }
-process.env.VITE_PROXY_URL = `http://localhost:${workerPort}/api`;
+process.env.LOCAL_PROXY_URL = `http://localhost:${workerPort}/api`;
 const { build } = await import("vite");
 await build({
   configFile: "vite.config.mjs",

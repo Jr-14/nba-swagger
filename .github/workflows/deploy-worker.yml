@@ -34,16 +34,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type-check proxy Worker
+      - name: Type-check gateway and Node proxy
         run: pnpm typecheck
 
-      - name: Test proxy Worker
+      - name: Test gateway and Node proxy
         run: pnpm test
 
-      - name: Compile proxy Worker
+      - name: Compile Worker and build its Node container
         run: pnpm build:worker
 
-      - name: Deploy proxy Worker
+      - name: Deploy gateway and Node container
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}

@@ -5,9 +5,9 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN corepack enable && corepack prepare pnpm@12.17.0 --activate \
     && pnpm install --prod --frozen-lockfile --ignore-scripts
 
-COPY shared/nba-headers.ts ./shared/nba-headers.ts
-COPY containers/stats-probe/app.ts containers/stats-probe/server.ts ./containers/stats-probe/
+COPY shared/*.ts ./shared/
+COPY containers/proxy/app.ts containers/proxy/server.ts ./containers/proxy/
 
 USER node
 EXPOSE 8080
-CMD ["node", "--experimental-strip-types", "containers/stats-probe/server.ts"]
+CMD ["node", "--experimental-strip-types", "containers/proxy/server.ts"]

@@ -7,7 +7,7 @@ tags:
   - name: Stats
     description: NBA Stats API endpoints.
 servers:
-  - url: /api
+  - url: https://nba-swagger-proxy.jr-jemerson14.workers.dev/api
     description: NBA API proxy
   - url: https://stats.nba.com
     description: NBA Stats API direct (browser CORS may block requests)

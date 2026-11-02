@@ -1,216 +1,165 @@
 # Production Architecture
 
-## Overview
+## Request flow
 
-Cloudflare Pages serves the static Swagger UI at **https://nba-swagger.pages.dev**.
-A separate Cloudflare Worker runs the Hono reverse proxy. The frontend hostname
-does not change, and there are no Pages Functions or deprecated Hono Pages
-adapters in this architecture.
+The static Swagger UI stays at **https://nba-swagger.pages.dev**. A separate
+Worker provides the public API gateway; real Node in a Linux container makes
+the NBA requests. The Worker no longer uses workerd's `fetch` to contact NBA.
 
 ```text
-Public browser
+Browser
     ├── nba-swagger.pages.dev
-    │       └── Cloudflare Pages: index.html, JavaScript, OpenAPI asset
+    │       └── Cloudflare Pages: Swagger UI and OpenAPI assets
     │
-    └── configured proxy Worker hostname /api/*
-            └── Hono Worker
-                    ├── /api/stats/{endpoint}
-                    │       └── https://stats.nba.com/stats/{endpoint}
-                    └── /api/live/{path}
-                            └── https://cdn.nba.com/static/json/liveData/{path}
+    └── nba-swagger-proxy.jr-jemerson14.workers.dev/api/*
+            └── Hono Worker: CORS, route guards, rate limiting
+                    └── NbaProxy Durable Object
+                            └── Node + Hono container
+                                    ├── Stats: stats.nba.com/stats/*
+                                    └── Live: cdn.nba.com/static/json/liveData/*
 ```
 
-Swagger also offers direct NBA Stats requests as an alternative; browser CORS
-restrictions may prevent those calls. The proxy Worker is the default server.
+The proxy returns the actual upstream JSON, not probe summaries or mock data.
+Swagger also offers direct NBA Stats requests, which browsers may block through
+CORS. Production's public proxy URL is committed in `src/openapi.yml`;
+`VITE_PROXY_URL` is no longer a required deployment setting.
 
-**Connectivity status:** this describes the implemented architecture, not a
-verified working NBA Stats transport. The tested Stats operation still has
-unresolved failures through workerd. The Node container experiment is separate
-and has not yet been validated on Cloudflare's deployed container network.
+## Components
 
-## Components and configuration
+| Component | Source/configuration | Responsibility |
+| --- | --- | --- |
+| Static UI | `src/index.html`, `src/swagger.js`, `src/openapi.yml`, `wrangler.jsonc` | Build into `dist/` and deploy to Pages |
+| Worker entry point | `src/worker.ts`, `wrangler.worker.jsonc` | Export the container class and Hono gateway |
+| Gateway | `src/gateway.ts` | CORS, early request rejection, rate limiting, forwarding and startup-error handling |
+| Node service | `containers/proxy/app.ts`, `server.ts`, `Dockerfile` | Fixed-host NBA requests, JSON parsing and diagnostics |
+| Shared policy | `shared/routes.ts`, `shared/proxy-config.ts` | One endpoint allowlist and common resource limits |
 
-### Static Swagger UI
+There are no Pages Functions, deprecated Hono Pages adapters, standalone probe
+service sources, or alternate workerd-to-NBA proxy implementations.
 
-- Source: `src/index.html`, `src/swagger.js`, and `src/openapi.yml`.
-- Build: `pnpm build`; output: `dist/`.
-- Pages project: `nba-swagger`, configured in `wrangler.jsonc`.
-- Public hostname: `nba-swagger.pages.dev`; no custom domain.
-- Production builds receive `VITE_PROXY_URL`, the deployed Worker's full HTTPS
-  base URL ending in `/api`. This is public configuration, not a secret.
-- The Vite build substitutes this value into the emitted OpenAPI YAML, so both
-  Swagger's server selector and the downloadable specification use the correct
-  Worker URL. No local proxy URL is used for production deployment.
+The container has direct outbound Internet access. No HTTP/HTTPS interception
+handler forwards NBA requests back to workerd. It runs as the `node` user and
+includes production dependencies only. `.dockerignore` allowlists the source
+and manifests needed for the image; credentials and `.git` are excluded.
 
-### Hono proxy Worker
+## Request handling
 
-- Entry point: `src/worker.ts`, exporting the Hono application directly.
-- Wrangler configuration: `wrangler.worker.jsonc`.
-- Worker name: `nba-swagger-proxy`.
-- The `workers.dev` hostname is assigned under the Cloudflare account's Worker
-  subdomain; it is not the Pages hostname and must not be guessed.
-- Typed `ALLOWED_ORIGIN` binding: `https://nba-swagger.pages.dev`.
-- No static assets, Pages adapter, or Pages-specific context are required by
-  the Worker.
+- Enabled Stats route: `/api/stats/alltimeleadersgrids`.
+- Enabled Live routes: scoreboard, odds, boxscore, and play-by-play under
+  `/api/live/`. Game-specific paths require the existing ten-digit game ID shape.
+- The inventory in `docs/endpoints.md` does not automatically enable other Stats
+  endpoints. This refactor changes transport, not endpoint coverage.
+- Both gateway and container use `shared/routes.ts`. Unknown paths and methods
+  are rejected before waking a container and checked again inside Node.
+- Query parameters pass through unchanged in encoding and order. Their schema
+  stays in OpenAPI rather than a duplicate per-parameter validator.
+- The gateway forwards only the path, query, and a generated request ID to the
+  container. Browser cookies, authorization, and arbitrary headers are dropped.
+- Node sets its own NBA headers, including `Connection: close` and
+  `Accept-Encoding: identity`; redirects to other destinations are not followed.
+- JSON responses preserve the upstream status. Valid Live CDN JSON labeled
+  `text/plain` is parsed and normalized to `application/json`. HTML, invalid JSON,
+  oversized bodies, and failed startup produce JSON gateway errors.
+- `/health` reports the Node runtime without contacting NBA. It proves startup,
+  not NBA connectivity. The old `/probe` endpoint is removed.
 
-## Cross-origin requests
+## CORS and abuse controls
 
-The Worker and static site have different hostnames. Hono's CORS middleware:
+The gateway allows browser CORS from exactly `https://nba-swagger.pages.dev`.
+It handles preflight without starting a container, allows `GET`/`Accept`, exposes
+`X-Request-ID`, and does not allow browser credentials. CORS headers apply to
+errors too. CORS is not authentication: the proxy is public, as required for
+Swagger's Try it out. The old probe token is not embedded in the UI or required
+for API calls.
 
-- Allows the exact configured Pages origin, not `*`.
-- Handles preflight `OPTIONS` requests without calling NBA.com.
-- Advertises `GET` and the `Accept` request header.
-- Exposes `X-Request-ID` for troubleshooting.
-- Adds CORS headers to API errors as well as successful responses.
-- Does not allow browser credentials.
+- Worker rate limiter: approximately **30 requests per client IP per 60 seconds**.
+  Cloudflare's counters are location-local and approximate, not a strict global
+  quota. The dedicated namespace is configured in `wrangler.worker.jsonc`.
+- One deployed `lite` container instance, addressed by a stable Durable Object
+  name. It sleeps after five minutes of inactivity to reduce cold starts while
+  users interact with Swagger. Running time can incur charges.
+- Node accepts at most four concurrent NBA requests; excess requests return
+  `503` with `Retry-After` rather than creating an unbounded queue.
+- Existing limits are preserved: 180-second upstream timeout, 5 MiB response
+  limit, and 2,048-character query limit. These are in `shared/proxy-config.ts`.
+- Responses use `Cache-Control: no-store`; no stale or synthetic success response
+  hides an upstream error.
 
-CORS controls browser access to responses; it does not authenticate callers or
-prevent requests from scripts or other servers. The proxy remains a public API.
-
-## Request handling and safeguards
-
-1. Only `GET` API requests and CORS preflight are supported.
-2. Explicit route allowlists constrain upstream requests to the fixed NBA hosts.
-   Enabled Stats route: `alltimeleadersgrids`. Enabled Live routes: scoreboard,
-   odds, boxscore, and play-by-play. The inventory in `endpoints.md` does not
-   automatically enable additional Stats routes.
-3. Query parameters pass through without duplicating OpenAPI parameter
-   validation. Original encoding/order are preserved; the overall query string
-   is limited to 2,048 characters.
-4. The Worker adds the configured NBA headers rather than forwarding browser
-   cookies, authorization, or arbitrary request headers. Redirects are not
-   followed to unapproved destinations.
-5. Upstream requests have a 180-second timeout and a 5 MiB response limit. JSON
-   responses preserve the upstream status. Non-JSON and malformed responses
-   produce JSON gateway errors, never a static HTML fallback.
-
-Configure rate limiting for `/api/*` before promoting the proxy for broad public
-use. Keep any private runtime configuration in Cloudflare secrets. Follow
-NBA.com's Terms of Use and applicable data-use restrictions.
+These controls are not a monetary budget guarantee. Monitor Worker invocations,
+Durable Object/container usage, and NBA failures. Follow NBA.com's Terms of Use
+and applicable data-use restrictions.
 
 ## Deployment
 
-- **Method:** GitHub Actions + the project-local Wrangler dev dependency.
-- **Branch:** `main`.
-- **GitHub environment:** `prod` for the manual deployment workflows.
-- **CI:** `ci.yml` runs type-checking, offline tests, the static build, and Worker
-  compilation, including the container probe image build, on pull requests and
-  pushes to `main`; it does not deploy or make live NBA requests.
-- **Worker deployment:** manually run `deploy-worker.yml` from `main`.
-- **Pages deployment:** manually run `deploy-pages.yml` from `main`.
-- **Previews:** not configured.
-- **Node/pnpm:** retain the versions configured in the repository workflows.
+- **Method:** GitHub Actions with the project-local Wrangler dependency.
+- **Branch:** `main`; **environment:** `prod`.
+- **CI:** `ci.yml` runs checks, offline tests, the UI build, and Worker/container
+  compilation on PRs and pushes. It never deploys or makes NBA requests.
+- **Backend:** manually run **Deploy NBA Proxy Worker** (`deploy-worker.yml`).
+  It deploys the gateway, Durable Object, and Node image together.
+- **Frontend:** manually run **Deploy Swagger Pages** (`deploy-pages.yml`).
+  It updates the existing `nba-swagger` Pages project, not its public hostname.
+- No preview deployments or custom domains are configured. Node/pnpm versions
+  remain those specified by the repository workflows.
 
-The `prod` environment must contain:
+The `prod` environment needs `CLOUDFLARE_ACCOUNT_ID` as a variable and
+`CLOUDFLARE_API_TOKEN` as a secret. The account must have Workers Paid/Containers
+enabled, and the token must permit Pages, Worker, container, and image deployment.
+No probe token or frontend proxy URL environment variable is needed.
 
-| Setting | Kind | Purpose |
-| --- | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | Secret | Token with Pages deployment and Workers Scripts edit permissions for the target account |
-| `CLOUDFLARE_ACCOUNT_ID` | Variable | Target Cloudflare account |
-| `VITE_PROXY_URL` | Variable | Full deployed Worker base URL, including `/api` |
+### Deploying this refactor
 
-### First migration deployment
+1. Push the changes to `main` and manually deploy **Deploy NBA Proxy Worker**.
+2. Allow initial image provisioning, then check the public Worker's `/health`.
+3. Request `/api/stats/alltimeleadersgrids` with the documented query parameters
+   and verify the full NBA JSON, not only the health result.
+4. Deploy **Deploy Swagger Pages** and select **NBA API proxy** in Swagger.
+5. After successful verification, retire the old `nba-swagger-container-probe`
+   deployment in Cloudflare and remove the unused `CONTAINER_PROBE_TOKEN` secret
+   from GitHub. Its source and workflow are removed, but source cleanup does not
+   delete deployed Cloudflare resources. No remote deletion is automated here.
 
-1. Ensure the API token has Workers Scripts edit permission in addition to its
-   existing Pages permissions.
-2. Run **Deploy NBA Proxy Worker** from `main`. Wrangler creates or updates
-   `nba-swagger-proxy` and prints its public URL.
-3. Set `VITE_PROXY_URL` in the `prod` environment to that URL plus `/api`.
-4. Run **Deploy Swagger Pages** from `main`. It validates the proxy URL, builds
-   the static UI, and updates the existing `nba-swagger` Pages project.
+The backend keeps the `nba-swagger-proxy` Worker name. If Cloudflare assigns a
+different public hostname for the target account, update `src/openapi.yml`
+before deploying Pages. Existing unused `VITE_PROXY_URL` settings can be removed.
 
-The existing Pages site remains available until the Pages deployment replaces
-its assets. Deploy compatible Worker and frontend revisions together, Worker
-first. Subsequent proxy-only changes can deploy independently if the API
-contract is unchanged. No workflow automatically deletes the Pages project.
+## Observability
 
-## Operations and failure behavior
+The gateway generates `X-Request-ID`, passes it into Node, and exposes it to the
+browser. Node logs the endpoint, upstream status, duration, and bounded error
+diagnostics. Query strings, credentials, and successful NBA bodies are not logged.
+An invalid upstream response can log a body preview up to 2 KiB server-side;
+it is not exposed publicly. Startup failures are distinguishable from NBA errors.
 
-- Responses use `Cache-Control: no-store`. Add caching only after reviewing NBA
-  terms and endpoint-specific freshness requirements; never cache errors.
-- Upstream failures log status, endpoint, duration, and a correlation ID. For
-  non-JSON responses, selected headers and a bounded 2 KiB body preview are
-  logged server-side rather than returned publicly.
-- Match `x-request-id` with Worker logs. Stream production logs with
-  `pnpm exec wrangler tail --config wrangler.worker.jsonc`.
-- Monitor upstream errors, timeouts, invocation usage, and rate limiting. Do not
-  assume migrating from Pages Functions changes NBA's network access behavior:
-  both platforms use workerd, and NBA connectivity remains a separate issue.
+```bash
+pnpm exec wrangler tail --config wrangler.worker.jsonc
+```
 
-## Pages Functions and Workers: connectivity findings
+## Why the native Functions/Workers transport was replaced
 
-The initial reverse proxy was a Pages Function. It removed the browser's CORS
-restriction, but did not establish reliable connectivity to NBA Stats. Moving
-the proxy to Hono on a standalone Worker removed the deprecated Pages adapter;
-it did not change the underlying workerd HTTP runtime or resolve the failure.
-
-The investigation used the same `alltimeleadersgrids` request with `LeagueID=20`,
-`PerMode=PerGame`, `SeasonType=Regular Season`, and `TopX=2` (or `3` in a reported
-production request). These findings do not establish that all Stats endpoints
-or the separate Live CDN behave the same way.
-
-### Confirmed observations
-
-| Execution path | Observed result |
-| --- | --- |
-| Local Vite/Node proxy | Successful NBA JSON response |
-| Deployed Pages Function | Upstream `520` after approximately 40 seconds, with `Content-Type: text/plain; charset=UTF-8` and body `error code: 520`; the gateway correctly returned JSON `502` |
-| Local Wrangler/workerd | Upstream request timed out despite running on the local machine |
-| Node TLS, with `Connection: close` or `keep-alive` | NBA returned `200` |
-| Otherwise-identical Node TLS request, only `Connection` removed | Diagnostic request timed out |
-| Local workerd request to a header echo server | `Connection` was absent on the wire even when explicitly set in application code |
+The initial Pages Function removed browser CORS restrictions but received an
+upstream `520` after roughly 40 seconds, with a plain-text `error code: 520`
+body. It correctly returned a JSON `502` to Swagger. Local Vite/Node requests
+worked, while local workerd requests timed out. Migrating the routing layer to
+Hono on a standalone Worker did not change that underlying transport.
 
 Connection tracing showed Node and local workerd connecting directly to the
-same NBA IPv4 address. Local Wrangler was not routing the request through
-Cloudflare's production edge. Sharing a network therefore does not guarantee
-the same result: the runtimes construct different outbound HTTP requests.
+same NBA IPv4 address, not through Cloudflare's production edge. In a controlled
+Node HTTP/1.1 experiment, removing only `Connection` caused a timeout; adding
+`close` or `keep-alive` returned `200`. workerd stripped that hop-by-hop header
+even when the application explicitly supplied it. Adding `CF-Worker` to Node
+did not itself cause failure. Header matching and longer timeouts did not fix
+native workerd; raw socket and Node compatibility experiments there failed too.
+The complete upstream policy/TLS cause was not established, and `520` alone
+does not prove an IP block.
 
-Adding `CF-Worker` to a successful Node request did not cause failure. Matching
-application headers and query encoding, adding `Accept-Encoding` or
-`Sec-Fetch-Mode`, switching routing frameworks, and increasing timeouts did not
-produce a working native workerd request in the tests.
+Real Node in plain Docker subsequently returned NBA JSON `200` with 19 result
+sets in about 1.3 seconds. The deployed proof-of-concept health check confirmed
+Node startup, but no deployed NBA `/probe` result was supplied before this
+refactor. Cloudflare-hosted NBA connectivity still requires the API verification
+step above; it is not inferred from health checks or unit tests.
 
-### Interpretation and architectural consequence
-
-The missing `Connection` header is a concrete incompatibility in the tested
-HTTP/1.1 request. workerd manages this hop-by-hop header, so setting it in the
-application's `fetch` options does not reliably reproduce the successful Node
-request. However, a raw-socket workerd experiment with the header present and
-a Node HTTPS compatibility-mode experiment also failed. Additional transport
-or TLS differences remain possible; the header finding is not proof of the
-complete server-side cause.
-
-The upstream `520` alone is **not proof of an IP block**, and the local failure
-cannot be attributed exclusively to Cloudflare production egress. No verified
-header-only fix exists in this project. Longer timeouts do not resolve the
-observed incompatibility. Logs and the JSON gateway errors must not be treated
-as successful NBA responses.
-
-For now, retain Pages for static documentation and keep the deployed proxy's
-Stats connectivity limitation explicit. Test real Node in an isolated
-container before deciding whether to replace the Worker's NBA-facing transport.
-The reproducible `pnpm diagnose:upstream` command and detailed results are
-documented in [development.md](development.md); it is an explicit live diagnostic,
-not a CI test.
-
-## Isolated container experiment
-
-`wrangler.container.jsonc` defines a separate, authenticated Node container
-proof of concept to test NBA connectivity outside Worker `fetch`. It is not
-part of the frontend or proxy deployment and does not replace either service.
-See [container-probe.md](container-probe.md) for local commands, the manual
-deployment workflow, cost controls, and observed results. Migration of the full
-proxy is conditional on a successful test from the deployed container.
-
-The plain Docker test succeeded: Node received NBA JSON `200` with 19 result
-sets in approximately 1.3 seconds. Local Wrangler-to-container startup failed
-separately before the Node application was created. The host's
-`src_valid_mark=1` setting and sidecar timeout match the reported native-Linux
-issue linked in [container-probe.md](container-probe.md); no host networking
-settings were changed.
-
-This local Docker success validates the image and its Node request, not
-Cloudflare-hosted NBA access. A successful authenticated probe from the deployed
-Cloudflare Container is the next decision gate. The existing frontend, proxy
-selection, and full API routing are not switched to the container until that
-test succeeds.
+Local Wrangler container startup also encountered a separate Linux sidecar
+issue matching [workerd issue 6860](https://github.com/cloudflare/workerd/issues/6860)
+on a host with `src_valid_mark=1`. Host networking settings were not changed.
+This is distinct from the native workerd-to-NBA failure.

@@ -5,6 +5,11 @@ import { configureProxyServer } from "../shared/openapi-proxy.mjs";
 
 const spec = readFileSync(new URL("../src/openapi.yml", import.meta.url), "utf8");
 
+test("production spec has a public proxy URL without deployment variables", () => {
+  assert.ok(spec.includes("url: https://nba-swagger-proxy.jr-jemerson14.workers.dev/api"));
+  assert.ok(!spec.includes("url: /api\n"));
+});
+
 test("built OpenAPI points at the Worker and retains the direct Stats server", () => {
   const result = configureProxyServer(spec, "https://nba-swagger-proxy.example.workers.dev/api");
   assert.ok(result.includes('url: "https://nba-swagger-proxy.example.workers.dev/api"'));
@@ -15,6 +20,10 @@ test("built OpenAPI points at the Worker and retains the direct Stats server", (
 test("local Pages can use the separate local Worker", () => {
   assert.ok(configureProxyServer(spec, "http://localhost:8787/api/")
     .includes('url: "http://localhost:8787/api"'));
+});
+
+test("Vite can point at the same Node proxy through its local route", () => {
+  assert.ok(configureProxyServer(spec, "/api").includes('url: "/api"'));
 });
 
 test("reject malformed or unsafe deployment proxy URLs", () => {

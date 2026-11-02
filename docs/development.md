@@ -1,26 +1,60 @@
-# Development and proxy diagnostics
+# Development
 
-## Local servers
+## Fast local development
 
-- `pnpm dev` runs Swagger UI with Vite's Node HTTP proxy on port 5173. Select
-  **NBA API proxy** to use the local `/api` routes.
-- `pnpm dev:pages` builds Swagger UI and starts two servers: the static Pages
-  site on **http://localhost:8788** and the actual Hono Worker on port 8787.
-  Its built OpenAPI spec points to `http://localhost:8787/api`; the local Worker
-  allows CORS from `http://localhost:8788`. Both servers stop when the command
-  exits. Restart to rebuild after static UI or OpenAPI changes.
-- `pnpm dev:worker` runs only the standalone Worker on port 8787. Do not run it
-  at the same time as `dev:pages`, which already starts a Worker.
+```bash
+pnpm install
+pnpm dev
+```
 
-`dev:pages` is retained as a convenience command, but the proxy is no longer a
-Pages Function. It runs through `wrangler dev`, without `hono/cloudflare-pages`.
-These local commands do not deploy anything.
+Open the Vite URL, normally **http://localhost:5173**. This command starts the
+same Node proxy application used in the container on loopback port 8080.
+Vite forwards `/api/*` to that service; it no longer has a separate direct-NBA
+proxy. Select **NBA API proxy** in Swagger. Docker is not required for this mode.
 
-NBA browser-header configuration is shared in `shared/nba-headers.ts`; each
-runtime may add its own transport headers. Normal Vite development remains a
-useful Node-runtime comparison, not a simulation of the Worker.
+Use `PROXY_PORT` to select a different Node port if necessary. `pnpm dev:proxy`
+runs just the Node service, using `HOST`/`PORT` (default `0.0.0.0:8080`); bind
+`HOST=127.0.0.1` if running it directly outside Docker on an untrusted network.
 
-## Checks and builds
+## Full Cloudflare runtime locally
+
+```bash
+pnpm dev:pages
+```
+
+Docker must be running. This builds the UI, starts static Pages on
+**http://localhost:8788**, and starts the actual Worker/container gateway on port
+8787. The generated local OpenAPI points to that gateway, whose CORS origin is
+the local Pages site. `PAGES_PORT` and `WORKER_PORT` can override these ports.
+Restart the command to rebuild static UI/OpenAPI changes.
+
+`pnpm dev:worker` starts only the Worker/container stack on port 8787. Do not
+run it alongside `dev:pages`, which already starts it. No probe token is used.
+
+On Linux/Tailscale hosts, Wrangler's sidecar startup may fail before creating
+the Node container, as described in [architecture.md](architecture.md). Use
+`pnpm dev` or plain Docker to test the Node service in that case. Do not change
+global networking settings just to make this command run. Fast development
+does not emulate Worker CORS/rate limits or container cold starts.
+
+## Plain Docker
+
+```bash
+pnpm build:container
+docker run --rm -p 127.0.0.1:8080:8080 nba-swagger-proxy:local
+```
+
+Request `/health` to verify Node startup, or test the real endpoint:
+
+```bash
+curl --fail-with-body 'http://localhost:8080/api/stats/alltimeleadersgrids?LeagueID=20&PerMode=PerGame&SeasonType=Regular%20Season&TopX=2'
+```
+
+The response is the full NBA JSON. `/probe` no longer exists. The four Live
+routes remain under `/api/live/`; the endpoint inventory does not automatically
+enable additional Stats endpoints.
+
+## Checks
 
 ```bash
 pnpm typecheck
@@ -29,71 +63,29 @@ pnpm build
 pnpm build:worker
 ```
 
-These commands do not make NBA requests or deploy anything. The Worker build
-is a Wrangler dry run. Tests mock upstream HTTP requests, including CORS,
-timeout, query passthrough, and route allowlist scenarios.
+These commands do not deploy or make NBA requests. `build:worker` is a Wrangler
+dry run and builds the Node image, so Docker and registry/network access for
+dependencies are required. Tests mock upstream traffic and cover gateway-to-Node
+forwarding, full responses, CORS, rate limiting, concurrency, timeouts, size
+limits, and Live JSON served as `text/plain`.
 
-For a production frontend build, set `VITE_PROXY_URL` to the actual deployed
-Worker HTTPS URL ending in `/api`. The manual Pages workflow reads this public
-setting from GitHub's `prod` environment and refuses to deploy without it.
-The generated OpenAPI asset includes this URL, not just an in-memory UI override.
+Production uses the public proxy URL in `src/openapi.yml`. Local tooling
+overrides it automatically; there is no required `VITE_PROXY_URL` setting. Only
+the local full-runtime build uses the internal `LOCAL_PROXY_URL` override.
 
-## Interpreting failures
+## Production verification and logs
 
-The Worker logs `nba_upstream_non_json` with upstream status, selected headers,
-and at most 2 KiB of its response body. A body of `error code: 520` is the actual
-error body, not missing logging, and does not establish an IP block.
-
-`nba_upstream_failure` includes the failing phase (`fetch` or `body`), error
-name, configured timeout, duration, upstream host, and request ID. Match the ID
-with the response's `x-request-id` header. Body previews remain in server logs.
-
-Production log command:
+Deploy the backend and Pages manually as described in
+[architecture.md](architecture.md). No browser token is required. A successful
+`/health` proves only container startup; verify the NBA endpoint separately.
 
 ```bash
 pnpm exec wrangler tail --config wrangler.worker.jsonc
 ```
 
-## Reproduce the Node/workerd transport difference
-
-```bash
-pnpm diagnose:upstream
-```
-
-This explicitly makes four NBA requests, bounded to eight seconds each. It
-starts an isolated local workerd fixture and a loopback-only header echo server,
-then cleans them up. It does not deploy, use production credentials, change the
-application timeout, or run in CI.
-
-Observed results on the debugging machine:
-
-| Test | Result |
-| --- | --- |
-| Node `fetch` | JSON `200`, approximately 200 ms |
-| Node TLS, HTTP/1.1 with `Connection: close` | `200`, approximately 50 ms |
-| Same Node TLS request, only `Connection` removed | Eight-second diagnostic timeout |
-| workerd HTTP request to local echo, explicitly setting `Connection: close` | Header absent on the wire |
-| workerd NBA request with the same configured headers | Eight-second diagnostic timeout |
-
-Connection tracing also showed Node and workerd connecting directly to the same
-NBA IPv4 address. Local Wrangler was not relaying this request through the
-Cloudflare production edge. Local development therefore uses the same network,
-but not the same HTTP client behavior.
-
-Node's default client supplies connection/encoding headers that workerd does
-not necessarily send. In this experiment, the NBA endpoint did not respond to
-the otherwise-identical Node request without `Connection`. workerd owns and
-strips this hop-by-hop header; adding it to application `fetch` headers does not
-put it on the wire. `Accept-Encoding` alone and `Sec-Fetch-Mode` did not fix the
-workerd request. Adding `CF-Worker` to Node requests still returned `200`, so
-that header alone is not the cause.
-
-This establishes a concrete HTTP-request incompatibility, not NBA's complete
-server-side failure policy. A raw-TLS-socket experiment inside workerd still
-timed out with `Connection` present, and Node HTTPS compatibility mode did not
-resolve it. Additional runtime/TLS differences remain possible. No verified
-application-header-only fix or production transport workaround is established;
-there is no fallback or automatic retry that conceals the failure.
-
-The live diagnostic can be run on another network to compare results without
-assuming they generalize to every NBA edge or production Cloudflare egress.
+Match `x-request-id` from the browser to gateway/Node logs. Container startup
+errors, non-JSON upstream responses, JSON parsing failures, and timeouts produce
+distinct diagnostics. Error-body previews are bounded and server-side only.
+Historical native-workerd findings remain in the architecture document; the
+experimental diagnostic scripts and committed Wrangler state have been removed
+from the tracked project.

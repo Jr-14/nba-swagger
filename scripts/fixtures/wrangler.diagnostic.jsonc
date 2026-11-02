@@ -1,5 +1,0 @@
-{
-  "name": "nba-upstream-diagnostic",
-  "main": "./upstream-diagnostic.worker.ts",
-  "compatibility_date": "2026-10-23"
-}
