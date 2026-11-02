@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "node scripts/dev-docker.mjs",
+    "dev:clean": "node scripts/clean-docker.mjs",
     "dev:wrangler": "node scripts/dev-wrangler.mjs",
     "dev:pages": "node scripts/dev-pages.mjs",
     "dev:worker": "wrangler dev --config wrangler.worker.jsonc --port 8787 --var ALLOWED_ORIGIN:http://localhost:5173",

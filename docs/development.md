@@ -69,11 +69,22 @@ Each run names its container `nba-swagger-dev-<pid>` and labels it
 `com.nba-swagger.dev=true`. The container is detached, but the script stops it on
 `SIGINT`/`SIGTERM`; `--rm` removes it after it exits.
 
-If a run is killed abruptly, check for leftovers:
+For a full reset, including the built image:
+
+```bash
+pnpm dev:clean
+```
+
+This removes containers labelled `com.nba-swagger.dev=true` and any containers
+created from the local image, then removes the image. It also cleans up a
+container left behind by an abruptly killed run. The next `pnpm dev` rebuilds
+the image. Set `PROXY_IMAGE` to clean a differently named image.
+
+The underlying Docker commands remain available for inspection:
 
 ```bash
 docker ps --filter label=com.nba-swagger.dev=true
-docker rm -f $(docker ps -aq --filter label=com.nba-swagger.dev=true)
+docker ps -aq --filter label=com.nba-swagger.dev=true | xargs -r docker rm -f
 ```
 
 ### Testing the container directly

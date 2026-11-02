@@ -23,6 +23,7 @@ Useful alternatives:
 
 ```bash
 pnpm dev:node     # direct Node process, without Docker or Wrangler
+pnpm dev:clean    # remove dev containers and the local image
 pnpm dev:wrangler # Worker, Durable Object, rate limiter, and container in Wrangler
 pnpm dev:worker   # Wrangler backend only, without Vite
 pnpm dev:pages    # built static Pages plus Worker/container emulation
