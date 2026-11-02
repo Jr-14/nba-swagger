@@ -53,6 +53,7 @@ const statsPaths = new Set([
   "homepageleaders",
   "homepagev2",
   "hustlestatsboxscore",
+  "infographicfanduelplayer",
 ]);
 
 const fixedLivePaths = new Set([

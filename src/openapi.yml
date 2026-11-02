@@ -6957,6 +6957,80 @@ paths:
                         headers: [GAME_ID, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CITY, MINUTES, PTS, CONTESTED_SHOTS, CONTESTED_SHOTS_2PT, CONTESTED_SHOTS_3PT, DEFLECTIONS, CHARGES_DRAWN, SCREEN_ASSISTS, SCREEN_AST_PTS, OFF_LOOSE_BALLS_RECOVERED, DEF_LOOSE_BALLS_RECOVERED, LOOSE_BALLS_RECOVERED, OFF_BOXOUTS, DEF_BOXOUTS, BOX_OUT_PLAYER_TEAM_REBS, BOX_OUT_PLAYER_REBS, BOX_OUTS]
                         rowSet:
                           - ["0022200552", 1610612741, Bulls, CHI, Chicago, "265:00", 134, 51, 21, 30, 14, 0, 7, 14, 3, 1, 4, 2, 7, 9, 5, 9]
+  /stats/infographicfanduelplayer:
+    get:
+      operationId: getInfographicFanDuelPlayer
+      tags: [Stats]
+      summary: infographicfanduelplayer
+      description: >-
+        Returns FanDuel and NBA fantasy points and traditional box-score statistics
+        for players in a game. Requests can use either the proxy Worker or the NBA
+        Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: Ten-digit NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+      responses:
+        '200':
+          description: Player fantasy and box-score stats in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: infographicfanduelplayer
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [FanDuelPlayer]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                playerFantasyStats:
+                  summary: FanDuel and NBA fantasy stats for a game
+                  value:
+                    resource: infographicfanduelplayer
+                    parameters:
+                      gameId: "0022200552"
+                    resultSets:
+                      - name: FanDuelPlayer
+                        headers: [PLAYER_ID, PLAYER_NAME, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, JERSEY_NUM, PLAYER_POSITION, LOCATION, FAN_DUEL_PTS, NBA_FANTASY_PTS, USG_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, TOV, STL, BLK, BLKA, PF, PFD, PTS, PLUS_MINUS]
+                        rowSet:
+                          - [1628378, Donovan Mitchell, 1610612739, Cleveland Cavaliers, CLE, "45", G, Home, 95.1, 96.1, 0.409, 49.8, 22, 34, 0.647, 7, 15, 0.467, 20, 25, 0.8, 3, 5, 8, 11, 4, 0, 1, 0, 3, 19, 71, 19]
 components:
   parameters:
     LeagueID:
