@@ -6875,6 +6875,88 @@ paths:
                         headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, BLK]
                         rowSet:
                           - [1, 1610612765, DET, Detroit Pistons, 6.29]
+  /stats/hustlestatsboxscore:
+    get:
+      operationId: getHustleStatsBoxScore
+      tags: [Stats]
+      summary: hustlestatsboxscore
+      description: >-
+        Returns hustle metrics for a game, including availability status, player
+        statistics, and team totals. Requests can use either the proxy Worker or
+        the NBA Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: Ten-digit NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+      responses:
+        '200':
+          description: Hustle data availability, player stats, and team stats.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: hustlestatsboxscore
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [HustleStatsAvailable, PlayerStats, TeamStats]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                gameHustleStats:
+                  summary: Hustle stats for one game
+                  value:
+                    resource: hustlestatsboxscore
+                    parameters:
+                      GameID: "0022200552"
+                    resultSets:
+                      - name: HustleStatsAvailable
+                        headers: [GAME_ID, HUSTLE_STATUS]
+                        rowSet:
+                          - ["0022200552", 1]
+                      - name: PlayerStats
+                        headers: [GAME_ID, TEAM_ID, TEAM_ABBREVIATION, TEAM_CITY, PLAYER_ID, PLAYER_NAME, START_POSITION, COMMENT, MINUTES, PTS, CONTESTED_SHOTS, CONTESTED_SHOTS_2PT, CONTESTED_SHOTS_3PT, DEFLECTIONS, CHARGES_DRAWN, SCREEN_ASSISTS, SCREEN_AST_PTS, OFF_LOOSE_BALLS_RECOVERED, DEF_LOOSE_BALLS_RECOVERED, LOOSE_BALLS_RECOVERED, OFF_BOXOUTS, DEF_BOXOUTS, BOX_OUT_PLAYER_TEAM_REBS, BOX_OUT_PLAYER_REBS, BOX_OUTS]
+                        rowSet:
+                          - ["0022200552", 1610612741, CHI, Chicago, 201942, DeMar DeRozan, F, "", "45:55", 44, 8, 6, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                      - name: TeamStats
+                        headers: [GAME_ID, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CITY, MINUTES, PTS, CONTESTED_SHOTS, CONTESTED_SHOTS_2PT, CONTESTED_SHOTS_3PT, DEFLECTIONS, CHARGES_DRAWN, SCREEN_ASSISTS, SCREEN_AST_PTS, OFF_LOOSE_BALLS_RECOVERED, DEF_LOOSE_BALLS_RECOVERED, LOOSE_BALLS_RECOVERED, OFF_BOXOUTS, DEF_BOXOUTS, BOX_OUT_PLAYER_TEAM_REBS, BOX_OUT_PLAYER_REBS, BOX_OUTS]
+                        rowSet:
+                          - ["0022200552", 1610612741, Bulls, CHI, Chicago, "265:00", 134, 51, 21, 30, 14, 0, 7, 14, 3, 1, 4, 2, 7, 9, 5, 9]
 components:
   parameters:
     LeagueID:

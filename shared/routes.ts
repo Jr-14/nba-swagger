@@ -52,6 +52,7 @@ const statsPaths = new Set([
   "gravityleaders",
   "homepageleaders",
   "homepagev2",
+  "hustlestatsboxscore",
 ]);
 
 const fixedLivePaths = new Set([
