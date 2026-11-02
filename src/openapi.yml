@@ -10748,6 +10748,111 @@ paths:
                         headers: [SEASON_ID, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, GAME_ID, GAME_DATE, MATCHUP, WL, MIN, PTS, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PLUS_MINUS]
                         rowSet:
                           - ["22025", 1610612755, PHI, "Philadelphia 76ers", "0022500812", "2026-02-21", "PHI @ NOP", L, 238, 111, 36, 94, 0.383, 12, 46, 0.261, 27, 33, 0.818, 12, 35, 47, 19, 10, 5, 10, 25, -15.0]
+  /stats/leaguegamelog:
+    get:
+      operationId: getLeagueGameLog
+      tags: [Stats]
+      summary: leaguegamelog
+      description: >-
+        Returns a team's or player's game log for a season, ordered by a
+        selectable statistic or date. Requests can use either the proxy Worker
+        or NBA Stats API directly.
+      parameters:
+        - name: Counter
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: DateFrom
+          in: query
+          required: false
+          schema: { type: string, nullable: true, example: "2025-10-01" }
+        - name: DateTo
+          in: query
+          required: false
+          schema: { type: string, nullable: true, example: "2026-04-30" }
+        - name: Direction
+          in: query
+          required: true
+          schema: { type: string, enum: [ASC, DESC], default: ASC }
+        - name: LeagueID
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{2}$', default: "00" }
+        - name: PlayerOrTeam
+          in: query
+          required: true
+          schema: { type: string, enum: [P, T], default: T }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star, All-Star], default: Regular Season }
+        - name: Sorter
+          in: query
+          required: true
+          schema: { type: string, enum: [FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, AST, STL, BLK, TOV, REB, PTS, DATE], default: DATE }
+      responses:
+        '200':
+          description: Game-log rows for the selected player or team.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: leaguegamelog
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    type: object
+                    additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [LeagueGameLog]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                teamGameLog:
+                  summary: Team game-log result
+                  value:
+                    resource: leaguegamelog
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PlayerOrTeam: T
+                      Counter: 0
+                      Sorter: DATE
+                      Direction: ASC
+                      DateFrom: null
+                      DateTo: null
+                    resultSets:
+                      - name: LeagueGameLog
+                        headers: [SEASON_ID, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, GAME_ID, GAME_DATE, MATCHUP, WL, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS, PLUS_MINUS, VIDEO_AVAILABLE]
+                        rowSet:
+                          - ["22025", 1610612744, GSW, "Golden State Warriors", "0022500002", "2025-10-21", "GSW @ LAL", W, 240, 38, 78, 0.487, 17, 40, 0.425, 26, 29, 0.897, 9, 31, 40, 29, 10, 4, 19, 27, 119, 10, 1]
 components:
   parameters:
     LeagueID:
