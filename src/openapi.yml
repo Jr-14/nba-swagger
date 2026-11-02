@@ -3789,6 +3789,100 @@ paths:
                           percentagePersonalFouls: 1
                           percentagePersonalFoulsDrawn: 1
                           percentagePoints: 1
+  /stats/commonallplayers:
+    get:
+      operationId: getCommonAllPlayers
+      tags: [Stats]
+      summary: commonallplayers
+      description: >-
+        Returns player records across NBA history, including career years,
+        roster status, team identifiers, and league experience. Set
+        IsOnlyCurrentSeason to 1 to limit the response to current-season players.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: IsOnlyCurrentSeason
+          in: query
+          required: true
+          description: Set to 1 for current-season players only; 0 includes all players.
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            default: "00"
+          example: "00"
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2025-26.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2025-26"
+      responses:
+        '200':
+          description: Player records in one CommonAllPlayers result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: commonallplayers
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [CommonAllPlayers]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: boolean
+                                - type: 'null'
+              examples:
+                players:
+                  summary: Historical player directory
+                  value:
+                    resource: commonallplayers
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      IsOnlyCurrentSeason: 0
+                    resultSets:
+                      - name: CommonAllPlayers
+                        headers: [PERSON_ID, DISPLAY_LAST_COMMA_FIRST, DISPLAY_FIRST_LAST, ROSTERSTATUS, FROM_YEAR, TO_YEAR, PLAYERCODE, PLAYER_SLUG, TEAM_ID, TEAM_CITY, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CODE, TEAM_SLUG, GAMES_PLAYED_FLAG, OTHERLEAGUE_EXPERIENCE_CH]
+                        rowSet:
+                          - [76001, "Abdelnaby, Alaa", Alaa Abdelnaby, 0, "1990", "1994", HISTADD_alaa_abdelnaby, alaa_abdelnaby, 0, "", "", "", "", null, Y, "00"]
 components:
   parameters:
     LeagueID:

@@ -25,7 +25,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/boxscoretraditionalv3`
 - ✅ `/stats/boxscoreusagev2` (deprecated upstream)
 - ✅ `/stats/boxscoreusagev3`
-- `/stats/commonallplayers`
+- ✅ `/stats/commonallplayers`
 - `/stats/commonplayerinfo`
 - `/stats/commonplayoffseries`
 - `/stats/commonteamroster`

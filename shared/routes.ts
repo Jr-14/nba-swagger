@@ -25,6 +25,7 @@ const statsPaths = new Set([
   "boxscoretraditionalv3",
   "boxscoreusagev2",
   "boxscoreusagev3",
+  "commonallplayers",
 ]);
 
 const fixedLivePaths = new Set([
