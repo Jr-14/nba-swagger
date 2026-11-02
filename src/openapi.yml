@@ -3585,6 +3585,210 @@ paths:
                         headers: [GAME_ID, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CITY, MIN, USG_PCT, PCT_FGM, PCT_FGA, PCT_FG3M, PCT_FG3A, PCT_FTM, PCT_FTA, PCT_OREB, PCT_DREB, PCT_REB, PCT_AST, PCT_TOV, PCT_STL, PCT_BLK, PCT_BLKA, PCT_PF, PCT_PFD, PCT_PTS]
                         rowSet:
                           - ["0022300061", 1610612747, Lakers, LAL, Los Angeles, "240:00", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  /stats/boxscoreusagev3:
+    get:
+      operationId: getBoxScoreUsageV3
+      tags: [Stats]
+      summary: boxscoreusagev3
+      description: >-
+        Returns player and team usage percentage statistics for a game. The
+        nested JSON response groups players and aggregate usage under home and
+        away teams. Requests can use either the proxy Worker or the NBA Stats
+        API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+        - name: EndPeriod
+          in: query
+          required: true
+          description: Period to end at; 0 includes all periods.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: EndRange
+          in: query
+          required: true
+          description: End of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+        - name: RangeType
+          in: query
+          required: true
+          description: Range type; 0 selects the full period range.
+          schema:
+            type: string
+            default: "0"
+        - name: StartPeriod
+          in: query
+          required: true
+          description: Period to start at; 0 starts at the beginning of the game.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: StartRange
+          in: query
+          required: true
+          description: Start of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+      responses:
+        '200':
+          description: Nested player and team usage statistics grouped by team.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, boxScoreUsage]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/BoxScoreAdvancedV3Meta'
+                  boxScoreUsage:
+                    type: object
+                    required: [gameId, awayTeamId, homeTeamId, homeTeam, awayTeam]
+                    properties:
+                      gameId:
+                        type: string
+                        pattern: '^\d{10}$'
+                      awayTeamId:
+                        type: integer
+                      homeTeamId:
+                        type: integer
+                      homeTeam:
+                        $ref: '#/components/schemas/BoxScoreUsageV3Team'
+                      awayTeam:
+                        $ref: '#/components/schemas/BoxScoreUsageV3Team'
+              examples:
+                gameUsage:
+                  summary: Usage percentages for players and teams in one game
+                  value:
+                    meta:
+                      version: 1
+                      request: http://nba.cloud/games/0022200552/boxscoreusage?Format=json
+                      time: "2026-02-22T05:12:35.1235Z"
+                    boxScoreUsage:
+                      gameId: "0022200552"
+                      awayTeamId: 1610612741
+                      homeTeamId: 1610612739
+                      homeTeam:
+                        teamId: 1610612739
+                        teamCity: Cleveland
+                        teamName: Cavaliers
+                        teamTricode: CLE
+                        teamSlug: cavaliers
+                        players:
+                          - personId: 1630205
+                            firstName: Lamar
+                            familyName: Stevens
+                            nameI: L. Stevens
+                            playerSlug: lamar-stevens
+                            position: F
+                            comment: ""
+                            jerseyNum: ""
+                            statistics:
+                              minutes: "19:09"
+                              usagePercentage: 0.122
+                              percentageFieldGoalsMade: 0.154
+                              percentageFieldGoalsAttempted: 0.161
+                              percentageThreePointersMade: 0
+                              percentageThreePointersAttempted: 0.143
+                              percentageFreeThrowsMade: 0
+                              percentageFreeThrowsAttempted: 0
+                              percentageReboundsOffensive: 0
+                              percentageReboundsDefensive: 0.071
+                              percentageReboundsTotal: 0.067
+                              percentageAssists: 0.222
+                              percentageTurnovers: 0
+                              percentageSteals: 0
+                              percentageBlocks: 0
+                              percentageBlocksAllowed: 0
+                              percentagePersonalFouls: 0
+                              percentagePersonalFoulsDrawn: 0
+                              percentagePoints: 0.103
+                        statistics:
+                          minutes: "265:00"
+                          usagePercentage: 1
+                          percentageFieldGoalsMade: 1
+                          percentageFieldGoalsAttempted: 1
+                          percentageThreePointersMade: 1
+                          percentageThreePointersAttempted: 1
+                          percentageFreeThrowsMade: 1
+                          percentageFreeThrowsAttempted: 1
+                          percentageReboundsOffensive: 1
+                          percentageReboundsDefensive: 1
+                          percentageReboundsTotal: 1
+                          percentageAssists: 1
+                          percentageTurnovers: 1
+                          percentageSteals: 1
+                          percentageBlocks: 1
+                          percentageBlocksAllowed: 1
+                          percentagePersonalFouls: 1
+                          percentagePersonalFoulsDrawn: 1
+                          percentagePoints: 1
+                      awayTeam:
+                        teamId: 1610612741
+                        teamCity: Chicago
+                        teamName: Bulls
+                        teamTricode: CHI
+                        teamSlug: bulls
+                        players:
+                          - personId: 201942
+                            firstName: DeMar
+                            familyName: DeRozan
+                            nameI: D. DeRozan
+                            playerSlug: demar-derozan
+                            position: F
+                            comment: ""
+                            jerseyNum: ""
+                            statistics:
+                              minutes: "45:55"
+                              usagePercentage: 0.362
+                              percentageFieldGoalsMade: 0.39
+                              percentageFieldGoalsAttempted: 0.381
+                              percentageThreePointersMade: 0.222
+                              percentageThreePointersAttempted: 0.194
+                              percentageFreeThrowsMade: 0.37
+                              percentageFreeThrowsAttempted: 0.387
+                              percentageReboundsOffensive: 0.2
+                              percentageReboundsDefensive: 0.067
+                              percentageReboundsTotal: 0.086
+                              percentageAssists: 0.222
+                              percentageTurnovers: 0.2
+                              percentageSteals: 0.571
+                              percentageBlocks: 0.5
+                              percentageBlocksAllowed: 0.667
+                              percentagePersonalFouls: 0.143
+                              percentagePersonalFoulsDrawn: 0.4
+                              percentagePoints: 0.373
+                        statistics:
+                          minutes: "265:00"
+                          usagePercentage: 1
+                          percentageFieldGoalsMade: 1
+                          percentageFieldGoalsAttempted: 1
+                          percentageThreePointersMade: 1
+                          percentageThreePointersAttempted: 1
+                          percentageFreeThrowsMade: 1
+                          percentageFreeThrowsAttempted: 1
+                          percentageReboundsOffensive: 1
+                          percentageReboundsDefensive: 1
+                          percentageReboundsTotal: 1
+                          percentageAssists: 1
+                          percentageTurnovers: 1
+                          percentageSteals: 1
+                          percentageBlocks: 1
+                          percentageBlocksAllowed: 1
+                          percentagePersonalFouls: 1
+                          percentagePersonalFoulsDrawn: 1
+                          percentagePoints: 1
 components:
   parameters:
     LeagueID:
@@ -5340,5 +5544,111 @@ components:
         points:
           type: integer
         plusMinusPoints:
+          type: number
+      additionalProperties: true
+    BoxScoreUsageV3Team:
+      type: object
+      required: [teamId, teamCity, teamName, teamTricode, teamSlug, players, statistics]
+      properties:
+        teamId:
+          type: integer
+        teamCity:
+          type: string
+        teamName:
+          type: string
+        teamTricode:
+          type: string
+        teamSlug:
+          type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScoreUsageV3Player'
+        statistics:
+          $ref: '#/components/schemas/BoxScoreUsageV3Statistics'
+      additionalProperties: true
+    BoxScoreUsageV3Player:
+      type: object
+      required: [personId, firstName, familyName, nameI, playerSlug, position, comment, jerseyNum, statistics]
+      properties:
+        personId:
+          type: integer
+        firstName:
+          type: string
+        familyName:
+          type: string
+        nameI:
+          type: string
+        playerSlug:
+          type: string
+        position:
+          type: string
+        comment:
+          type: string
+        jerseyNum:
+          type: string
+        statistics:
+          $ref: '#/components/schemas/BoxScoreUsageV3Statistics'
+      additionalProperties: true
+    BoxScoreUsageV3Statistics:
+      type: object
+      required:
+        - minutes
+        - usagePercentage
+        - percentageFieldGoalsMade
+        - percentageFieldGoalsAttempted
+        - percentageThreePointersMade
+        - percentageThreePointersAttempted
+        - percentageFreeThrowsMade
+        - percentageFreeThrowsAttempted
+        - percentageReboundsOffensive
+        - percentageReboundsDefensive
+        - percentageReboundsTotal
+        - percentageAssists
+        - percentageTurnovers
+        - percentageSteals
+        - percentageBlocks
+        - percentageBlocksAllowed
+        - percentagePersonalFouls
+        - percentagePersonalFoulsDrawn
+        - percentagePoints
+      properties:
+        minutes:
+          type: string
+        usagePercentage:
+          type: number
+        percentageFieldGoalsMade:
+          type: number
+        percentageFieldGoalsAttempted:
+          type: number
+        percentageThreePointersMade:
+          type: number
+        percentageThreePointersAttempted:
+          type: number
+        percentageFreeThrowsMade:
+          type: number
+        percentageFreeThrowsAttempted:
+          type: number
+        percentageReboundsOffensive:
+          type: number
+        percentageReboundsDefensive:
+          type: number
+        percentageReboundsTotal:
+          type: number
+        percentageAssists:
+          type: number
+        percentageTurnovers:
+          type: number
+        percentageSteals:
+          type: number
+        percentageBlocks:
+          type: number
+        percentageBlocksAllowed:
+          type: number
+        percentagePersonalFouls:
+          type: number
+        percentagePersonalFoulsDrawn:
+          type: number
+        percentagePoints:
           type: number
       additionalProperties: true
