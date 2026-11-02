@@ -12063,6 +12063,67 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playerawards:
+    get:
+      operationId: getPlayerAwards
+      tags: [Stats]
+      summary: playerawards
+      description: Returns award history for the specified player.
+      parameters:
+        - name: PlayerID
+          in: query
+          required: true
+          schema: { type: integer }
+          example: 1628378
+      responses:
+        '200':
+          description: Player award history in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: playerawards
+                  parameters:
+                    type: object
+                    additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [PlayerAwards]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                playerAwardHistory:
+                  summary: Donovan Mitchell award history
+                  value:
+                    resource: playerawards
+                    parameters:
+                      PlayerID: 1628378
+                    resultSets:
+                      - name: PlayerAwards
+                        headers: [PERSON_ID, FIRST_NAME, LAST_NAME, TEAM, DESCRIPTION, ALL_NBA_TEAM_NUMBER, SEASON, MONTH, WEEK, CONFERENCE, TYPE, SUBTYPE1, SUBTYPE2, SUBTYPE3]
+                        rowSet:
+                          - [1628378, Donovan, Mitchell, Cleveland Cavaliers, All-NBA, "2", "2022-23", null, null, East, Award, Kia Motors, KIANT, null]
 components:
   parameters:
     LeagueID:

@@ -84,6 +84,7 @@ const statsPaths = new Set([
   "playbyplay",
   "playbyplayv2",
   "playbyplayv3",
+  "playerawards",
 ]);
 
 const fixedLivePaths = new Set([
