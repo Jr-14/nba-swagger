@@ -8484,6 +8484,268 @@ paths:
                         headers: [PLAYER_ID, PLAYER_NAME, PLAYER_LAST_TEAM_ID, PLAYER_LAST_TEAM_ABBREVIATION, AGE, GP, G, FGA_FREQUENCY, FGM, FGA, FG_PCT, EFG_PCT, FG2A_FREQUENCY, FG2M, FG2A, FG2_PCT, FG3A_FREQUENCY, FG3M, FG3A, FG3_PCT]
                         rowSet:
                           - [1630178, Tyrese Maxey, 1610612755, PHI, 25.0, 53, 53, 1.0, 532, 1140, 0.467, 0.545, 0.588, 354, 670, 0.528, 0.412, 178, 470, 0.379]
+  /stats/leaguedashplayershotlocations:
+    get:
+      operationId: getLeagueDashPlayerShotLocations
+      tags: [Stats]
+      summary: leaguedashplayershotlocations
+      description: >-
+        Returns player shooting results grouped by court zone, with a nested header
+        structure describing the zones and shot metrics. Requests can use either
+        the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: DistanceRange
+          in: query
+          required: true
+          schema: { type: string, enum: [5ft Range, 8ft Range, By Zone], default: By Zone }
+        - name: LastNGames
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: MeasureType
+          in: query
+          required: true
+          schema: { type: string, enum: [Base, Opponent], default: Base }
+        - name: Month
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, maximum: 12, default: 0 }
+        - name: OpponentTeamID
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: PaceAdjust
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: PerMode
+          in: query
+          required: true
+          schema: { type: string, enum: [Totals, PerGame, MinutesPer, Per48, Per40, Per36, PerMinute, PerPossession, PerPlay, Per100Possessions, Per100Plays], default: Totals }
+        - name: Period
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: PlusMinus
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: Rank
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season }
+        - name: College
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: Conference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: Country
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: DateFrom
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: DateTo
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: Division
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true }
+        - name: DraftPick
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: DraftYear
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: GameScope
+          in: query
+          required: false
+          schema: { type: string, enum: [Yesterday, Last 10], nullable: true }
+        - name: GameSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [First Half, Second Half, Overtime], nullable: true }
+        - name: Height
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: LeagueID
+          in: query
+          required: false
+          schema: { type: string, pattern: '^\d{2}$', nullable: true }
+        - name: Location
+          in: query
+          required: false
+          schema: { type: string, enum: [Home, Road], nullable: true }
+        - name: Outcome
+          in: query
+          required: false
+          schema: { type: string, enum: [W, L], nullable: true }
+        - name: PORound
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: PlayerExperience
+          in: query
+          required: false
+          schema: { type: string, enum: [Rookie, Sophomore, Veteran], nullable: true }
+        - name: PlayerPosition
+          in: query
+          required: false
+          schema: { type: string, enum: [F, C, G, C-F, F-C, F-G, G-F], nullable: true }
+        - name: SeasonSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true }
+        - name: ShotClockRange
+          in: query
+          required: false
+          schema: { type: string, enum: [24-22, 22-18 Very Early, 18-15 Early, 15-7 Average, 7-4 Late, 4-0 Very Late, ShotClock Off], nullable: true }
+        - name: StarterBench
+          in: query
+          required: false
+          schema: { type: string, enum: [Starters, Bench], nullable: true }
+        - name: TeamID
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: VsConference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: VsDivision
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true }
+        - name: Weight
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+        - name: ISTRound
+          in: query
+          required: false
+          schema: { type: string, enum: [Group, East Group A, East Group B, East Group C, West Group A, West Group B, West Group C, Knockout, Championship], nullable: true }
+      responses:
+        '200':
+          description: Shot-location table with grouped category headers.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: leaguedashplayershotlocations
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    type: object
+                    additionalProperties: true
+                  resultSets:
+                    type: object
+                    required: [name, headers, rowSet]
+                    properties:
+                      name:
+                        type: string
+                        enum: [ShotLocations]
+                      headers:
+                        type: array
+                        items:
+                          type: object
+                          required: [name, columnSpan, columnNames]
+                          properties:
+                            name:
+                              type: string
+                            columnsToSkip:
+                              type: integer
+                            columnSpan:
+                              type: integer
+                            columnNames:
+                              type: array
+                              items: { type: string }
+                      rowSet:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            oneOf:
+                              - { type: integer }
+                              - { type: number }
+                              - { type: string }
+                              - { type: 'null' }
+              examples:
+                shotLocations:
+                  summary: Player shot totals by court zone
+                  value:
+                    resource: leaguedashplayershotlocations
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      MeasureType: Base
+                      PerMode: Totals
+                      DistanceRange: By Zone
+                      College: null
+                      Conference: null
+                      Country: null
+                      DateFrom: null
+                      DateTo: null
+                      Division: null
+                      DraftPick: null
+                      DraftYear: null
+                      GameScope: null
+                      GameSegment: null
+                      Height: null
+                      ISTRound: null
+                      LastNGames: 0
+                      Location: null
+                      Month: 0
+                      OpponentTeamID: 0
+                      Outcome: null
+                      PORound: null
+                      PaceAdjust: N
+                      Period: 0
+                      PlayerExperience: null
+                      PlayerPosition: null
+                      PlusMinus: N
+                      Rank: N
+                      SeasonSegment: null
+                      ShotClockRange: null
+                      StarterBench: null
+                      TeamID: null
+                      VsConference: null
+                      VsDivision: null
+                      Weight: null
+                    resultSets:
+                      name: ShotLocations
+                      headers:
+                        - name: SHOT_CATEGORY
+                          columnsToSkip: 6
+                          columnSpan: 3
+                          columnNames: [Restricted Area, In The Paint (Non-RA), Mid-Range, Left Corner 3, Right Corner 3, Above the Break 3, Backcourt, Corner 3]
+                        - name: columns
+                          columnSpan: 1
+                          columnNames: [PLAYER_ID, PLAYER_NAME, TEAM_ID, TEAM_ABBREVIATION, AGE, NICKNAME, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT, FGM, FGA, FG_PCT]
+                      rowSet:
+                        - [1630639, "A.J. Lawson", 1610612761, TOR, 25.0, "A.J.", 7, 14, 0.5, 1, 5, 0.2, 0, 0, 0.0, 4, 9, 0.444, 1, 6, 0.167, 3, 7, 0.429, 0, 0, 0.0, 5, 15, 0.333]
 components:
   parameters:
     LeagueID:
