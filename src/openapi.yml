@@ -5224,6 +5224,90 @@ paths:
                         headers: [TEMP_PLAYER_ID, PLAYER_ID, FIRST_NAME, LAST_NAME, PLAYER_NAME, POSITION, OFF_DRIB_FIFTEEN_BREAK_LEFT_MADE, OFF_DRIB_FIFTEEN_BREAK_LEFT_ATTEMPT, OFF_DRIB_FIFTEEN_BREAK_LEFT_PCT, OFF_DRIB_FIFTEEN_TOP_KEY_MADE, OFF_DRIB_FIFTEEN_TOP_KEY_ATTEMPT, OFF_DRIB_FIFTEEN_TOP_KEY_PCT, OFF_DRIB_FIFTEEN_BREAK_RIGHT_MADE, OFF_DRIB_FIFTEEN_BREAK_RIGHT_ATTEMPT, OFF_DRIB_FIFTEEN_BREAK_RIGHT_PCT, OFF_DRIB_COLLEGE_BREAK_LEFT_MADE, OFF_DRIB_COLLEGE_BREAK_LEFT_ATTEMPT, OFF_DRIB_COLLEGE_BREAK_LEFT_PCT, OFF_DRIB_COLLEGE_TOP_KEY_MADE, OFF_DRIB_COLLEGE_TOP_KEY_ATTEMPT, OFF_DRIB_COLLEGE_TOP_KEY_PCT, OFF_DRIB_COLLEGE_BREAK_RIGHT_MADE, OFF_DRIB_COLLEGE_BREAK_RIGHT_ATTEMPT, OFF_DRIB_COLLEGE_BREAK_RIGHT_PCT, ON_MOVE_FIFTEEN_MADE, ON_MOVE_FIFTEEN_ATTEMPT, ON_MOVE_FIFTEEN_PCT, ON_MOVE_COLLEGE_MADE, ON_MOVE_COLLEGE_ATTEMPT, ON_MOVE_COLLEGE_PCT]
                         rowSet:
                           - [1641891, 1641891, Izan, Almansa, Izan Almansa, C, null, null, null, null, null, null, null, null, null, 13, 30, 0.433, null, null, null, null, null, null, null, null, null, 8, 25, 0.32]
+  /stats/draftcombineplayeranthro:
+    get:
+      operationId: getDraftCombinePlayerAnthro
+      tags: [Stats]
+      summary: draftcombineplayeranthro
+      description: >-
+        Returns NBA Draft Combine player anthropometric measurements, including
+        height, weight, wingspan, standing reach, body fat, and hand dimensions.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: SeasonYear
+          in: query
+          required: true
+          description: Four-digit draft combine season year.
+          schema:
+            type: string
+            pattern: '^\d{4}$'
+          example: "2025"
+      responses:
+        '200':
+          description: Player anthropometric measurements in one Results table.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: draftcombineplayeranthro
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [Results]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                anthropometrics:
+                  summary: Combine measurements for one season
+                  value:
+                    resource: draftcombineplayeranthro
+                    parameters:
+                      LeagueID: "00"
+                      SeasonYear: "2025"
+                    resultSets:
+                      - name: Results
+                        headers: [TEMP_PLAYER_ID, PLAYER_ID, FIRST_NAME, LAST_NAME, PLAYER_NAME, POSITION, HEIGHT_WO_SHOES, HEIGHT_WO_SHOES_FT_IN, HEIGHT_W_SHOES, HEIGHT_W_SHOES_FT_IN, WEIGHT, WINGSPAN, WINGSPAN_FT_IN, STANDING_REACH, STANDING_REACH_FT_IN, BODY_FAT_PCT, HAND_LENGTH, HAND_WIDTH]
+                        rowSet:
+                          - [1641891, 1641891, Izan, Almansa, Izan Almansa, C, 81.25, "6' 9.25''", null, null, "220.40", 85.75, "7' 1.75''", 109.5, "9' 1.50''", null, 9.25, 9.5]
 components:
   parameters:
     LeagueID:

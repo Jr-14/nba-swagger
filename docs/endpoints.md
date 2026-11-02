@@ -38,7 +38,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/draftboard`
 - ✅ `/stats/draftcombinedrillresults`
 - ✅ `/stats/draftcombinenonstationaryshooting`
-- `/stats/draftcombineplayeranthro`
+- ✅ `/stats/draftcombineplayeranthro`
 - `/stats/draftcombinespotshooting`
 - `/stats/draftcombinestats`
 - `/stats/drafthistory`
