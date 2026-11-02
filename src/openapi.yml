@@ -6327,6 +6327,123 @@ paths:
                         headers: [GAME_ID, TEAM_ID, TEAM_CITY, TEAM_NAME, PERSON_ID, PLAYER_FIRST, PLAYER_LAST, IN_TIME_REAL, OUT_TIME_REAL, PLAYER_PTS, PT_DIFF, USG_PCT]
                         rowSet:
                           - ["0022200552", 1610612739, Cleveland, Cavaliers, 201567, Kevin, Love, 0.0, 4980.0, 5, -9.0, 0.222]
+  /stats/glalumboxscoresimilarityscore:
+    get:
+      operationId: getGLAlumBoxScoreSimilarityScore
+      tags: [Stats]
+      summary: glalumboxscoresimilarityscore
+      description: >-
+        Returns G League alumni whose box-score statistics are similar to those
+        of the specified first player, along with similarity scores. Requests can
+        use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: Person1Id
+          in: query
+          required: true
+          description: NBA player identifier for the comparison player.
+          schema:
+            type: integer
+          example: 202681
+        - name: Person1LeagueId
+          in: query
+          required: true
+          description: League identifier for the comparison player's season (00 for NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+          example: "00"
+        - name: Person1Season
+          in: query
+          required: true
+          description: Season year for the comparison player.
+          schema:
+            type: string
+          example: "2019"
+        - name: Person1SeasonType
+          in: query
+          required: true
+          description: Season type for the comparison player.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, PlayIn, Playoffs]
+          example: Regular Season
+        - name: Person2Id
+          in: query
+          required: true
+          description: NBA player identifier for the second comparison player.
+          schema:
+            type: integer
+          example: 203078
+        - name: Person2LeagueId
+          in: query
+          required: true
+          description: League identifier for the second player's season (00 for NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+          example: "00"
+        - name: Person2Season
+          in: query
+          required: true
+          description: Season year for the second player.
+          schema:
+            type: string
+          example: "2019"
+        - name: Person2SeasonType
+          in: query
+          required: true
+          description: Season type for the second player.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, PlayIn, Playoffs]
+          example: Regular Season
+      responses:
+        '200':
+          description: Similar G League alumni in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: glalumboxscoresimilarityscore
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [GLeagueAlumBoxScoreSimilarityScores]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                          example: [PERSON_2_ID, PERSON_2, TEAM_ID, SIMILARITY_SCORE]
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            minItems: 4
+                            maxItems: 4
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
 components:
   parameters:
     LeagueID:
