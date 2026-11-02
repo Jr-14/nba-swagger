@@ -6444,6 +6444,139 @@ paths:
                                 - type: number
                                 - type: string
                                 - type: 'null'
+  /stats/gravityleaders:
+    get:
+      operationId: getGravityLeaders
+      tags: [Stats]
+      summary: gravityleaders
+      description: >-
+        Returns player gravity metrics that quantify defensive attention drawn,
+        including on-ball and off-ball perimeter/interior breakdowns. Requests can
+        use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: false
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: Season
+          in: query
+          required: false
+          description: Season in NBA format, such as 2025-26.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: false
+          description: Season segment type.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs, All Star]
+          example: Regular Season
+      responses:
+        '200':
+          description: Gravity tracking metrics for players.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [leaders]
+                properties:
+                  leaders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        PLAYERID:
+                          type: integer
+                        FIRSTNAME:
+                          type: string
+                        LASTNAME:
+                          type: string
+                        TEAMID:
+                          type: integer
+                        TEAMABBREVIATION:
+                          type: string
+                        TEAMNAME:
+                          type: string
+                        TEAMCITY:
+                          type: string
+                        FRAMES:
+                          type: integer
+                        GRAVITYSCORE:
+                          type: number
+                        AVGGRAVITYSCORE:
+                          type: number
+                        ONBALLPERIMETERFRAMES:
+                          type: integer
+                        ONBALLPERIMETERGRAVITYSCORE:
+                          type: number
+                        AVGONBALLPERIMETERGRAVITYSCORE:
+                          type: number
+                        OFFBALLPERIMETERFRAMES:
+                          type: integer
+                        OFFBALLPERIMETERGRAVITYSCORE:
+                          type: number
+                        AVGOFFBALLPERIMETERGRAVITYSCORE:
+                          type: number
+                        ONBALLINTERIORFRAMES:
+                          type: integer
+                        ONBALLINTERIORGRAVITYSCORE:
+                          type: number
+                        AVGONBALLINTERIORGRAVITYSCORE:
+                          type: number
+                        OFFBALLINTERIORFRAMES:
+                          type: integer
+                        OFFBALLINTERIORGRAVITYSCORE:
+                          type: number
+                        AVGOFFBALLINTERIORGRAVITYSCORE:
+                          type: number
+                        GAMESPLAYED:
+                          type: integer
+                        MINUTES:
+                          type: number
+                        PTS:
+                          type: number
+                        REB:
+                          type: number
+                        AST:
+                          type: number
+                      additionalProperties: true
+              example:
+                leaders:
+                  - PLAYERID: 201939
+                    FIRSTNAME: Stephen
+                    LASTNAME: Curry
+                    TEAMID: 1610612744
+                    TEAMABBREVIATION: GSW
+                    TEAMNAME: Warriors
+                    TEAMCITY: Golden State
+                    FRAMES: 129230
+                    GRAVITYSCORE: 20.8209629629
+                    AVGGRAVITYSCORE: 20.3848295
+                    ONBALLPERIMETERFRAMES: 34126
+                    ONBALLPERIMETERGRAVITYSCORE: 15.075037037
+                    AVGONBALLPERIMETERGRAVITYSCORE: 15.2041822
+                    OFFBALLPERIMETERFRAMES: 59988
+                    OFFBALLPERIMETERGRAVITYSCORE: 30.0528888888
+                    AVGOFFBALLPERIMETERGRAVITYSCORE: 29.6918001
+                    ONBALLINTERIORFRAMES: 5323
+                    ONBALLINTERIORGRAVITYSCORE: -0.3829259259
+                    AVGONBALLINTERIORGRAVITYSCORE: -2.7228089
+                    OFFBALLINTERIORFRAMES: 29793
+                    OFFBALLINTERIORGRAVITYSCORE: 9.3562592592
+                    AVGOFFBALLINTERIORGRAVITYSCORE: 7.4414369
+                    GAMESPLAYED: 27
+                    MINUTES: 32.1
+                    PTS: 28.7
+                    REB: 3.9
+                    AST: 4.4
 components:
   parameters:
     LeagueID:
