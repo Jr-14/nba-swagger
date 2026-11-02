@@ -7335,6 +7335,210 @@ paths:
                         headers: [TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, SEASON_YEAR, PTS]
                         rowSet:
                           - [1610610025, CHS, Stags, "1947-48", 75.833]
+  /stats/leaguedashlineups:
+    get:
+      operationId: getLeagueDashLineups
+      tags: [Stats]
+      summary: leaguedashlineups
+      description: >-
+        Returns lineup-level team and player statistics, rankings, and playing-time
+        totals. Supports season, game-segment, team, opponent, and other filters.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: Conference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: DateFrom
+          in: query
+          required: false
+          description: Optional start date in MM/DD/YYYY format.
+          schema: { type: string, nullable: true }
+        - name: DateTo
+          in: query
+          required: false
+          description: Optional end date in MM/DD/YYYY format.
+          schema: { type: string, nullable: true }
+        - name: Division
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest], nullable: true }
+        - name: GameSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [First Half, Second Half, Overtime], nullable: true }
+        - name: GroupQuantity
+          in: query
+          required: false
+          description: Number of players grouped into a lineup.
+          schema: { type: integer, minimum: 1, default: 5 }
+        - name: ISTRound
+          in: query
+          required: false
+          description: Optional In-Season Tournament round or group.
+          schema: { type: string, enum: [Group, East Group A, East Group B, East Group C, West Group A, West Group B, West Group C, Knockout, Championship], nullable: true }
+        - name: LastNGames
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: LeagueID
+          in: query
+          required: false
+          schema: { type: string, pattern: '^\d{2}$', nullable: true, default: "00" }
+        - name: Location
+          in: query
+          required: false
+          schema: { type: string, enum: [Home, Road], nullable: true }
+        - name: MeasureType
+          in: query
+          required: true
+          schema: { type: string, enum: [Base, Advanced, Misc, Four Factors, Scoring, Opponent, Usage, Defense], default: Base }
+        - name: Month
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, maximum: 12, default: 0 }
+        - name: OpponentTeamID
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: Outcome
+          in: query
+          required: false
+          schema: { type: string, enum: [W, L], nullable: true }
+        - name: PORound
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, nullable: true }
+        - name: PaceAdjust
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: PerMode
+          in: query
+          required: true
+          schema: { type: string, enum: [Totals, PerGame, MinutesPer, Per48, Per40, Per36, PerMinute, PerPossession, PerPlay, Per100Possessions, Per100Plays], default: Totals }
+        - name: Period
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: PlusMinus
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: Rank
+          in: query
+          required: true
+          schema: { type: string, enum: [Y, N], default: N }
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2025-26.
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+        - name: SeasonSegment
+          in: query
+          required: false
+          schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true }
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season }
+        - name: ShotClockRange
+          in: query
+          required: false
+          schema: { type: string, enum: [24-22, 22-18 Very Early, 18-15 Early, 15-7 Average, 7-4 Late, 4-0 Very Late, ShotClock Off], nullable: true }
+        - name: TeamID
+          in: query
+          required: false
+          schema: { type: integer, nullable: true }
+        - name: VsConference
+          in: query
+          required: false
+          schema: { type: string, enum: [East, West], nullable: true }
+        - name: VsDivision
+          in: query
+          required: false
+          schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true }
+      responses:
+        '200':
+          description: Lineup statistics and rankings in one Lineups result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: leaguedashlineups
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [Lineups]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                lineupStats:
+                  summary: Lineup statistics and rankings
+                  value:
+                    resource: leaguedashlineups
+                    parameters:
+                      MeasureType: Base
+                      PerMode: Totals
+                      PlusMinus: N
+                      PaceAdjust: N
+                      Rank: N
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PORound: null
+                      Outcome: null
+                      Location: null
+                      GroupQuantity: 5
+                      LastNGames: 0
+                      Month: 0
+                      OpponentTeamID: 0
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      VsConference: null
+                      VsDivision: null
+                      TeamID: null
+                      Conference: null
+                      Division: null
+                      GameSegment: null
+                      Period: 0
+                      ShotClockRange: null
+                      ISTRound: null
+                    resultSets:
+                      - name: Lineups
+                        headers: [GROUP_SET, GROUP_ID, GROUP_NAME, TEAM_ID, TEAM_ABBREVIATION, GP, W, L, W_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, TOV, STL, BLK, BLKA, PF, PFD, PTS, PLUS_MINUS, GP_RANK, W_RANK, L_RANK, W_PCT_RANK, MIN_RANK, FGM_RANK, FGA_RANK, FG_PCT_RANK, FG3M_RANK, FG3A_RANK, FG3_PCT_RANK, FTM_RANK, FTA_RANK, FT_PCT_RANK, OREB_RANK, DREB_RANK, REB_RANK, AST_RANK, TOV_RANK, STL_RANK, BLK_RANK, BLKA_RANK, PF_RANK, PFD_RANK, PTS_RANK, PLUS_MINUS_RANK, SUM_TIME_PLAYED]
+                        rowSet:
+                          - [Lineups, "-203497-203944-1628978-1630162-1630183-", "R. Gobert - J. Randle - D. DiVincenzo - A. Edwards - J. McDaniels", 1610612750, MIN, 44, 27, 17, 0.614, 572.116667, 540, 1057, 0.511, 183, 445, 0.411, 212, 284, 0.746, 141, 417, 558, 329, 178.0, 92, 69, 31, 214, 239, 1475, 112.0, 1, 1, 13766, 5502, 1, 1, 1, 4154, 1, 1, 4013, 1, 1, 4837, 1, 1, 1, 1, 13766, 1, 1, 13763, 13766, 1, 1, 3, 1716350]
 components:
   parameters:
     LeagueID:

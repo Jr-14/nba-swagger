@@ -56,7 +56,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/infographicfanduelplayer`
 - ✅ `/stats/iststandings`
 - ✅ `/stats/leaderstiles`
-- `/stats/leaguedashlineups`
+- ✅ `/stats/leaguedashlineups`
 - `/stats/leaguedashoppptshot`
 - `/stats/leaguedashplayerbiostats`
 - `/stats/leaguedashplayerclutch`
