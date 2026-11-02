@@ -5611,6 +5611,142 @@ paths:
                         rowSet:
                           - [1642843, Cooper Flagg, "2025", 1, 1, 1, Draft, 1610612742, Dallas, Mavericks, DAL, Duke, College/University, 1]
                           - [1642844, Dylan Harper, "2025", 1, 2, 2, Draft, 1610612759, San Antonio, Spurs, SAS, Rutgers, College/University, 1]
+  /stats/dunkscoreleaders:
+    get:
+      operationId: getDunkScoreLeaders
+      tags: [Stats]
+      summary: dunkscoreleaders
+      description: >-
+        Returns dunk tracking records with dunk scores, biomechanical measurements,
+        style indicators, and assist details. Optional filters include season,
+        season type, player, team, and game. Requests can use either the proxy
+        Worker or the NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: false
+          description: Optional league identifier (00 for the NBA).
+          schema:
+            type: string
+            nullable: true
+          example: "00"
+        - name: Season
+          in: query
+          required: false
+          description: Season in NBA format, such as 2024-25.
+          schema:
+            type: string
+          example: "2024-25"
+        - name: SeasonType
+          in: query
+          required: false
+          description: Optional season segment.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs, All Star]
+          example: Regular Season
+        - name: PlayerID
+          in: query
+          required: false
+          description: Optional NBA player identifier.
+          schema:
+            type: integer
+            nullable: true
+        - name: TeamID
+          in: query
+          required: false
+          description: Optional NBA team identifier.
+          schema:
+            type: integer
+            nullable: true
+        - name: GameID
+          in: query
+          required: false
+          description: Optional ten-digit NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+            nullable: true
+      responses:
+        '200':
+          description: Dunk records, including tracking, scoring, and style data.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, dunks]
+                properties:
+                  meta:
+                    type: object
+                    additionalProperties: true
+                  dunks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DunkScoreLeader'
+              examples:
+                dunkRecords:
+                  summary: Tracked dunk records for one player
+                  value:
+                    meta:
+                      version: 1
+                      request: "https://stats.nba.com/stats/dunkscoreleaders?Season=2024-25"
+                      time: "2025-11-11T00:00:00.000Z"
+                    dunks:
+                      - gameId: "0022500101"
+                        gameDate: "10/25/2025 12:00:00 AM"
+                        matchup: "OKC @ ATL"
+                        period: 1
+                        gameClockTime: "11:06"
+                        eventNum: 13
+                        playerId: 1630168
+                        playerName: Onyeka Okongwu
+                        firstName: Onyeka
+                        lastName: Okongwu
+                        teamId: 1610612737
+                        teamName: Hawks
+                        teamCity: Atlanta
+                        teamAbbreviation: ATL
+                        dunkScore: 117.8
+                        jumpSubscore: 82.6
+                        powerSubscore: 96.8
+                        styleSubscore: 69.1
+                        defensiveContestSubscore: 87.3
+                        maxBallHeight: 10.9
+                        ballSpeedThroughRim: 28.772
+                        playerVertical: 32.338
+                        hangTime: 0.483
+                        takeoffDistance: 6.494
+                        reverseDunk: false
+                        dunk360: false
+                        throughTheLegs: false
+                        alleyOop: false
+                        tipIn: false
+                        selfOop: false
+                        playerRotation: 33.819
+                        playerLateralSpeed: 4.321
+                        ballDistanceTraveled: 2.13
+                        ballReachBack: 1.072
+                        totalBallAcceleration: 1.335
+                        dunkingHand: right
+                        jumpingFoot: both
+                        passLength: 0
+                        catchingHand: ""
+                        catchDistance: 0
+                        lateralCatchDistance: 0
+                        passerId: 0
+                        passerName: ""
+                        passerFirstName: ""
+                        passerLastName: ""
+                        passReleasePoint: ""
+                        shooterId: 0
+                        shooterName: ""
+                        shooterFirstName: ""
+                        shooterLastName: ""
+                        shotReleasePoint: ""
+                        shotLength: 0
+                        defensiveContestLevel: 73.816
+                        possibleAttemptedCharge: false
+                        videoAvailable: true
 components:
   parameters:
     LeagueID:
@@ -7473,4 +7609,120 @@ components:
           type: number
         percentagePoints:
           type: number
+      additionalProperties: true
+    DunkScoreLeader:
+      type: object
+      required: [gameId, gameDate, matchup, period, gameClockTime, eventNum, playerId, playerName, teamId, dunkScore, videoAvailable]
+      properties:
+        gameId:
+          type: string
+          pattern: '^\d{10}$'
+        gameDate:
+          type: string
+        matchup:
+          type: string
+        period:
+          type: integer
+        gameClockTime:
+          type: string
+        eventNum:
+          type: integer
+        playerId:
+          type: integer
+        playerName:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        teamId:
+          type: integer
+        teamName:
+          type: string
+        teamCity:
+          type: string
+        teamAbbreviation:
+          type: string
+        dunkScore:
+          type: number
+        jumpSubscore:
+          type: number
+        powerSubscore:
+          type: number
+        styleSubscore:
+          type: number
+        defensiveContestSubscore:
+          type: number
+        maxBallHeight:
+          type: number
+        ballSpeedThroughRim:
+          type: number
+        playerVertical:
+          type: number
+        hangTime:
+          type: number
+        takeoffDistance:
+          type: number
+        reverseDunk:
+          type: boolean
+        dunk360:
+          type: boolean
+        throughTheLegs:
+          type: boolean
+        alleyOop:
+          type: boolean
+        tipIn:
+          type: boolean
+        selfOop:
+          type: boolean
+        playerRotation:
+          type: number
+        playerLateralSpeed:
+          type: number
+        ballDistanceTraveled:
+          type: number
+        ballReachBack:
+          type: number
+        totalBallAcceleration:
+          type: number
+        dunkingHand:
+          type: string
+        jumpingFoot:
+          type: string
+        passLength:
+          type: number
+        catchingHand:
+          type: string
+        catchDistance:
+          type: number
+        lateralCatchDistance:
+          type: number
+        passerId:
+          type: integer
+        passerName:
+          type: string
+        passerFirstName:
+          type: string
+        passerLastName:
+          type: string
+        passReleasePoint:
+          type: string
+        shooterId:
+          type: integer
+        shooterName:
+          type: string
+        shooterFirstName:
+          type: string
+        shooterLastName:
+          type: string
+        shotReleasePoint:
+          type: string
+        shotLength:
+          type: number
+        defensiveContestLevel:
+          type: number
+        possibleAttemptedCharge:
+          type: boolean
+        videoAvailable:
+          type: boolean
       additionalProperties: true

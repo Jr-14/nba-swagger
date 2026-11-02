@@ -42,7 +42,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/draftcombinespotshooting`
 - ✅ `/stats/draftcombinestats`
 - ✅ `/stats/drafthistory`
-- `/stats/dunkscoreleaders`
+- ✅ `/stats/dunkscoreleaders`
 - `/stats/fantasywidget`
 - `/stats/franchisehistory`
 - `/stats/franchiseleaders`
