@@ -60,7 +60,7 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `/api/stats/commonteamyears`, `/api/stats/cumestatsplayer`,
   `/api/stats/cumestatsplayergames`, `/api/stats/cumestatsteam`,
   `/api/stats/cumestatsteamgames`, `/api/stats/defensehub`, and
-  `/api/stats/draftboard`.
+  `/api/stats/draftboard`, and `/api/stats/draftcombinedrillresults`.
   The assist endpoints are deprecated
   upstream and currently return the NBA.com homepage instead of JSON;
   `boxscoreadvancedv2`, `boxscorefourfactorsv2`, `boxscoremiscv2`,
