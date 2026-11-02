@@ -4242,6 +4242,120 @@ paths:
                           - ["00", 1610610023, "1949", "1949", null]
                           - ["00", 1610610024, "1947", "1954", null]
                           - ["00", 1610610025, "1946", "1949", null]
+  /stats/cumestatsplayer:
+    get:
+      operationId: getCumeStatsPlayer
+      tags: [Stats]
+      summary: cumestatsplayer
+      description: >-
+        Returns cumulative player statistics by game and season totals for the
+        requested game IDs. Requests can use either the proxy Worker or the NBA
+        Stats API directly.
+      parameters:
+        - name: GameIDs
+          in: query
+          required: true
+          description: Game identifier or pipe-separated list of game identifiers.
+          schema:
+            type: string
+            pattern: '^\d{10}(\|\d{10})*$'
+          example: "0022300001"
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            default: "00"
+          example: "00"
+        - name: PlayerID
+          in: query
+          required: true
+          description: NBA player identifier.
+          schema:
+            type: integer
+          example: 1629029
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2023-24.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2023-24"
+        - name: SeasonType
+          in: query
+          required: true
+          description: Season segment to include.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs, All Star]
+          example: Regular Season
+      responses:
+        '200':
+          description: Per-game and cumulative player statistics.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: cumestatsplayer
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [GameByGameStats, TotalPlayerStats]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: boolean
+                                - type: 'null'
+              examples:
+                cumulativePlayerStats:
+                  summary: Per-game and cumulative stats for one game
+                  value:
+                    resource: cumestatsplayer
+                    parameters:
+                      GameIDs: "0022300001"
+                      LeagueID: "00"
+                      PlayerID: 1629029
+                      Season: "2023-24"
+                      SeasonType: Regular Season
+                    resultSets:
+                      - name: GameByGameStats
+                        headers: [DATE_EST, VISITOR_TEAM, HOME_TEAM, GP, GS, ACTUAL_MINUTES, ACTUAL_SECONDS, FG, FGA, FG_PCT, FG3, FG3A, FG3_PCT, FT, FTA, FT_PCT, OFF_REB, DEF_REB, TOT_REB, AVG_TOT_REB, AST, PF, DQ, STL, TURNOVERS, BLK, PTS, AVG_PTS]
+                        rowSet:
+                          - ["10/25/2023", Mavericks, Spurs, 1, 1, 34, 15, 13, 25, 0.52, 3, 11, 0.273, 4, 7, 0.571, 1, 12, 13, 13, 10, 1, 0, 2, 4, 0, 33, 33]
+                      - name: TotalPlayerStats
+                        headers: [DISPLAY_FI_LAST, PERSON_ID, JERSEY_NUM, GP, GS, ACTUAL_MINUTES, ACTUAL_SECONDS, FG, FGA, FG_PCT, FG3, FG3A, FG3_PCT, FT, FTA, FT_PCT, OFF_REB, DEF_REB, TOT_REB, AST, PF, DQ, STL, TURNOVERS, BLK, PTS, MAX_ACTUAL_MINUTES, MAX_ACTUAL_SECONDS, MAX_REB, MAX_AST, MAX_STL, MAX_TURNOVERS, MAX_BLK, MAX_PTS, AVG_ACTUAL_MINUTES, AVG_ACTUAL_SECONDS, AVG_TOT_REB, AVG_AST, AVG_STL, AVG_TURNOVERS, AVG_BLK, AVG_PTS, PER_MIN_TOT_REB, PER_MIN_AST, PER_MIN_STL, PER_MIN_TURNOVERS, PER_MIN_BLK, PER_MIN_PTS]
+                        rowSet:
+                          - [L. Doncic, 1629029, "77", 1, 1, 34, 15, 13, 25, 0.52, 3, 11, 0.273, 4, 7, 0.571, 1, 12, 13, 10, 1, 0, 2, 4, 0, 33, 34, 15, 13, 10, 2, 4, 0, 33, 34, 15, 13, 10, 2, 4, 0, 33, 18.2, 14, 2.8, 5.6, 0, 46.2]
 components:
   parameters:
     LeagueID:

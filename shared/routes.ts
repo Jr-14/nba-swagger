@@ -30,6 +30,7 @@ const statsPaths = new Set([
   "commonplayoffseries",
   "commonteamroster",
   "commonteamyears",
+  "cumestatsplayer",
 ]);
 
 const fixedLivePaths = new Set([
