@@ -2107,6 +2107,87 @@ paths:
                           defendedAtRimFieldGoalsMade: 18
                           defendedAtRimFieldGoalsAttempted: 22
                           defendedAtRimFieldGoalPercentage: 0.818
+  /playbyplay/playbyplay_{game_id}.json:
+    get:
+      operationId: getLivePlayByPlay
+      tags: [Live]
+      summary: Live game play-by-play
+      description: >-
+        Returns the ordered play-by-play actions for a game. Action fields vary
+        by play type, so fields not relevant to an action may be omitted or null.
+        This endpoint is served by the NBA Live Data CDN.
+      servers:
+        - url: https://nba-swagger-proxy.jr-jemerson14.workers.dev/api/live
+          description: NBA API proxy
+        - url: https://cdn.nba.com/static/json/liveData
+          description: NBA Live Data CDN direct
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          description: Ten-digit NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022000180"
+      responses:
+        '200':
+          description: Game metadata and ordered play-by-play actions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, game]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/LivePlayByPlayMeta'
+                  game:
+                    $ref: '#/components/schemas/LivePlayByPlayGame'
+              examples:
+                gameActions:
+                  summary: First-period jump ball action
+                  value:
+                    meta:
+                      version: 1
+                      code: 200
+                      request: http://nba.cloud/games/0022000180/playbyplay?Format=json
+                      time: "2021-01-15 23:48:58.906160"
+                    game:
+                      gameId: "0022000180"
+                      actions:
+                        - actionNumber: 4
+                          clock: PT11M58.00S
+                          timeActual: "2021-01-16T00:40:31.3Z"
+                          period: 1
+                          periodType: REGULAR
+                          teamId: 1610612738
+                          teamTricode: BOS
+                          actionType: jumpball
+                          subType: recovered
+                          descriptor: startperiod
+                          qualifiers: []
+                          personId: 1629684
+                          x: null
+                          y: null
+                          possession: 1610612738
+                          scoreHome: "0"
+                          scoreAway: "0"
+                          edited: "2021-01-16T00:40:31Z"
+                          orderNumber: 40000
+                          xLegacy: null
+                          yLegacy: null
+                          isFieldGoal: 0
+                          jumpBallRecoveredName: G. Williams
+                          jumpBallRecoverdPersonId: 1629684
+                          side: null
+                          playerName: Williams
+                          playerNameI: G. Williams
+                          personIdsFilter: [1629684, 202684, 202696]
+                          jumpBallWonPlayerName: Thompson
+                          jumpBallWonPersonId: 202684
+                          description: "Jump Ball T. Thompson vs. N. Vucevic: Tip to G. Williams"
+                          jumpBallLostPlayerName: Vucevic
+                          jumpBallLostPersonId: 202696
   /odds/odds_todaysGames.json:
     get:
       operationId: getLiveOdds
@@ -3452,4 +3533,167 @@ components:
           type: object
           description: Player box score statistics; fields vary with game state.
           additionalProperties: true
+      additionalProperties: true
+    LivePlayByPlayMeta:
+      type: object
+      required: [version, code, request, time]
+      properties:
+        version:
+          type: integer
+        code:
+          type: integer
+        request:
+          type: string
+        time:
+          type: string
+      additionalProperties: true
+    LivePlayByPlayGame:
+      type: object
+      required: [gameId, actions]
+      properties:
+        gameId:
+          type: string
+          pattern: '^\d{10}$'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/LivePlayByPlayAction'
+      additionalProperties: true
+    LivePlayByPlayAction:
+      type: object
+      description: >-
+        An event in the game. Available fields depend on actionType and may be
+        absent or null for actions where they do not apply.
+      required: [actionNumber, clock, timeActual, period, periodType, actionType, orderNumber]
+      properties:
+        actionNumber:
+          type: integer
+        clock:
+          type: string
+        timeActual:
+          type: string
+        period:
+          type: integer
+        periodType:
+          type: string
+        teamId:
+          type: integer
+          nullable: true
+        teamTricode:
+          type: string
+          nullable: true
+        actionType:
+          type: string
+        subType:
+          type: string
+          nullable: true
+        descriptor:
+          type: string
+          nullable: true
+        qualifiers:
+          type: array
+          items:
+            type: string
+        personId:
+          type: integer
+          nullable: true
+        x:
+          type: number
+          nullable: true
+        y:
+          type: number
+          nullable: true
+        possession:
+          type: integer
+          nullable: true
+        scoreHome:
+          type: string
+          nullable: true
+        scoreAway:
+          type: string
+          nullable: true
+        edited:
+          type: string
+          nullable: true
+        orderNumber:
+          type: integer
+        xLegacy:
+          type: integer
+          nullable: true
+        yLegacy:
+          type: integer
+          nullable: true
+        isFieldGoal:
+          type: integer
+          enum: [0, 1]
+          nullable: true
+        jumpBallRecoveredName:
+          type: string
+        jumpBallRecoverdPersonId:
+          type: integer
+        side:
+          type: string
+          enum: [left, right]
+          nullable: true
+        playerName:
+          type: string
+        playerNameI:
+          type: string
+        personIdsFilter:
+          type: array
+          items:
+            type: integer
+        jumpBallWonPlayerName:
+          type: string
+        jumpBallWonPersonId:
+          type: integer
+        description:
+          type: string
+        jumpBallLostPlayerName:
+          type: string
+        jumpBallLostPersonId:
+          type: integer
+        assistPersonId:
+          type: integer
+        assistPlayerNameInitial:
+          type: string
+        assistTotal:
+          type: integer
+        blockPersonId:
+          type: integer
+        blockPlayerName:
+          type: string
+        foulDrawnPersonId:
+          type: integer
+        foulDrawnPlayerName:
+          type: string
+        foulPersonalTotal:
+          type: integer
+        foulTechnicalTotal:
+          type: integer
+        officialId:
+          type: integer
+        pointsTotal:
+          type: integer
+        reboundDefensiveTotal:
+          type: integer
+        reboundOffensiveTotal:
+          type: integer
+        reboundTotal:
+          type: integer
+        shotActionNumber:
+          type: integer
+        shotDistance:
+          type: number
+        shotResult:
+          type: string
+          enum: [Made, Missed]
+        stealPersonId:
+          type: integer
+        stealPlayerName:
+          type: string
+        turnoverTotal:
+          type: integer
+        value:
+          type: string
       additionalProperties: true
