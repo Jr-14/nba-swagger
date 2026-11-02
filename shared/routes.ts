@@ -10,6 +10,7 @@ const statsPaths = new Set([
   "boxscoreadvancedv2",
   "boxscoreadvancedv3",
   "boxscoredefensivev2",
+  "boxscorefourfactorsv2",
 ]);
 
 const fixedLivePaths = new Set([
