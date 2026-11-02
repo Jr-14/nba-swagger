@@ -3974,6 +3974,101 @@ paths:
                         headers: [SEASON_ID]
                         rowSet:
                           - ["12017"]
+  /stats/commonplayoffseries:
+    get:
+      operationId: getCommonPlayoffSeries
+      tags: [Stats]
+      summary: commonplayoffseries
+      description: >-
+        Returns the games in NBA playoff series for a season. SeriesID is
+        optional; omit it or leave it empty to retrieve all series. Requests can
+        use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            default: "00"
+          example: "00"
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2023-24.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2023-24"
+        - name: SeriesID
+          in: query
+          required: false
+          description: Optional playoff series identifier; empty returns all series.
+          schema:
+            type: string
+            default: ""
+          example: "004230010"
+      responses:
+        '200':
+          description: Games, home and visitor team IDs, series IDs, and game numbers.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: commonplayoffseries
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [PlayoffSeries]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                playoffGames:
+                  summary: Games in a playoff series
+                  value:
+                    resource: commonplayoffseries
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2023-24"
+                      SeriesID: "004230010"
+                    resultSets:
+                      - name: PlayoffSeries
+                        headers: [GAME_ID, HOME_TEAM_ID, VISITOR_TEAM_ID, SERIES_ID, GAME_NUM]
+                        rowSet:
+                          - ["0042300101", 1610612738, 1610612748, "004230010", 1]
+                          - ["0042300102", 1610612738, 1610612748, "004230010", 2]
+                          - ["0042300103", 1610612748, 1610612738, "004230010", 3]
+                          - ["0042300104", 1610612748, 1610612738, "004230010", 4]
 components:
   parameters:
     LeagueID:
