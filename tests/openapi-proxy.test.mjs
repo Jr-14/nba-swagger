@@ -13,6 +13,7 @@ test("production spec has a public proxy URL without deployment variables", () =
 test("built OpenAPI points at the Worker and retains the direct Stats server", () => {
   const result = configureProxyServer(spec, "https://nba-swagger-proxy.example.workers.dev/api");
   assert.ok(result.includes('url: "https://nba-swagger-proxy.example.workers.dev/api"'));
+  assert.ok(result.includes('url: "https://nba-swagger-proxy.example.workers.dev/api/live"'));
   assert.ok(result.includes("url: https://stats.nba.com"));
   assert.ok(!result.includes("url: /api\n"));
 });
@@ -23,7 +24,10 @@ test("local Pages can use the separate local Worker", () => {
 });
 
 test("Vite can point at the local API route", () => {
-  assert.ok(configureProxyServer(spec, "/api").includes('url: "/api"'));
+  const result = configureProxyServer(spec, "/api");
+  assert.ok(result.includes('url: "/api"'));
+  assert.ok(result.includes('url: "/api/live"'));
+  assert.ok(!result.includes("https://nba-swagger-proxy.jr-jemerson14.workers.dev/api/live"));
 });
 
 test("reject malformed or unsafe deployment proxy URLs", () => {

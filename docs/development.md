@@ -210,8 +210,9 @@ forwarding, full responses, CORS, rate limiting, concurrency, timeouts, size
 limits, and Live JSON served as `text/plain`.
 
 Production uses the public proxy URL in `src/openapi.yml`. Local tooling
-overrides it automatically; there is no required `VITE_PROXY_URL` setting. Only
-the full Pages build uses the internal `LOCAL_PROXY_URL` override.
+overrides the global and operation-level proxy servers automatically, including
+the Live API base path; there is no required `VITE_PROXY_URL` setting. Only the
+full Pages build uses the internal `LOCAL_PROXY_URL` override.
 
 ## Production verification and logs
 

@@ -20,5 +20,11 @@ export function configureProxyServer(source, proxyUrl) {
   if (!marker.test(source)) {
     throw new Error("Could not find the proxy server entry in src/openapi.yml");
   }
-  return source.replace(marker, (_, prefix) => `${prefix}${JSON.stringify(value)}`);
+  const configured = source.replace(marker, (_, prefix) => `${prefix}${JSON.stringify(value)}`);
+  const liveMarker = /(^\s+- url: )https:\/\/nba-swagger-proxy\.jr-jemerson14\.workers\.dev\/api\/live(?=\r?$)/gm;
+  const liveProxyUrl = value === "/api" ? "/api/live" : `${value}/live`;
+  return configured.replace(
+    liveMarker,
+    (_, prefix) => `${prefix}${JSON.stringify(liveProxyUrl)}`,
+  );
 }

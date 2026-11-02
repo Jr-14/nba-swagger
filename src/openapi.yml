@@ -2107,6 +2107,63 @@ paths:
                           defendedAtRimFieldGoalsMade: 18
                           defendedAtRimFieldGoalsAttempted: 22
                           defendedAtRimFieldGoalPercentage: 0.818
+  /odds/odds_todaysGames.json:
+    get:
+      operationId: getLiveOdds
+      tags: [Live]
+      summary: Live betting odds
+      description: >-
+        Returns betting markets, sportsbooks, and outcomes for games provided by
+        the NBA Live Data CDN. Despite the filename, the feed may include games
+        beyond today and can be empty when odds are unavailable.
+      servers:
+        - url: https://nba-swagger-proxy.jr-jemerson14.workers.dev/api/live
+          description: NBA API proxy
+        - url: https://cdn.nba.com/static/json/liveData
+          description: NBA Live Data CDN direct
+      responses:
+        '200':
+          description: Betting markets and odds grouped by game.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [games]
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LiveOddsGame'
+              examples:
+                gameOdds:
+                  summary: Odds for one game
+                  value:
+                    games:
+                      - gameId: "0022400913"
+                        sr_id: "sr:match:52632103"
+                        srMatchId: "52632103"
+                        homeTeamId: "1610612745"
+                        awayTeamId: "1610612740"
+                        markets:
+                          - name: 2way
+                            odds_type_id: 1
+                            group_name: regular
+                            books:
+                              - id: "sr:book:108"
+                                name: Sportsbet
+                                outcomes:
+                                  - odds_field_id: 1
+                                    type: home
+                                    odds: "1.370"
+                                    opening_odds: "1.360"
+                                    odds_trend: up
+                                  - odds_field_id: 2
+                                    type: away
+                                    odds: "3.220"
+                                    opening_odds: "3.300"
+                                    odds_trend: down
+                                url: https://sportsbet.com.au
+                                countryCode: AUS
   /boxscore/boxscore_{game_id}.json:
     get:
       operationId: getLiveBoxScore
@@ -3213,6 +3270,82 @@ components:
         awayTeam:
           $ref: '#/components/schemas/LiveBoxScoreTeam'
       additionalProperties: true
+    LiveOddsGame:
+      type: object
+      required: [gameId, sr_id, srMatchId, homeTeamId, awayTeamId, markets]
+      properties:
+        gameId:
+          type: string
+          pattern: '^\d{10}$'
+        sr_id:
+          type: string
+        srMatchId:
+          type: string
+        homeTeamId:
+          type: string
+        awayTeamId:
+          type: string
+        markets:
+          type: array
+          items:
+            $ref: '#/components/schemas/LiveOddsMarket'
+    LiveOddsMarket:
+      type: object
+      required: [name, odds_type_id, group_name, books]
+      properties:
+        name:
+          type: string
+          description: Market type, such as 2way or spread.
+        odds_type_id:
+          type: integer
+        group_name:
+          type: string
+        books:
+          type: array
+          items:
+            $ref: '#/components/schemas/LiveOddsBook'
+    LiveOddsBook:
+      type: object
+      required: [id, name, outcomes, url, countryCode]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        outcomes:
+          type: array
+          items:
+            $ref: '#/components/schemas/LiveOddsOutcome'
+        url:
+          type: string
+          format: uri
+        countryCode:
+          type: string
+    LiveOddsOutcome:
+      type: object
+      required: [odds_field_id, type, odds, opening_odds, odds_trend]
+      properties:
+        odds_field_id:
+          type: integer
+        type:
+          type: string
+          description: Outcome side or market selection.
+        odds:
+          type: string
+          description: Current odds, represented as a string by the upstream API.
+        opening_odds:
+          type: string
+        odds_trend:
+          type: string
+          enum: [up, down]
+        spread:
+          type: string
+          nullable: true
+          description: Present for spread markets.
+        opening_spread:
+          type: number
+          nullable: true
+          description: Present for spread markets.
     LiveBoxScoreArena:
       type: object
       properties:
