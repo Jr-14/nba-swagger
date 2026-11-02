@@ -12063,6 +12063,76 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playercareerbycollege:
+    get:
+      operationId: getPlayerCareerByCollege
+      tags: [Stats]
+      summary: playercareerbycollege
+      description: >-
+        Returns NBA career statistics for players from a specified college.
+        The upstream stats.nba.com endpoint has been returning HTTP 500 errors
+        for tested parameter combinations.
+      parameters:
+        - name: College
+          in: query
+          required: true
+          schema: { type: string }
+          example: Ohio State
+        - name: LeagueID
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{2}$', default: "00" }
+        - name: PerMode
+          in: query
+          required: true
+          schema: { type: string, enum: [Totals, PerGame], default: Totals }
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season }
+        - name: Season
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+      responses:
+        '200':
+          description: Career statistics by college, when returned by upstream.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: playercareerbycollege
+                  parameters:
+                    type: object
+                    additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [PlayerCareerByCollege]
+                        headers:
+                          type: array
+                          items: { type: string }
+                          example: [PLAYER_ID, PLAYER_NAME, COLLEGE, GP, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS]
+                        rowSet:
+                          type: array
+                          description: Upstream has recently failed with HTTP 500; no response cassette is available.
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
   /stats/playerawards:
     get:
       operationId: getPlayerAwards
