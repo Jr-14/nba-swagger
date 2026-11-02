@@ -43,6 +43,7 @@ const statsPaths = new Set([
   "draftcombinestats",
   "drafthistory",
   "dunkscoreleaders",
+  "fantasywidget",
 ]);
 
 const fixedLivePaths = new Set([

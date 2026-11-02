@@ -5747,6 +5747,234 @@ paths:
                         defensiveContestLevel: 73.816
                         possibleAttemptedCharge: false
                         videoAvailable: true
+  /stats/fantasywidget:
+    get:
+      operationId: getFantasyWidget
+      tags: [Stats]
+      summary: fantasywidget
+      description: >-
+        Returns fantasy and traditional player statistics with filters for season,
+        game segment, teams, player, position, and date. Requests can use either
+        the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: ActivePlayers
+          in: query
+          required: false
+          description: Restrict results to active players.
+          schema:
+            type: string
+            enum: [Y, N]
+        - name: DateFrom
+          in: query
+          required: false
+          description: Optional start date in MM/DD/YYYY format.
+          schema:
+            type: string
+            nullable: true
+          example: "10/21/2025"
+        - name: DateTo
+          in: query
+          required: false
+          description: Optional end date in MM/DD/YYYY format.
+          schema:
+            type: string
+            nullable: true
+          example: "04/12/2026"
+        - name: LastNGames
+          in: query
+          required: false
+          description: Restrict results to the most recent N games.
+          schema:
+            type: integer
+            minimum: 0
+        - name: LeagueID
+          in: query
+          required: false
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: Location
+          in: query
+          required: false
+          description: Optional home/road game filter.
+          schema:
+            type: string
+            enum: [Home, Road]
+            nullable: true
+        - name: Month
+          in: query
+          required: false
+          description: Optional regular-season month number (0 for all months).
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 12
+        - name: OpponentTeamID
+          in: query
+          required: false
+          description: Optional opposing NBA team identifier; 0 includes all opponents.
+          schema:
+            type: integer
+            minimum: 0
+        - name: PlayerID
+          in: query
+          required: false
+          description: Optional NBA player identifier; 0 includes all players.
+          schema:
+            type: integer
+            minimum: 0
+        - name: Position
+          in: query
+          required: false
+          description: Optional player position filter.
+          schema:
+            type: string
+            enum: [Guard, Forward, Center]
+            nullable: true
+        - name: PORound
+          in: query
+          required: false
+          description: Optional playoff round (0 for all rounds).
+          schema:
+            type: integer
+            minimum: 0
+        - name: Season
+          in: query
+          required: false
+          description: Season in NBA format, such as 2025-26.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2025-26"
+        - name: SeasonSegment
+          in: query
+          required: false
+          description: Optional season segment.
+          schema:
+            type: string
+            enum: [Post All-Star, Pre All-Star]
+            nullable: true
+        - name: SeasonType
+          in: query
+          required: false
+          description: Season segment type.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs, All Star]
+        - name: TeamID
+          in: query
+          required: false
+          description: Optional NBA team identifier; 0 includes all teams.
+          schema:
+            type: integer
+            minimum: 0
+        - name: TodaysOpponent
+          in: query
+          required: false
+          description: Optional today-opponent filter; 0 disables the filter.
+          schema:
+            type: integer
+            minimum: 0
+        - name: TodaysPlayers
+          in: query
+          required: false
+          description: Restrict results to players playing today.
+          schema:
+            type: string
+            enum: [Y, N]
+        - name: VsConference
+          in: query
+          required: false
+          description: Optional opponent conference filter.
+          schema:
+            type: string
+            enum: [East, West]
+            nullable: true
+        - name: VsDivision
+          in: query
+          required: false
+          description: Optional opponent division filter.
+          schema:
+            type: string
+            enum: [Atlantic, Central, Southeast, Northwest, Pacific, Southwest]
+            nullable: true
+      responses:
+        '200':
+          description: Fantasy statistics in one FantasyWidgetResult table.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: fantasywidget
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [FantasyWidgetResult]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                fantasyPlayerStats:
+                  summary: Fantasy and traditional stats for a player
+                  value:
+                    resource: fantasywidget
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      TodaysPlayers: N
+                      ActivePlayers: N
+                      LastNGames: 0
+                      TeamID: 0
+                      PlayerID: 0
+                      Location: null
+                      Month: 0
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: 0
+                      VsConference: null
+                      VsDivision: null
+                      Position: null
+                      TodaysOpponent: 0
+                      PORound: 0
+                    resultSets:
+                      - name: FantasyWidgetResult
+                        headers: [PLAYER_ID, PLAYER_NAME, PLAYER_POSITION, TEAM_ID, TEAM_ABBREVIATION, GP, MIN, FAN_DUEL_PTS, NBA_FANTASY_PTS, PTS, REB, AST, BLK, STL, TOV, FG3M, FGA, FG_PCT, FTA, FT_PCT]
+                        rowSet:
+                          - [203999, "Nikola Jokić", C, 1610612743, DEN, 41, 34.2, 59.7, 61.8, 28.6, 12.3, 10.5, 0.73, 1.39, 3.7, 1.9, 17.1, 0.586, 7.9, 0.833]
 components:
   parameters:
     LeagueID:
