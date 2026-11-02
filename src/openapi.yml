@@ -1932,6 +1932,179 @@ paths:
                           blocksAgainst: 3
                           foulsPersonal: 33
                           foulsDrawn: 27
+  /stats/boxscoreplayertrackv3:
+    get:
+      operationId: getBoxScorePlayerTrackV3
+      tags: [Stats]
+      summary: boxscoreplayertrackv3
+      description: >-
+        Returns player and team tracking statistics for a game, including
+        movement, rebounding chances, touches, passing, shooting, and defended-at-
+        rim metrics. The V3 response is nested JSON grouped by home and away teams.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+      responses:
+        '200':
+          description: Nested player tracking box score grouped by home and away teams.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, boxScorePlayerTrack]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/BoxScorePlayerTrackV3Meta'
+                  boxScorePlayerTrack:
+                    type: object
+                    required: [gameId, awayTeamId, homeTeamId, homeTeam, awayTeam]
+                    properties:
+                      gameId:
+                        type: string
+                        pattern: '^\d{10}$'
+                      awayTeamId:
+                        type: integer
+                      homeTeamId:
+                        type: integer
+                      homeTeam:
+                        $ref: '#/components/schemas/BoxScorePlayerTrackV3Team'
+                      awayTeam:
+                        $ref: '#/components/schemas/BoxScorePlayerTrackV3Team'
+              examples:
+                gameBoxScore:
+                  summary: Player tracking box score for one game
+                  value:
+                    meta:
+                      version: 1
+                      request: http://nba.cloud/games/0022200552/boxscoreplayertrack?Format=json
+                      time: "2026-02-22T05:12:33.1233Z"
+                    boxScorePlayerTrack:
+                      gameId: "0022200552"
+                      awayTeamId: 1610612741
+                      homeTeamId: 1610612739
+                      homeTeam:
+                        teamId: 1610612739
+                        teamCity: Cleveland
+                        teamName: Cavaliers
+                        teamTricode: CLE
+                        teamSlug: cavaliers
+                        players:
+                          - personId: 1630205
+                            firstName: Lamar
+                            familyName: Stevens
+                            nameI: L. Stevens
+                            playerSlug: lamar-stevens
+                            position: F
+                            comment: ""
+                            jerseyNum: "8"
+                            statistics:
+                              minutes: "19:09"
+                              speed: 4.56
+                              distance: 1.54
+                              reboundChancesOffensive: 2
+                              reboundChancesDefensive: 2
+                              reboundChancesTotal: 4
+                              touches: 30
+                              secondaryAssists: 1
+                              freeThrowAssists: 0
+                              passes: 25
+                              assists: 2
+                              contestedFieldGoalsMade: 1
+                              contestedFieldGoalsAttempted: 2
+                              contestedFieldGoalPercentage: 0.5
+                              uncontestedFieldGoalsMade: 1
+                              uncontestedFieldGoalsAttempted: 3
+                              uncontestedFieldGoalsPercentage: 0.333
+                              fieldGoalPercentage: 0.4
+                              defendedAtRimFieldGoalsMade: 3
+                              defendedAtRimFieldGoalsAttempted: 3
+                              defendedAtRimFieldGoalPercentage: 1.0
+                        statistics:
+                          minutes: "265:00"
+                          distance: 19.33
+                          reboundChancesOffensive: 29
+                          reboundChancesDefensive: 53
+                          reboundChancesTotal: 78
+                          touches: 432
+                          secondaryAssists: 3
+                          freeThrowAssists: 2
+                          passes: 299
+                          assists: 27
+                          contestedFieldGoalsMade: 23
+                          contestedFieldGoalsAttempted: 31
+                          contestedFieldGoalPercentage: 0.742
+                          uncontestedFieldGoalsMade: 25
+                          uncontestedFieldGoalsAttempted: 61
+                          uncontestedFieldGoalsPercentage: 0.41
+                          fieldGoalPercentage: 0.522
+                          defendedAtRimFieldGoalsMade: 20
+                          defendedAtRimFieldGoalsAttempted: 27
+                          defendedAtRimFieldGoalPercentage: 0.741
+                      awayTeam:
+                        teamId: 1610612741
+                        teamCity: Chicago
+                        teamName: Bulls
+                        teamTricode: CHI
+                        teamSlug: bulls
+                        players:
+                          - personId: 201942
+                            firstName: DeMar
+                            familyName: DeRozan
+                            nameI: D. DeRozan
+                            playerSlug: demar-derozan
+                            position: F
+                            comment: ""
+                            jerseyNum: "11"
+                            statistics:
+                              minutes: "45:55"
+                              speed: 3.77
+                              distance: 3.13
+                              reboundChancesOffensive: 3
+                              reboundChancesDefensive: 5
+                              reboundChancesTotal: 8
+                              touches: 83
+                              secondaryAssists: 1
+                              freeThrowAssists: 0
+                              passes: 39
+                              assists: 4
+                              contestedFieldGoalsMade: 7
+                              contestedFieldGoalsAttempted: 15
+                              contestedFieldGoalPercentage: 0.467
+                              uncontestedFieldGoalsMade: 9
+                              uncontestedFieldGoalsAttempted: 17
+                              uncontestedFieldGoalsPercentage: 0.529
+                              fieldGoalPercentage: 0.5
+                              defendedAtRimFieldGoalsMade: 6
+                              defendedAtRimFieldGoalsAttempted: 7
+                              defendedAtRimFieldGoalPercentage: 0.857
+                        statistics:
+                          minutes: "265:00"
+                          distance: 19.3
+                          reboundChancesOffensive: 23
+                          reboundChancesDefensive: 60
+                          reboundChancesTotal: 76
+                          touches: 412
+                          secondaryAssists: 3
+                          freeThrowAssists: 3
+                          passes: 281
+                          assists: 22
+                          contestedFieldGoalsMade: 19
+                          contestedFieldGoalsAttempted: 35
+                          contestedFieldGoalPercentage: 0.543
+                          uncontestedFieldGoalsMade: 29
+                          uncontestedFieldGoalsAttempted: 61
+                          uncontestedFieldGoalsPercentage: 0.475
+                          fieldGoalPercentage: 0.495
+                          defendedAtRimFieldGoalsMade: 18
+                          defendedAtRimFieldGoalsAttempted: 22
+                          defendedAtRimFieldGoalPercentage: 0.818
 components:
   parameters:
     LeagueID:
@@ -2539,6 +2712,190 @@ components:
           type: integer
         shootingFouls:
           type: integer
+    BoxScorePlayerTrackV3Meta:
+      type: object
+      required: [version, request, time]
+      properties:
+        version:
+          type: integer
+        request:
+          type: string
+        time:
+          type: string
+          format: date-time
+    BoxScorePlayerTrackV3Team:
+      type: object
+      required: [teamId, teamCity, teamName, teamTricode, teamSlug, players, statistics]
+      properties:
+        teamId:
+          type: integer
+        teamCity:
+          type: string
+        teamName:
+          type: string
+        teamTricode:
+          type: string
+        teamSlug:
+          type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScorePlayerTrackV3Player'
+        statistics:
+          $ref: '#/components/schemas/BoxScorePlayerTrackV3TeamStatistics'
+    BoxScorePlayerTrackV3Player:
+      type: object
+      required: [personId, firstName, familyName, nameI, playerSlug, position, comment, jerseyNum, statistics]
+      properties:
+        personId:
+          type: integer
+        firstName:
+          type: string
+        familyName:
+          type: string
+        nameI:
+          type: string
+        playerSlug:
+          type: string
+        position:
+          type: string
+        comment:
+          type: string
+        jerseyNum:
+          type: string
+        statistics:
+          $ref: '#/components/schemas/BoxScorePlayerTrackV3PlayerStatistics'
+    BoxScorePlayerTrackV3PlayerStatistics:
+      type: object
+      required:
+        - minutes
+        - speed
+        - distance
+        - reboundChancesOffensive
+        - reboundChancesDefensive
+        - reboundChancesTotal
+        - touches
+        - secondaryAssists
+        - freeThrowAssists
+        - passes
+        - assists
+        - contestedFieldGoalsMade
+        - contestedFieldGoalsAttempted
+        - contestedFieldGoalPercentage
+        - uncontestedFieldGoalsMade
+        - uncontestedFieldGoalsAttempted
+        - uncontestedFieldGoalsPercentage
+        - fieldGoalPercentage
+        - defendedAtRimFieldGoalsMade
+        - defendedAtRimFieldGoalsAttempted
+        - defendedAtRimFieldGoalPercentage
+      properties:
+        minutes:
+          type: string
+        speed:
+          type: number
+        distance:
+          type: number
+        reboundChancesOffensive:
+          type: integer
+        reboundChancesDefensive:
+          type: integer
+        reboundChancesTotal:
+          type: integer
+        touches:
+          type: integer
+        secondaryAssists:
+          type: integer
+        freeThrowAssists:
+          type: integer
+        passes:
+          type: integer
+        assists:
+          type: integer
+        contestedFieldGoalsMade:
+          type: integer
+        contestedFieldGoalsAttempted:
+          type: integer
+        contestedFieldGoalPercentage:
+          type: number
+        uncontestedFieldGoalsMade:
+          type: integer
+        uncontestedFieldGoalsAttempted:
+          type: integer
+        uncontestedFieldGoalsPercentage:
+          type: number
+        fieldGoalPercentage:
+          type: number
+        defendedAtRimFieldGoalsMade:
+          type: integer
+        defendedAtRimFieldGoalsAttempted:
+          type: integer
+        defendedAtRimFieldGoalPercentage:
+          type: number
+    BoxScorePlayerTrackV3TeamStatistics:
+      type: object
+      required:
+        - minutes
+        - distance
+        - reboundChancesOffensive
+        - reboundChancesDefensive
+        - reboundChancesTotal
+        - touches
+        - secondaryAssists
+        - freeThrowAssists
+        - passes
+        - assists
+        - contestedFieldGoalsMade
+        - contestedFieldGoalsAttempted
+        - contestedFieldGoalPercentage
+        - uncontestedFieldGoalsMade
+        - uncontestedFieldGoalsAttempted
+        - uncontestedFieldGoalsPercentage
+        - fieldGoalPercentage
+        - defendedAtRimFieldGoalsMade
+        - defendedAtRimFieldGoalsAttempted
+        - defendedAtRimFieldGoalPercentage
+      properties:
+        minutes:
+          type: string
+        distance:
+          type: number
+        reboundChancesOffensive:
+          type: integer
+        reboundChancesDefensive:
+          type: integer
+        reboundChancesTotal:
+          type: integer
+        touches:
+          type: integer
+        secondaryAssists:
+          type: integer
+        freeThrowAssists:
+          type: integer
+        passes:
+          type: integer
+        assists:
+          type: integer
+        contestedFieldGoalsMade:
+          type: integer
+        contestedFieldGoalsAttempted:
+          type: integer
+        contestedFieldGoalPercentage:
+          type: number
+        uncontestedFieldGoalsMade:
+          type: integer
+        uncontestedFieldGoalsAttempted:
+          type: integer
+        uncontestedFieldGoalsPercentage:
+          type: number
+        fieldGoalPercentage:
+          type: number
+        defendedAtRimFieldGoalsMade:
+          type: integer
+        defendedAtRimFieldGoalsAttempted:
+          type: integer
+        defendedAtRimFieldGoalPercentage:
+          type: number
     BoxScoreMiscV3Meta:
       type: object
       required: [version, request, time]
