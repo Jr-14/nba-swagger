@@ -7031,6 +7031,173 @@ paths:
                         headers: [PLAYER_ID, PLAYER_NAME, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, JERSEY_NUM, PLAYER_POSITION, LOCATION, FAN_DUEL_PTS, NBA_FANTASY_PTS, USG_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, TOV, STL, BLK, BLKA, PF, PFD, PTS, PLUS_MINUS]
                         rowSet:
                           - [1628378, Donovan Mitchell, 1610612739, Cleveland Cavaliers, CLE, "45", G, Home, 95.1, 96.1, 0.409, 49.8, 22, 34, 0.647, 7, 15, 0.467, 20, 25, 0.8, 3, 5, 8, 11, 4, 0, 1, 0, 3, 19, 71, 19]
+  /stats/iststandings:
+    get:
+      operationId: getISTStandings
+      tags: [Stats]
+      summary: iststandings
+      description: >-
+        Returns NBA In-Season Tournament standings, team records, clinching status,
+        and results from the four group-stage games. Requests can use either the
+        proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2025-26.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2025-26"
+        - name: Section
+          in: query
+          required: true
+          description: Standings section to return.
+          schema:
+            type: string
+            enum: [group, wildcard]
+          example: group
+      responses:
+        '200':
+          description: Raw IST standings response with team records and game results.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [leagueId, seasonYear, teams]
+                properties:
+                  leagueId:
+                    type: string
+                    example: "00"
+                  seasonYear:
+                    type: string
+                    example: "2025-26"
+                  unixTimeStamp:
+                    type: integer
+                  timeStampUtc:
+                    type: string
+                    example: "2026-02-22T05:23:52.34"
+                  teams:
+                    type: array
+                    items:
+                      type: object
+                      required: [teamId, teamName, conference, istGroup, wins, losses, games]
+                      properties:
+                        teamId:
+                          type: integer
+                        teamCity:
+                          type: string
+                        teamName:
+                          type: string
+                        teamAbbreviation:
+                          type: string
+                        teamSlug:
+                          type: string
+                        conference:
+                          type: string
+                          enum: [East, West]
+                        istGroup:
+                          type: string
+                        clinchIndicator:
+                          type: string
+                        clinchedIstKnockout:
+                          type: integer
+                        clinchedIstGroup:
+                          type: integer
+                        clinchedIstWildcard:
+                          type: integer
+                        istWildcardRank:
+                          type: integer
+                        istGroupRank:
+                          type: integer
+                        istKnockoutRank:
+                          type: integer
+                          nullable: true
+                        wins:
+                          type: integer
+                        losses:
+                          type: integer
+                        pct:
+                          type: number
+                        istGroupGb:
+                          type: number
+                        istWildcardGb:
+                          type: number
+                          nullable: true
+                        diff:
+                          type: integer
+                        pts:
+                          type: integer
+                        oppPts:
+                          type: integer
+                        games:
+                          type: array
+                          items:
+                            type: object
+                            required: [gameId, gameNumber, opponentTeamAbbreviation, location, gameStatus, gameStatusText, outcome]
+                            properties:
+                              gameId:
+                                type: string
+                                pattern: '^\d{10}$'
+                              gameNumber:
+                                type: integer
+                              opponentTeamAbbreviation:
+                                type: string
+                              location:
+                                type: string
+                                enum: [H, A]
+                              gameStatus:
+                                type: integer
+                              gameStatusText:
+                                type: string
+                              outcome:
+                                type: string
+                                enum: [W, L]
+              example:
+                leagueId: "00"
+                seasonYear: "2025-26"
+                unixTimeStamp: 1771737832
+                timeStampUtc: "2026-02-22T05:23:52.34"
+                teams:
+                  - teamId: 1610612747
+                    teamCity: Los Angeles
+                    teamName: Lakers
+                    teamAbbreviation: LAL
+                    teamSlug: lakers
+                    conference: West
+                    istGroup: West Group B
+                    clinchIndicator: " -x"
+                    clinchedIstKnockout: 1
+                    clinchedIstGroup: 1
+                    clinchedIstWildcard: 0
+                    istWildcardRank: 2
+                    istGroupRank: 1
+                    istKnockoutRank: 2
+                    wins: 4
+                    losses: 0
+                    pct: 1.0
+                    istGroupGb: 0.0
+                    istWildcardGb: null
+                    diff: 46
+                    pts: 499
+                    oppPts: 453
+                    games:
+                      - gameId: "0022500024"
+                        gameNumber: 1
+                        opponentTeamAbbreviation: MEM
+                        location: A
+                        gameStatus: 3
+                        gameStatusText: Final
+                        outcome: W
 components:
   parameters:
     LeagueID:
