@@ -13,6 +13,7 @@ const statsPaths = new Set([
   "boxscorefourfactorsv2",
   "boxscorefourfactorsv3",
   "boxscorehustlev2",
+  "boxscorematchupsv3",
 ]);
 
 const fixedLivePaths = new Set([

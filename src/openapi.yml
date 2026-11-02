@@ -1312,6 +1312,161 @@ paths:
                           oppFreeThrowAttemptRate: 0.489
                           oppTeamTurnoverPercentage: 0.093
                           oppOffensiveReboundPercentage: 0.269
+  /stats/boxscorematchupsv3:
+    get:
+      operationId: getBoxScoreMatchupsV3
+      tags: [Stats]
+      summary: boxscorematchupsv3
+      description: >-
+        Returns player-to-player defensive matchup statistics for a game. The
+        nested response groups players by team; each player contains a list of
+        opposing-player matchups and matchup statistics. Requests can use either
+        the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+      responses:
+        '200':
+          description: Player matchup box score for one game.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, boxScoreMatchups]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/BoxScoreMatchupsV3Meta'
+                  boxScoreMatchups:
+                    type: object
+                    required: [gameId, awayTeamId, homeTeamId, homeTeam, awayTeam]
+                    properties:
+                      gameId:
+                        type: string
+                        pattern: '^\d{10}$'
+                      awayTeamId:
+                        type: integer
+                      homeTeamId:
+                        type: integer
+                      homeTeam:
+                        $ref: '#/components/schemas/BoxScoreMatchupsV3Team'
+                      awayTeam:
+                        $ref: '#/components/schemas/BoxScoreMatchupsV3Team'
+              examples:
+                gameMatchups:
+                  summary: Player matchup box score for one game
+                  value:
+                    meta:
+                      version: 1
+                      request: http://nba.cloud/games/0022200552/boxscorematchups?Format=json
+                      time: "2026-02-22T05:12:42.1242Z"
+                    boxScoreMatchups:
+                      gameId: "0022200552"
+                      awayTeamId: 1610612741
+                      homeTeamId: 1610612739
+                      homeTeam:
+                        teamId: 1610612739
+                        teamCity: Cleveland
+                        teamName: Cavaliers
+                        teamTricode: CLE
+                        teamSlug: cavaliers
+                        players:
+                          - personId: 1630205
+                            firstName: Lamar
+                            familyName: Stevens
+                            nameI: L. Stevens
+                            playerSlug: lamar-stevens
+                            position: F
+                            comment: ""
+                            jerseyNum: "8"
+                            matchups:
+                              - personId: 1627936
+                                firstName: Alex
+                                familyName: Caruso
+                                nameI: A. Caruso
+                                playerSlug: alex-caruso
+                                jerseyNum: "6"
+                                statistics:
+                                  matchupMinutes: "0:08"
+                                  matchupMinutesSort: 8.4
+                                  partialPossessions: 0.9
+                                  percentageDefenderTotalTime: 0.014
+                                  percentageOffensiveTotalTime: 0.018
+                                  percentageTotalTimeBothOn: 0.09
+                                  switchesOn: 0
+                                  playerPoints: 0
+                                  teamPoints: 0
+                                  matchupAssists: 0
+                                  matchupPotentialAssists: 0
+                                  matchupTurnovers: 0
+                                  matchupBlocks: 0
+                                  matchupFieldGoalsMade: 0
+                                  matchupFieldGoalsAttempted: 0
+                                  matchupFieldGoalsPercentage: 0.0
+                                  matchupThreePointersMade: 0
+                                  matchupThreePointersAttempted: 0
+                                  matchupThreePointersPercentage: 0.0
+                                  helpBlocks: 0
+                                  helpFieldGoalsMade: 0
+                                  helpFieldGoalsAttempted: 0
+                                  helpFieldGoalsPercentage: 0.0
+                                  matchupFreeThrowsMade: 0
+                                  matchupFreeThrowsAttempted: 0
+                                  shootingFouls: 0
+                      awayTeam:
+                        teamId: 1610612741
+                        teamCity: Chicago
+                        teamName: Bulls
+                        teamTricode: CHI
+                        teamSlug: bulls
+                        players:
+                          - personId: 201942
+                            firstName: DeMar
+                            familyName: DeRozan
+                            nameI: D. DeRozan
+                            playerSlug: demar-derozan
+                            position: F
+                            comment: ""
+                            jerseyNum: "11"
+                            matchups:
+                              - personId: 1628386
+                                firstName: Jarrett
+                                familyName: Allen
+                                nameI: J. Allen
+                                playerSlug: jarrett-allen
+                                jerseyNum: "31"
+                                statistics:
+                                  matchupMinutes: "3:09"
+                                  matchupMinutesSort: 188.6
+                                  partialPossessions: 16.2
+                                  percentageDefenderTotalTime: 0.226
+                                  percentageOffensiveTotalTime: 0.179
+                                  percentageTotalTimeBothOn: 0.266
+                                  switchesOn: 0
+                                  playerPoints: 7
+                                  teamPoints: 11
+                                  matchupAssists: 0
+                                  matchupPotentialAssists: 0
+                                  matchupTurnovers: 0
+                                  matchupBlocks: 1
+                                  matchupFieldGoalsMade: 2
+                                  matchupFieldGoalsAttempted: 9
+                                  matchupFieldGoalsPercentage: 0.222
+                                  matchupThreePointersMade: 2
+                                  matchupThreePointersAttempted: 5
+                                  matchupThreePointersPercentage: 0.4
+                                  helpBlocks: 0
+                                  helpFieldGoalsMade: 0
+                                  helpFieldGoalsAttempted: 0
+                                  helpFieldGoalsPercentage: 0.0
+                                  matchupFreeThrowsMade: 1
+                                  matchupFreeThrowsAttempted: 2
+                                  shootingFouls: 1
   /stats/boxscorehustlev2:
     get:
       operationId: getBoxScoreHustleV2
@@ -1925,4 +2080,157 @@ components:
         boxOutPlayerRebounds:
           type: integer
         boxOuts:
+          type: integer
+    BoxScoreMatchupsV3Meta:
+      type: object
+      required: [version, request, time]
+      properties:
+        version:
+          type: integer
+        request:
+          type: string
+        time:
+          type: string
+          format: date-time
+    BoxScoreMatchupsV3Team:
+      type: object
+      required: [teamId, teamCity, teamName, teamTricode, teamSlug, players]
+      properties:
+        teamId:
+          type: integer
+        teamCity:
+          type: string
+        teamName:
+          type: string
+        teamTricode:
+          type: string
+        teamSlug:
+          type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScoreMatchupsV3Player'
+    BoxScoreMatchupsV3Player:
+      type: object
+      required: [personId, firstName, familyName, nameI, playerSlug, position, comment, jerseyNum, matchups]
+      properties:
+        personId:
+          type: integer
+        firstName:
+          type: string
+        familyName:
+          type: string
+        nameI:
+          type: string
+        playerSlug:
+          type: string
+        position:
+          type: string
+        comment:
+          type: string
+        jerseyNum:
+          type: string
+        matchups:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScoreMatchupsV3Matchup'
+    BoxScoreMatchupsV3Matchup:
+      type: object
+      required: [personId, firstName, familyName, nameI, playerSlug, jerseyNum, statistics]
+      properties:
+        personId:
+          type: integer
+        firstName:
+          type: string
+        familyName:
+          type: string
+        nameI:
+          type: string
+        playerSlug:
+          type: string
+        jerseyNum:
+          type: string
+        statistics:
+          $ref: '#/components/schemas/BoxScoreMatchupsV3Statistics'
+    BoxScoreMatchupsV3Statistics:
+      type: object
+      required:
+        - matchupMinutes
+        - matchupMinutesSort
+        - partialPossessions
+        - percentageDefenderTotalTime
+        - percentageOffensiveTotalTime
+        - percentageTotalTimeBothOn
+        - switchesOn
+        - playerPoints
+        - teamPoints
+        - matchupAssists
+        - matchupPotentialAssists
+        - matchupTurnovers
+        - matchupBlocks
+        - matchupFieldGoalsMade
+        - matchupFieldGoalsAttempted
+        - matchupFieldGoalsPercentage
+        - matchupThreePointersMade
+        - matchupThreePointersAttempted
+        - matchupThreePointersPercentage
+        - helpBlocks
+        - helpFieldGoalsMade
+        - helpFieldGoalsAttempted
+        - helpFieldGoalsPercentage
+        - matchupFreeThrowsMade
+        - matchupFreeThrowsAttempted
+        - shootingFouls
+      properties:
+        matchupMinutes:
+          type: string
+        matchupMinutesSort:
+          type: number
+        partialPossessions:
+          type: number
+        percentageDefenderTotalTime:
+          type: number
+        percentageOffensiveTotalTime:
+          type: number
+        percentageTotalTimeBothOn:
+          type: number
+        switchesOn:
+          type: integer
+        playerPoints:
+          type: integer
+        teamPoints:
+          type: integer
+        matchupAssists:
+          type: integer
+        matchupPotentialAssists:
+          type: integer
+        matchupTurnovers:
+          type: integer
+        matchupBlocks:
+          type: integer
+        matchupFieldGoalsMade:
+          type: integer
+        matchupFieldGoalsAttempted:
+          type: integer
+        matchupFieldGoalsPercentage:
+          type: number
+        matchupThreePointersMade:
+          type: integer
+        matchupThreePointersAttempted:
+          type: integer
+        matchupThreePointersPercentage:
+          type: number
+        helpBlocks:
+          type: integer
+        helpFieldGoalsMade:
+          type: integer
+        helpFieldGoalsAttempted:
+          type: integer
+        helpFieldGoalsPercentage:
+          type: number
+        matchupFreeThrowsMade:
+          type: integer
+        matchupFreeThrowsAttempted:
+          type: integer
+        shootingFouls:
           type: integer
