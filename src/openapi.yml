@@ -6577,6 +6577,144 @@ paths:
                     PTS: 28.7
                     REB: 3.9
                     AST: 4.4
+  /stats/homepageleaders:
+    get:
+      operationId: getHomePageLeaders
+      tags: [Stats]
+      summary: homepageleaders
+      description: >-
+        Returns team or player leaders for a selected statistical category, along
+        with league average and maximum values. Requests can use either the proxy
+        Worker or the NBA Stats API directly.
+      parameters:
+        - name: GameScope
+          in: query
+          required: true
+          description: Game range used to calculate the leaders.
+          schema:
+            type: string
+            enum: [Season, Last 10, Yesterday, Finals]
+          example: Season
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: PlayerOrTeam
+          in: query
+          required: true
+          description: Whether to return player or team leaders.
+          schema:
+            type: string
+            enum: [Player, Team]
+          example: Team
+        - name: PlayerScope
+          in: query
+          required: true
+          description: Player population to include when PlayerOrTeam is Player.
+          schema:
+            type: string
+            enum: [All Players, Rookies]
+          example: All Players
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2025-26.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          description: Season segment type.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs]
+          example: Regular Season
+        - name: StatCategory
+          in: query
+          required: true
+          description: Statistical category used to rank leaders.
+          schema:
+            type: string
+            enum: [Points, Rebounds, Assists, Defense, Clutch, Playmaking, Efficiency, Fast Break, Scoring Breakdown]
+          example: Points
+      responses:
+        '200':
+          description: Leaders and league average/maximum records in three result sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: homepageleaders
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [HomePageLeaders, LeagueAverage, LeagueMax]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                teamLeaders:
+                  summary: Team scoring leaders with league benchmarks
+                  value:
+                    resource: homepageleaders
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      GameScope: Season
+                      PlayerScope: All Players
+                      PlayerOrTeam: Team
+                      StatCategory: Points
+                    resultSets:
+                      - name: HomePageLeaders
+                        headers: [RANK, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, PTS, FG_PCT, FG3_PCT, FT_PCT, EFG_PCT, TS_PCT, PTS_PER48]
+                        rowSet:
+                          - [1, 1610612743, Denver Nuggets, DEN, 120.9, 0.496, 0.396, 0.809, 0.575, 0.616, 119.6]
+                          - [2, 1610612748, Miami Heat, MIA, 120.0, 0.463, 0.361, 0.786, 0.535, 0.572, 119.8]
+                      - name: LeagueAverage
+                        headers: [PTS, FG_PCT, FG3_PCT, FT_PCT, EFG_PCT, TS_PCT, PTS_PER48]
+                        rowSet:
+                          - [115.5, 0.469, 0.358, 0.784, 0.543, 0.58, 114.8]
+                      - name: LeagueMax
+                        headers: [PTS, FG_PCT, FG3_PCT, FT_PCT, EFG_PCT, TS_PCT, PTS_PER48]
+                        rowSet:
+                          - [120.9, 0.5, 0.396, 0.832, 0.575, 0.616, 119.8]
 components:
   parameters:
     LeagueID:

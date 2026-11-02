@@ -50,6 +50,7 @@ const statsPaths = new Set([
   "gamerotation",
   "glalumboxscoresimilarityscore",
   "gravityleaders",
+  "homepageleaders",
 ]);
 
 const fixedLivePaths = new Set([
