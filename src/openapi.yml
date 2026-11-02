@@ -654,6 +654,227 @@ paths:
                         headers: [GAME_ID, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CITY, MIN, E_OFF_RATING, OFF_RATING, E_DEF_RATING, DEF_RATING, E_NET_RATING, NET_RATING, AST_PCT, AST_TOV, AST_RATIO, OREB_PCT, DREB_PCT, REB_PCT, E_TM_TOV_PCT, TM_TOV_PCT, EFG_PCT, TS_PCT, USG_PCT, E_USG_PCT, E_PACE, PACE, PACE_PER40, POSS, PIE]
                         rowSet:
                           - ["0022300061", 1610612747, Lakers, LAL, Los Angeles, "240:00", 109.4, 111.5, 119.9, 125.3, -10.5, -13.8, 0.561, 1.92, 17.2, 0.346, 0.711, 0.515, 12.27, 12.5, 0.511, 0.541, 1, 0.199, 98.54, 95.5, 79.58, 96, 0.421]
+  /stats/boxscoreadvancedv3:
+    get:
+      operationId: getBoxScoreAdvancedV3
+      tags: [Stats]
+      summary: boxscoreadvancedv3
+      description: >-
+        Returns player and team advanced box score statistics for a game. Unlike
+        V2, the V3 response is nested JSON grouped by home and away teams.
+        Requests can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022200552"
+        - name: EndPeriod
+          in: query
+          required: true
+          description: Period to end at; 0 includes all periods.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: EndRange
+          in: query
+          required: true
+          description: End of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+        - name: RangeType
+          in: query
+          required: true
+          description: Range type; 0 selects the full period range.
+          schema:
+            type: string
+            default: "0"
+        - name: StartPeriod
+          in: query
+          required: true
+          description: Period to start at; 0 starts at the beginning of the game.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: StartRange
+          in: query
+          required: true
+          description: Start of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+      responses:
+        '200':
+          description: Nested advanced box score grouped by home and away teams.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, boxScoreAdvanced]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/BoxScoreAdvancedV3Meta'
+                  boxScoreAdvanced:
+                    type: object
+                    required: [gameId, awayTeamId, homeTeamId, homeTeam, awayTeam]
+                    properties:
+                      gameId:
+                        type: string
+                        pattern: '^\d{10}$'
+                      awayTeamId:
+                        type: integer
+                      homeTeamId:
+                        type: integer
+                      homeTeam:
+                        $ref: '#/components/schemas/BoxScoreAdvancedV3Team'
+                      awayTeam:
+                        $ref: '#/components/schemas/BoxScoreAdvancedV3Team'
+              examples:
+                gameBoxScore:
+                  summary: Advanced box score for one game
+                  value:
+                    meta:
+                      version: 1
+                      request: http://nba.cloud/games/0022200552/boxscoreadvanced?Format=json
+                      time: "2026-02-20T18:13:31.1331Z"
+                    boxScoreAdvanced:
+                      gameId: "0022200552"
+                      awayTeamId: 1610612741
+                      homeTeamId: 1610612739
+                      homeTeam:
+                        teamId: 1610612739
+                        teamCity: Cleveland
+                        teamName: Cavaliers
+                        teamTricode: CLE
+                        teamSlug: cavaliers
+                        players:
+                          - personId: 201567
+                            firstName: Kevin
+                            familyName: Love
+                            nameI: K. Love
+                            playerSlug: kevin-love
+                            position: F
+                            comment: ""
+                            jerseyNum: ""
+                            statistics:
+                              minutes: "37:48"
+                              estimatedOffensiveRating: 124.1
+                              offensiveRating: 124.1
+                              estimatedDefensiveRating: 116.5
+                              defensiveRating: 116.5
+                              estimatedNetRating: 7.6
+                              netRating: 7.6
+                              assistPercentage: 0.065
+                              assistToTurnover: 2.0
+                              assistRatio: 14.3
+                              offensiveReboundPercentage: 0.025
+                              defensiveReboundPercentage: 0.421
+                              reboundPercentage: 0.218
+                              turnoverRatio: 7.1
+                              effectiveFieldGoalPercentage: 0.55
+                              trueShootingPercentage: 0.551
+                              usagePercentage: 0.136
+                              estimatedUsagePercentage: 0.136
+                              estimatedPace: 100.34
+                              pace: 100.34
+                              pacePer40: 83.61
+                              possessions: 79.0
+                              PIE: 0.096
+                        statistics:
+                          minutes: "265:00"
+                          estimatedOffensiveRating: 671.3
+                          offensiveRating: 134.3
+                          estimatedDefensiveRating: 614.7
+                          defensiveRating: 122.9
+                          estimatedNetRating: 56.6
+                          netRating: 11.3
+                          assistPercentage: 0.563
+                          assistToTurnover: 2.7
+                          assistRatio: 18.1
+                          offensiveReboundPercentage: 0.269
+                          defensiveReboundPercentage: 0.765
+                          reboundPercentage: 0.515
+                          estimatedTeamTurnoverPercentage: 9.259
+                          turnoverRatio: 9.3
+                          effectiveFieldGoalPercentage: 0.609
+                          trueShootingPercentage: 0.648
+                          usagePercentage: 1.0
+                          estimatedUsagePercentage: 0.984
+                          estimatedPace: 19.65
+                          pace: 98.26
+                          pacePer40: 81.89
+                          possessions: 108.0
+                          PIE: 0.521
+                      awayTeam:
+                        teamId: 1610612741
+                        teamCity: Chicago
+                        teamName: Bulls
+                        teamTricode: CHI
+                        teamSlug: bulls
+                        players:
+                          - personId: 201942
+                            firstName: DeMar
+                            familyName: DeRozan
+                            nameI: D. DeRozan
+                            playerSlug: demar-derozan
+                            position: F
+                            comment: ""
+                            jerseyNum: ""
+                            statistics:
+                              minutes: "45:55"
+                              estimatedOffensiveRating: 122.9
+                              offensiveRating: 122.9
+                              estimatedDefensiveRating: 133.7
+                              defensiveRating: 133.7
+                              estimatedNetRating: -10.8
+                              netRating: -10.8
+                              assistPercentage: 0.16
+                              assistToTurnover: 4.0
+                              assistRatio: 9.5
+                              offensiveReboundPercentage: 0.022
+                              defensiveReboundPercentage: 0.045
+                              reboundPercentage: 0.034
+                              turnoverRatio: 2.4
+                              effectiveFieldGoalPercentage: 0.531
+                              trueShootingPercentage: 0.59
+                              usagePercentage: 0.362
+                              estimatedUsagePercentage: 0.362
+                              estimatedPace: 99.83
+                              pace: 99.83
+                              pacePer40: 83.19
+                              possessions: 96.0
+                              PIE: 0.158
+                        statistics:
+                          minutes: "265:00"
+                          estimatedOffensiveRating: 614.7
+                          offensiveRating: 122.9
+                          estimatedDefensiveRating: 671.3
+                          defensiveRating: 134.3
+                          estimatedNetRating: -56.6
+                          netRating: -11.3
+                          assistPercentage: 0.468
+                          assistToTurnover: 3.14
+                          assistRatio: 15.6
+                          offensiveReboundPercentage: 0.235
+                          defensiveReboundPercentage: 0.731
+                          reboundPercentage: 0.485
+                          estimatedTeamTurnoverPercentage: 6.422
+                          turnoverRatio: 6.4
+                          effectiveFieldGoalPercentage: 0.547
+                          trueShootingPercentage: 0.609
+                          usagePercentage: 1.0
+                          estimatedUsagePercentage: 0.975
+                          estimatedPace: 19.65
+                          pace: 98.26
+                          pacePer40: 81.89
+                          possessions: 109.0
+                          PIE: 0.479
 components:
   parameters:
     LeagueID:
@@ -678,3 +899,131 @@ components:
         enum: ["00", "01", "10", "15", "20"]
         default: "00"
       example: "00"
+  schemas:
+    BoxScoreAdvancedV3Meta:
+      type: object
+      required: [version, request, time]
+      properties:
+        version:
+          type: integer
+        request:
+          type: string
+        time:
+          type: string
+          format: date-time
+    BoxScoreAdvancedV3Team:
+      type: object
+      required: [teamId, teamCity, teamName, teamTricode, teamSlug, players, statistics]
+      properties:
+        teamId:
+          type: integer
+        teamCity:
+          type: string
+        teamName:
+          type: string
+        teamTricode:
+          type: string
+        teamSlug:
+          type: string
+        players:
+          type: array
+          items:
+            type: object
+            required: [personId, firstName, familyName, nameI, playerSlug, position, comment, jerseyNum, statistics]
+            properties:
+              personId:
+                type: integer
+              firstName:
+                type: string
+              familyName:
+                type: string
+              nameI:
+                type: string
+              playerSlug:
+                type: string
+              position:
+                type: string
+              comment:
+                type: string
+              jerseyNum:
+                type: string
+              statistics:
+                $ref: '#/components/schemas/BoxScoreAdvancedV3Statistics'
+        statistics:
+          $ref: '#/components/schemas/BoxScoreAdvancedV3Statistics'
+    BoxScoreAdvancedV3Statistics:
+      type: object
+      required:
+        - minutes
+        - estimatedOffensiveRating
+        - offensiveRating
+        - estimatedDefensiveRating
+        - defensiveRating
+        - estimatedNetRating
+        - netRating
+        - assistPercentage
+        - assistToTurnover
+        - assistRatio
+        - offensiveReboundPercentage
+        - defensiveReboundPercentage
+        - reboundPercentage
+        - turnoverRatio
+        - effectiveFieldGoalPercentage
+        - trueShootingPercentage
+        - usagePercentage
+        - estimatedUsagePercentage
+        - estimatedPace
+        - pace
+        - pacePer40
+        - possessions
+        - PIE
+      properties:
+        minutes:
+          type: string
+        estimatedOffensiveRating:
+          type: number
+        offensiveRating:
+          type: number
+        estimatedDefensiveRating:
+          type: number
+        defensiveRating:
+          type: number
+        estimatedNetRating:
+          type: number
+        netRating:
+          type: number
+        assistPercentage:
+          type: number
+        assistToTurnover:
+          type: number
+        assistRatio:
+          type: number
+        offensiveReboundPercentage:
+          type: number
+        defensiveReboundPercentage:
+          type: number
+        reboundPercentage:
+          type: number
+        estimatedTeamTurnoverPercentage:
+          type: number
+          description: Present on team statistics only.
+        turnoverRatio:
+          type: number
+        effectiveFieldGoalPercentage:
+          type: number
+        trueShootingPercentage:
+          type: number
+        usagePercentage:
+          type: number
+        estimatedUsagePercentage:
+          type: number
+        estimatedPace:
+          type: number
+        pace:
+          type: number
+        pacePer40:
+          type: number
+        possessions:
+          type: number
+        PIE:
+          type: number

@@ -8,7 +8,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/assistleaders` (deprecated upstream)
 - ✅ `/stats/assisttracker` (deprecated upstream)
 - ✅ `/stats/boxscoreadvancedv2` (deprecated upstream)
-- `/stats/boxscoreadvancedv3`
+- ✅ `/stats/boxscoreadvancedv3`
 - `/stats/boxscoredefensivev2`
 - `/stats/boxscorefourfactorsv2`
 - `/stats/boxscorefourfactorsv3`

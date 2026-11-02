@@ -8,6 +8,7 @@ const statsPaths = new Set([
   "assistleaders",
   "assisttracker",
   "boxscoreadvancedv2",
+  "boxscoreadvancedv3",
 ]);
 
 const fixedLivePaths = new Set([
