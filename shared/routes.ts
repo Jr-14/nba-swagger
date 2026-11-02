@@ -46,6 +46,7 @@ const statsPaths = new Set([
   "fantasywidget",
   "franchisehistory",
   "franchiseleaders",
+  "franchiseplayers",
 ]);
 
 const fixedLivePaths = new Set([

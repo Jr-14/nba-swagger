@@ -6138,6 +6138,107 @@ paths:
                         headers: [TEAM_ID, PTS, PTS_PERSON_ID, PTS_PLAYER, AST, AST_PERSON_ID, AST_PLAYER, REB, REB_PERSON_ID, REB_PLAYER, BLK, BLK_PERSON_ID, BLK_PLAYER, STL, STL_PERSON_ID, STL_PLAYER]
                         rowSet:
                           - [1610612739, 23119, 2544, "LeBron James", 6228, 2544, "LeBron James", 6190, 2544, "LeBron James", 1269, 980, "Zydrunas Ilgauskas", 1376, 2544, "LeBron James"]
+  /stats/franchiseplayers:
+    get:
+      operationId: getFranchisePlayers
+      tags: [Stats]
+      summary: franchiseplayers
+      description: >-
+        Returns player statistics for a franchise, with totals or per-game values
+        and a season-type filter. Requests can use either the proxy Worker or the
+        NBA Stats API directly.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: false
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: PerMode
+          in: query
+          required: false
+          description: Whether statistics are returned as totals or per game.
+          schema:
+            type: string
+            enum: [Totals, PerGame]
+            default: Totals
+        - name: SeasonType
+          in: query
+          required: false
+          description: Season segment type.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs, All Star]
+            default: Regular Season
+        - name: TeamID
+          in: query
+          required: true
+          description: NBA team identifier.
+          schema:
+            type: integer
+          example: 1610612739
+      responses:
+        '200':
+          description: Player statistics for one franchise in a single result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: franchiseplayers
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [FranchisePlayers]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                franchisePlayerStats:
+                  summary: Cleveland franchise player totals
+                  value:
+                    resource: franchiseplayers
+                    parameters:
+                      LeagueID: "00"
+                      SeasonType: Regular Season
+                      TeamID: 1610612739
+                      PerMode: Totals
+                    resultSets:
+                      - name: FranchisePlayers
+                        headers: [LEAGUE_ID, TEAM_ID, TEAM, PERSON_ID, PLAYER, SEASON_TYPE, ACTIVE_WITH_TEAM, GP, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, PF, STL, TOV, BLK, PTS]
+                        rowSet:
+                          - ["00", 1610612739, Cleveland Cavaliers, 36, Sarunas Marciulionis, Regular Season, 0, 1, 3, 9, 0.333, 1, 3, 0.333, 0, 0, 0.0, 2, 2, 4, 2, 3, 0, 2, 0, 7]
 components:
   parameters:
     LeagueID:
