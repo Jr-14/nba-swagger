@@ -6,7 +6,7 @@ Base URL: `https://stats.nba.com`
 
 - ✅ `/stats/alltimeleadersgrids`
 - ✅ `/stats/assistleaders` (deprecated upstream)
-- `/stats/assisttracker`
+- ✅ `/stats/assisttracker` (deprecated upstream)
 - `/stats/boxscoreadvancedv2`
 - `/stats/boxscoreadvancedv3`
 - `/stats/boxscoredefensivev2`

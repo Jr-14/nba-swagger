@@ -6,6 +6,7 @@ export interface UpstreamRoute {
 const statsPaths = new Set([
   "alltimeleadersgrids",
   "assistleaders",
+  "assisttracker",
 ]);
 
 const fixedLivePaths = new Set([
