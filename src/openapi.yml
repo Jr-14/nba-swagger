@@ -11725,6 +11725,84 @@ paths:
                         headers: [LeagueID, SeasonID, TeamID, TeamCity, TeamName, Conference, ConferenceRecord, PlayoffRank, ClinchIndicator, Division, DivisionRecord, DivisionRank, WINS, LOSSES, WinPCT, LeagueRank, Record, HOME, ROAD, L10, Last10Home, Last10Road, OT, ThreePTSOrLess, TenPTSOrMore, LongHomeStreak, strLongHomeStreak, LongRoadStreak, strLongRoadStreak, LongWinStreak, LongLossStreak, CurrentHomeStreak, strCurrentHomeStreak, CurrentRoadStreak, strCurrentRoadStreak, CurrentStreak, strCurrentStreak, ConferenceGamesBack, DivisionGamesBack, ClinchedConferenceTitle, ClinchedDivisionTitle, ClinchedPlayoffBirth, EliminatedConference, EliminatedDivision, AheadAtHalf, BehindAtHalf, TiedAtHalf, AheadAtThird, BehindAtThird, TiedAtThird, Score100PTS, OppScore100PTS, OppOver500, LeadInFGPCT, LeadInReb, FewerTurnovers, PointsPG, OppPointsPG, DiffPointsPG, vsEast, vsAtlantic, vsCentral, vsSoutheast, vsWest, vsNorthwest, vsPacific, vsSouthwest, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, PreAS, PostAS]
                         rowSet:
                           - ["00", "22025", 1610612760, "Oklahoma City", Thunder, West, "32-9", 1, "", Northwest, "8-3", 1, 43, 14, 0.754, 1, "43-14", "23-6", "20-7", "6-4", "6-4", "7-3", "3-0", "2-6", "32-6", 14, "W 14", 8, "W 8", 16, 2, 1, "W 1", 2, "W 2", 1, "W 1", 0.0, 0.0, null, null, null, null, null, "34-7", "9-7", "0-0", "39-3", "4-10", "0-1", "43-12", "30-14", "20-11", "36-6", "21-3", "39-8", 119.0, 108.0, 12.0, "11-5", "2-1", "3-2", "6-2", "32-9", "8-3", "13-1", "11-5", "9-6", "5-3", null, null, null, null, null, null, null, "6-0", "14-1", "9-4", "43-14", null]
+  /stats/leaguestandingsv3:
+    get:
+      operationId: getLeagueStandingsV3
+      tags: [Stats]
+      summary: leaguestandingsv3
+      description: >-
+        Returns NBA team standings with V3 fields for play-in status, playoff
+        seeding, totals, and neutral-court records.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{2}$', default: "00" }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season], default: Regular Season }
+        - name: SeasonYear
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+      responses:
+        '200':
+          description: V3 team standings in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: leaguestandings
+                  parameters:
+                    description: Upstream echo of the supplied query parameters.
+                    type: object
+                    additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [Standings]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                currentSeasonStandingsV3:
+                  summary: NBA V3 team standings
+                  value:
+                    resource: leaguestandings
+                    parameters:
+                      LeagueID: "00"
+                      SeasonYear: "2025-26"
+                      SeasonType: Regular Season
+                    resultSets:
+                      - name: Standings
+                        headers: [LeagueID, SeasonID, TeamID, TeamCity, TeamName, TeamSlug, Conference, ConferenceRecord, PlayoffRank, ClinchIndicator, Division, DivisionRecord, DivisionRank, WINS, LOSSES, WinPCT, LeagueRank, Record, HOME, ROAD, L10, Last10Home, Last10Road, OT, ThreePTSOrLess, TenPTSOrMore, LongHomeStreak, strLongHomeStreak, LongRoadStreak, strLongRoadStreak, LongWinStreak, LongLossStreak, CurrentHomeStreak, strCurrentHomeStreak, CurrentRoadStreak, strCurrentRoadStreak, CurrentStreak, strCurrentStreak, ConferenceGamesBack, DivisionGamesBack, ClinchedConferenceTitle, ClinchedDivisionTitle, ClinchedPlayoffBirth, ClinchedPlayIn, EliminatedConference, EliminatedDivision, AheadAtHalf, BehindAtHalf, TiedAtHalf, AheadAtThird, BehindAtThird, TiedAtThird, Score100PTS, OppScore100PTS, OppOver500, LeadInFGPCT, LeadInReb, FewerTurnovers, PointsPG, OppPointsPG, DiffPointsPG, vsEast, vsAtlantic, vsCentral, vsSoutheast, vsWest, vsNorthwest, vsPacific, vsSouthwest, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, Score_80_Plus, Opp_Score_80_Plus, Score_Below_80, Opp_Score_Below_80, TotalPoints, OppTotalPoints, DiffTotalPoints, LeagueGamesBack, PlayoffSeeding, ClinchedPostSeason, NEUTRAL]
+                        rowSet:
+                          - ["00", "22025", 1610612760, "Oklahoma City", Thunder, thunder, West, "32-9 ", 1, "", Northwest, "8-3", 1, 43, 14, 0.754, 1, "43-14", "23-6", "20-7", "6-4", "6-4", "7-3", "3-0", "2-6", "32-6", 14, "W 14", 8, "W 8", 16, 2, 1, "W 1", 2, "W 2", 1, "W 1", 0.0, 0.0, null, null, null, 0, null, null, "34-7", "9-7", "0-0", "39-3", "4-10", "0-1", "43-12", "30-14", "20-11", "36-6", "21-3", "39-8 ", 119.4, 107.6, 11.8, "11-5", "2-1", "3-2", "6-2", "32-9", "8-3", "13-1", "11-5", "9-6", "5-3", "0-0", "0-0", "0-0", "0-0", "0-0", "0-0", "0-0", "6-0", "14-1", "9-4", "43-14", "43-14", "0-0", "0-0", 6808, 6136, 672, 0.0, null, 0, "0-1"]
 components:
   parameters:
     LeagueID:
