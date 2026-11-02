@@ -1,58 +1,187 @@
 # Development
 
-## Fast local development
+## Requirements
+
+- Node.js 24
+- pnpm 12
+- Docker for the default local container flow
+
+Install dependencies once:
 
 ```bash
 pnpm install
+```
+
+## Primary development flow
+
+```bash
 pnpm dev
 ```
 
-Open the Vite URL, normally **http://localhost:5173**. This command starts the
-same Node proxy application used in the container on loopback port 8080.
-Vite forwards `/api/*` to that service; it no longer has a separate direct-NBA
-proxy. Select **NBA API proxy** in Swagger. Docker is not required for this mode.
+Open **http://localhost:5173**. The command:
 
-Use `PROXY_PORT` to select a different Node port if necessary. `pnpm dev:proxy`
-runs just the Node service, using `HOST`/`PORT` (default `0.0.0.0:8080`); bind
-`HOST=127.0.0.1` if running it directly outside Docker on an untrusted network.
+1. Builds the Node proxy image from `containers/proxy/Dockerfile`.
+2. Starts it in Docker on loopback port 8080.
+3. Waits for the container's `/health` endpoint.
+4. Starts Vite and serves Swagger UI.
 
-## Full Cloudflare runtime locally
+Vite forwards `/api` and `/health` to the container, so the UI and container use
+the same origin in the browser. Swagger uses the relative `/api` server route and
+therefore exercises the real Node application without CORS configuration.
+
+The first run builds the image and can take a few minutes. Later runs reuse the
+image layers and Docker's build cache, so only changed source layers are rebuilt.
+
+This mode tests **the Node proxy only**. It does not emulate the production
+Worker gateway, its CORS policy, the rate limiter, or Durable Object routing.
+Use the Wrangler flow below when those layers need to be exercised.
+
+### Editing code
+
+- UI and OpenAPI changes: Vite updates them automatically.
+- Node proxy or `shared/` changes: restart `pnpm dev` to rebuild and replace the
+  container. Container source and dependencies are not hot-reloaded.
+- Dockerfile or dependency changes: restart `pnpm dev`; Docker rebuilds from the
+  changed layer.
+
+The image is built every time the command starts, so a restart is the reliable
+way to pick up proxy changes.
+
+### Ports and image settings
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `UI_PORT` | `5173` | Vite and Swagger UI port |
+| `PROXY_PORT` | `8080` | Host port mapped to the container's port 8080 |
+| `PROXY_IMAGE` | `nba-swagger-proxy:local` | Local image name and tag |
+| `DOCKER_PLATFORM` | `linux/amd64` | Build platform; matches the deployed container |
+
+```bash
+UI_PORT=5174 PROXY_PORT=8081 pnpm dev
+```
+
+`UI_PORT` and `PROXY_PORT` must differ. The container is published on
+`127.0.0.1` only, so the Node service is not exposed to the local network.
+
+### Container lifecycle
+
+Each run names its container `nba-swagger-dev-<pid>` and labels it
+`com.nba-swagger.dev=true`. The container is detached, but the script stops it on
+`SIGINT`/`SIGTERM`; `--rm` removes it after it exits.
+
+If a run is killed abruptly, check for leftovers:
+
+```bash
+docker ps --filter label=com.nba-swagger.dev=true
+docker rm -f $(docker ps -aq --filter label=com.nba-swagger.dev=true)
+```
+
+### Testing the container directly
+
+Both paths are available while `pnpm dev` is running:
+
+```bash
+curl --fail-with-body http://127.0.0.1:8080/health
+
+curl --fail-with-body 'http://127.0.0.1:8080/api/stats/alltimeleadersgrids?LeagueID=20&PerMode=PerGame&SeasonType=Regular%20Season&TopX=2'
+```
+
+The second request returns the full NBA JSON. `/probe` no longer exists. The four
+Live routes remain under `/api/live/`; the endpoint inventory does not
+automatically enable additional Stats endpoints.
+
+To run the image without Vite:
+
+```bash
+pnpm build:container
+docker run --rm --name nba-swagger-manual -p 127.0.0.1:8080:8080 nba-swagger-proxy:local
+```
+
+## Wrangler emulation (optional)
+
+On hosts where Wrangler's local containers work, this runs the complete local
+stack:
+
+```bash
+pnpm dev:wrangler
+```
+
+| Process | Default URL | Responsibility |
+| --- | --- | --- |
+| Vite | `http://localhost:5173` | Swagger UI, UI rebuilds, local OpenAPI asset |
+| Wrangler | `http://localhost:8787` | Worker gateway, Durable Object, rate limiter, container |
+
+Vite forwards `/api` and `/health` to Wrangler. Browser requests then pass
+through the emulated Worker, including route guards, request-ID propagation,
+rate limiting, CORS, and container forwarding. Requests made directly to port
+8787 can be used to inspect CORS behavior.
+
+Wrangler builds the container image itself and starts it in local Docker.
+- `UI_PORT` changes the Vite port (default `5173`).
+- `WORKER_PORT` changes the Wrangler port (default `8787`).
+- `DEV_ORIGIN` changes the development CORS origin passed to the Worker. It
+  defaults to `http://localhost:<UI_PORT>`.
+
+```bash
+UI_PORT=5174 WORKER_PORT=8788 DEV_ORIGIN=http://localhost:5174 pnpm dev:wrangler
+```
+
+Worker or gateway changes reload automatically. Node proxy or `shared/` changes
+require pressing `r` in the Wrangler terminal to rebuild and restart the
+container. Wrangler stores local Durable Object state under `.wrangler/`, which
+is ignored by Git. The local container does not enforce `max_instances`.
+
+### Wrangler backend only
+
+```bash
+pnpm dev:worker
+```
+
+Runs Wrangler and the container on port 8787 without Vite. Use it for direct API
+testing with `curl`. It still requires Docker and functional local containers.
+
+### Full Pages emulation
 
 ```bash
 pnpm dev:pages
 ```
 
-Docker must be running. This builds the UI, starts static Pages on
-**http://localhost:8788**, and starts the actual Worker/container gateway on port
-8787. The generated local OpenAPI points to that gateway, whose CORS origin is
-the local Pages site. `PAGES_PORT` and `WORKER_PORT` can override these ports.
-Restart the command to rebuild static UI/OpenAPI changes.
+Builds the exact static output and runs both Wrangler emulators:
 
-`pnpm dev:worker` starts only the Worker/container stack on port 8787. Do not
-run it alongside `dev:pages`, which already starts it. No probe token is used.
+- Static Pages at **http://localhost:8788**
+- Worker and container at **http://localhost:8787**
 
-On Linux/Tailscale hosts, Wrangler's sidecar startup may fail before creating
-the Node container, as described in [architecture.md](architecture.md). Use
-`pnpm dev` or plain Docker to test the Node service in that case. Do not change
-global networking settings just to make this command run. Fast development
-does not emulate Worker CORS/rate limits or container cold starts.
+This serves the built `dist/` output, so UI changes require a restart. It is
+useful for validating static asset paths and the production OpenAPI build.
+`PAGES_PORT` and `WORKER_PORT` override the ports.
 
-## Plain Docker
+### Known Wrangler container limitation
+
+On Linux hosts with `net.ipv4.conf.all.src_valid_mark=1`, commonly set by
+Tailscale, Wrangler's local container sidecar can fail before the application
+container is created. This is the upstream issue described in
+[workerd #6860](https://github.com/cloudflare/workerd/issues/6860), not an error
+in this project.
+
+Symptoms include the sidecar restarting repeatedly and `Container failed to
+start`, or a request hanging before the Node container appears in
+`docker events`. Use the default Docker flow or `pnpm dev:node` until the
+Wrangler issue is resolved. Do not change global networking or sysctl settings
+solely to make local emulation work without understanding their effect on VPN,
+Tailscale, or Docker.
+
+## Direct Node fallback
 
 ```bash
-pnpm build:container
-docker run --rm -p 127.0.0.1:8080:8080 nba-swagger-proxy:local
+pnpm dev:node
 ```
 
-Request `/health` to verify Node startup, or test the real endpoint:
+Starts Vite and the Node proxy directly on port 8080, with no Docker or Wrangler.
+Use it when Docker is unavailable or when debugging the Node service in
+isolation. `PROXY_PORT` overrides the Node port.
 
-```bash
-curl --fail-with-body 'http://localhost:8080/api/stats/alltimeleadersgrids?LeagueID=20&PerMode=PerGame&SeasonType=Regular%20Season&TopX=2'
-```
-
-The response is the full NBA JSON. `/probe` no longer exists. The four Live
-routes remain under `/api/live/`; the endpoint inventory does not automatically
-enable additional Stats endpoints.
+This is the least production-like mode: it bypasses the container, Worker,
+Durable Object, rate limiter, and gateway behavior.
 
 ## Checks
 
@@ -71,7 +200,7 @@ limits, and Live JSON served as `text/plain`.
 
 Production uses the public proxy URL in `src/openapi.yml`. Local tooling
 overrides it automatically; there is no required `VITE_PROXY_URL` setting. Only
-the local full-runtime build uses the internal `LOCAL_PROXY_URL` override.
+the full Pages build uses the internal `LOCAL_PROXY_URL` override.
 
 ## Production verification and logs
 

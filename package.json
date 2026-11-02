@@ -7,10 +7,11 @@
     "pnpm": ">=12"
   },
   "scripts": {
-    "dev": "node --experimental-strip-types scripts/dev.mjs",
+    "dev": "node scripts/dev-docker.mjs",
+    "dev:wrangler": "node scripts/dev-wrangler.mjs",
     "dev:pages": "node scripts/dev-pages.mjs",
-    "dev:worker": "wrangler dev --config wrangler.worker.jsonc --port 8787 --var ALLOWED_ORIGIN:http://localhost:8788",
-    "dev:proxy": "node --experimental-strip-types containers/proxy/server.ts",
+    "dev:worker": "wrangler dev --config wrangler.worker.jsonc --port 8787 --var ALLOWED_ORIGIN:http://localhost:5173",
+    "dev:node": "node --experimental-strip-types scripts/dev-node.mjs",
     "build:container": "docker build --platform linux/amd64 -f containers/proxy/Dockerfile -t nba-swagger-proxy:local .",
     "build:worker": "wrangler deploy --config wrangler.worker.jsonc --dry-run --outdir .wrangler/worker-build",
     "build": "vite build src --config vite.config.mjs --outDir ../dist --emptyOutDir",
@@ -19,15 +20,15 @@
     "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20261031.1",
-    "@types/node": "^24.19.2",
-    "typescript": "^7.0.2",
+    "@cloudflare/workers-types": "5.20261101.1",
+    "@types/node": "26.6.6",
+    "typescript": "7.0.2",
     "vite": "8.3.5",
     "wrangler": "4.156.0"
   },
   "dependencies": {
-    "@cloudflare/containers": "^0.3.7",
-    "@hono/node-server": "^2.1.5",
-    "hono": "^4.13.14"
+    "@cloudflare/containers": "0.3.7",
+    "@hono/node-server": "2.1.5",
+    "hono": "4.13.16"
   }
 }

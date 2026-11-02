@@ -29,10 +29,10 @@ export default defineConfig(({ command }) => {
     }],
     server: {
       proxy: {
-        // Fast development runs the same Node service as the container, not a
-        // separate Vite-to-NBA implementation with different HTTP behavior.
-        "/api": { target: `http://127.0.0.1:${process.env.PROXY_PORT ?? 8080}`, changeOrigin: true },
-        "/health": { target: `http://127.0.0.1:${process.env.PROXY_PORT ?? 8080}`, changeOrigin: true },
+        // Development routes API traffic to the local backend: the Docker
+        // container by default, or the Wrangler emulator with the wrangler scripts.
+        "/api": { target: `http://127.0.0.1:${process.env.DEV_PROXY_PORT ?? 8787}`, changeOrigin: true },
+        "/health": { target: `http://127.0.0.1:${process.env.DEV_PROXY_PORT ?? 8787}`, changeOrigin: true },
       },
     },
   };

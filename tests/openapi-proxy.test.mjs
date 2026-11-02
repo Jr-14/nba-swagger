@@ -22,7 +22,7 @@ test("local Pages can use the separate local Worker", () => {
     .includes('url: "http://localhost:8787/api"'));
 });
 
-test("Vite can point at the same Node proxy through its local route", () => {
+test("Vite can point at the local API route", () => {
   assert.ok(configureProxyServer(spec, "/api").includes('url: "/api"'));
 });
 
