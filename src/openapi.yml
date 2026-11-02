@@ -10511,6 +10511,243 @@ paths:
                         headers: [TEAM_ID, TEAM_NAME, GP, W, L, W_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, TOV, STL, BLK, BLKA, PF, PFD, PTS, PLUS_MINUS, GP_RANK, W_RANK, L_RANK, W_PCT_RANK, MIN_RANK, FGM_RANK, FGA_RANK, FG_PCT_RANK, FG3M_RANK, FG3A_RANK, FG3_PCT_RANK, FTM_RANK, FTA_RANK, FT_PCT_RANK, OREB_RANK, DREB_RANK, REB_RANK, AST_RANK, TOV_RANK, STL_RANK, BLK_RANK, BLKA_RANK, PF_RANK, PFD_RANK, PTS_RANK, PLUS_MINUS_RANK]
                         rowSet:
                           - [1610612737, "Atlanta Hawks", 58, 27, 31, 0.466, 2794.0, 2496, 5315, 0.47, 838, 2267, 0.37, 953, 1234, 0.772, 592, 1870, 2462, 1760, 830.0, 535, 271, 297, 1154, 1075, 6783, -95.0, 1, 17, 20, 19, 3, 2, 2, 14, 5, 8, 6, 26, 24, 21, 22, 10, 17, 1, 17, 5, 17, 23, 20, 24, 6, 19]
+  /stats/leaguegamefinder:
+    get:
+      operationId: getLeagueGameFinder
+      tags: [Stats]
+      summary: leaguegamefinder
+      description: >-
+        Finds team or player games matching season, date, team, player, and
+        statistical-threshold filters. DateFrom and DateTo accept YYYY-MM-DD.
+        NBA Stats currently ignores GameID for filtering; filter returned rows by
+        GAME_ID client-side when needed.
+      parameters:
+        - { name: PlayerOrTeam, in: query, required: true, schema: { type: string, enum: [P, T], default: T } }
+        - { name: Conference, in: query, required: false, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: DateFrom, in: query, required: false, schema: { type: string, nullable: true, example: "2025-10-01" } }
+        - { name: DateTo, in: query, required: false, schema: { type: string, nullable: true, example: "2026-04-30" } }
+        - { name: Division, in: query, required: false, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+        - { name: DraftNumber, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DraftRound, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DraftTeamID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DraftYear, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqDD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFG3_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqMINUTES, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqTD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GameID, in: query, required: false, description: NBA Stats currently ignores this filter; filter results by GAME_ID client-side., schema: { type: string, nullable: true } }
+        - { name: GtAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtDD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFG3_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtMINUTES, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtTD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, pattern: '^\d{2}$', nullable: true } }
+        - { name: Location, in: query, required: false, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: LtAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtDD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFG3_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtMINUTES, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtTD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Outcome, in: query, required: false, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: PORound, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: PlayerID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: RookieYear, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Season, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: SeasonSegment, in: query, required: false, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: false, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], nullable: true } }
+        - { name: StarterBench, in: query, required: false, schema: { type: string, enum: [Starters, Bench], nullable: true } }
+        - { name: TeamID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: VsConference, in: query, required: false, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: false, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+        - { name: VsTeamID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: YearsExperience, in: query, required: false, schema: { type: string, nullable: true } }
+      responses:
+        '200':
+          description: Game finder rows for matching teams or players.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: leaguegamefinder
+                  parameters:
+                    description: Upstream echo of the request parameters.
+                    type: object
+                    additionalProperties: true
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [LeagueGameFinderResults]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                leagueGameFinderResults:
+                  summary: Recent NBA game results
+                  value:
+                    resource: leaguegamefinder
+                    parameters:
+                      PlayerOrTeam: T
+                      LeagueID: "00"
+                      Season: null
+                      SeasonType: null
+                      DateFrom: null
+                      DateTo: null
+                      TeamID: null
+                      VsTeamID: null
+                      PlayerID: null
+                      GameID: null
+                      Outcome: null
+                      Location: null
+                      VsConference: null
+                      VsDivision: null
+                      Conference: null
+                      Division: null
+                      DraftYear: null
+                      DraftNumber: null
+                      DraftRound: null
+                      DraftTeam: ""
+                      RookieYear: null
+                      YearsExperience: null
+                      SeasonSegment: null
+                      PORound: null
+                      StarterBench: null
+                      GtPts: null
+                      GtReb: null
+                      GtAst: null
+                      GtStl: null
+                      GtBlk: null
+                      GtOreb: null
+                      GtDreb: null
+                      GtDd: null
+                      GtTd: null
+                      GtMinutes: null
+                      GtTov: null
+                      GtPf: null
+                      GtFgm: null
+                      GtFga: null
+                      GtFgPct: null
+                      GtFtm: null
+                      GtFta: null
+                      GtFtPct: null
+                      GtFg3m: null
+                      GtFg3a: null
+                      GtFg3Pct: null
+                      LtPts: null
+                      LtReb: null
+                      LtAst: null
+                      LtStl: null
+                      LtBlk: null
+                      LtOreb: null
+                      LtDreb: null
+                      LtDd: null
+                      LtTd: null
+                      LtMinutes: null
+                      LtTov: null
+                      LtPf: null
+                      LtFgm: null
+                      LtFga: null
+                      LtFgPct: null
+                      LtFtm: null
+                      LtFta: null
+                      LtFtPct: null
+                      LtFg3m: null
+                      LtFg3a: null
+                      LtFg3Pct: null
+                      EqPts: null
+                      EqReb: null
+                      EqAst: null
+                      EqStl: null
+                      EqBlk: null
+                      EqOreb: null
+                      EqDreb: null
+                      EqDd: null
+                      EqTd: null
+                      EqMinutes: null
+                      EqTov: null
+                      EqPf: null
+                      EqFgm: null
+                      EqFga: null
+                      EqFgPct: null
+                      EqFtm: null
+                      EqFta: null
+                      EqFtPct: null
+                      EqFg3m: null
+                      EqFg3a: null
+                      EqFg3Pct: null
+                      ActivePlayersOnly: ""
+                    resultSets:
+                      - name: LeagueGameFinderResults
+                        headers: [SEASON_ID, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, GAME_ID, GAME_DATE, MATCHUP, WL, MIN, PTS, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PLUS_MINUS]
+                        rowSet:
+                          - ["22025", 1610612755, PHI, "Philadelphia 76ers", "0022500812", "2026-02-21", "PHI @ NOP", L, 238, 111, 36, 94, 0.383, 12, 46, 0.261, 27, 33, 0.818, 12, 35, 47, 19, 10, 5, 10, 25, -15.0]
 components:
   parameters:
     LeagueID:

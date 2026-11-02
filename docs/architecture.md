@@ -80,7 +80,7 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `/api/stats/leaguedashteamclutch`, and
   `/api/stats/leaguedashteamptshot`, and
   `/api/stats/leaguedashteamshotlocations`, and
-  `/api/stats/leaguedashteamstats`.
+  `/api/stats/leaguedashteamstats`, and `/api/stats/leaguegamefinder`.
   The assist endpoints are deprecated
   upstream and currently return the NBA.com homepage instead of JSON;
   `boxscoreadvancedv2`, `boxscorefourfactorsv2`, `boxscoremiscv2`,
