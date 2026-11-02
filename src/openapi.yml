@@ -7198,6 +7198,143 @@ paths:
                         gameStatus: 3
                         gameStatusText: Final
                         outcome: W
+  /stats/leaderstiles:
+    get:
+      operationId: getLeadersTiles
+      tags: [Stats]
+      summary: leaderstiles
+      description: >-
+        Returns leader tiles for a selected statistic, including current leaders,
+        the all-time season high, last-season high, and lowest season high. Requests
+        can use either the proxy Worker or the NBA Stats API directly.
+      parameters:
+        - name: GameScope
+          in: query
+          required: true
+          description: Game range used to calculate the leaders.
+          schema:
+            type: string
+            enum: [Season, Last 10, Yesterday, Finals]
+          example: Season
+        - name: LeagueID
+          in: query
+          required: true
+          description: League identifier (00 for the NBA).
+          schema:
+            type: string
+            pattern: '^\d{2}$'
+            default: "00"
+          example: "00"
+        - name: PlayerOrTeam
+          in: query
+          required: true
+          description: Whether to return player or team leaders.
+          schema:
+            type: string
+            enum: [Player, Team]
+          example: Team
+        - name: PlayerScope
+          in: query
+          required: true
+          description: Player population to include when PlayerOrTeam is Player.
+          schema:
+            type: string
+            enum: [All Players, Rookies]
+          example: All Players
+        - name: Season
+          in: query
+          required: true
+          description: Season in NBA format, such as 2025-26.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          description: Season segment type.
+          schema:
+            type: string
+            enum: [Regular Season, Pre Season, Playoffs]
+          example: Regular Season
+        - name: Stat
+          in: query
+          required: true
+          description: Statistic used to rank leaders.
+          schema:
+            type: string
+            enum: [PTS, REB, AST, FG_PCT, FT_PCT, FG3_PCT, STL, BLK]
+          example: PTS
+      responses:
+        '200':
+          description: Four leader tile result sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, parameters, resultSet]
+                properties:
+                  resource:
+                    type: string
+                    example: leaderstiles
+                  parameters:
+                    type: object
+                    additionalProperties: true
+                  resultSet:
+                    type: array
+                    minItems: 4
+                    maxItems: 4
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [LeadersTiles, AllTimeSeasonHigh, LastSeasonHigh, LowSeasonHigh]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: 'null'
+              examples:
+                leaderTiles:
+                  summary: Current leaders and season records
+                  value:
+                    resource: leaderstiles
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      GameScope: Season
+                      PlayerScope: All Players
+                      PlayerOrTeam: Team
+                      Stat: PTS
+                    resultSet:
+                      - name: LeadersTiles
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, PTS]
+                        rowSet:
+                          - [1, 1610612743, DEN, Denver Nuggets, 120.9]
+                      - name: AllTimeSeasonHigh
+                        headers: [TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, SEASON_YEAR, PTS]
+                        rowSet:
+                          - [1610612743, DEN, Nuggets, "1981-82", 126.475]
+                      - name: LastSeasonHigh
+                        headers: [RANK, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, PTS]
+                        rowSet:
+                          - [1, 1610612739, CLE, Cleveland Cavaliers, 121.9]
+                      - name: LowSeasonHigh
+                        headers: [TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, SEASON_YEAR, PTS]
+                        rowSet:
+                          - [1610610025, CHS, Stags, "1947-48", 75.833]
 components:
   parameters:
     LeagueID:

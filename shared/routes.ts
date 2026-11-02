@@ -55,6 +55,7 @@ const statsPaths = new Set([
   "hustlestatsboxscore",
   "infographicfanduelplayer",
   "iststandings",
+  "leaderstiles",
 ]);
 
 const fixedLivePaths = new Set([
