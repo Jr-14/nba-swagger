@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "author": "Jr-14",
   "engines": {
     "pnpm": ">=12"
   },
