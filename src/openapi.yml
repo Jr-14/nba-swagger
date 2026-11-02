@@ -11890,6 +11890,40 @@ paths:
                         headers: [SEASON_ID, POSITION, PERCENT_OF_TIME, DEF_PLAYER_ID, DEF_PLAYER_NAME, GP, MATCHUP_MIN, PARTIAL_POSS, PLAYER_PTS, TEAM_PTS, MATCHUP_AST, MATCHUP_TOV, MATCHUP_BLK, MATCHUP_FGM, MATCHUP_FGA, MATCHUP_FG_PCT, MATCHUP_FG3M, MATCHUP_FG3A, MATCHUP_FG3_PCT, MATCHUP_FTM, MATCHUP_FTA, SFL]
                         rowSet:
                           - ["22025", C, 0.0983423946368, 2544, "LeBron James", 30, "48:07", 245.2, 46, 299, 13, 7, 0, 23, 41, 0.561, 0, 4, 0.0, 0, 0, 0]
+  /stats/playbyplay:
+    get:
+      operationId: getPlayByPlay
+      tags: [Stats]
+      summary: playbyplay
+      deprecated: true
+      description: >-
+        Deprecated legacy play-by-play endpoint. The NBA API no longer returns
+        play-by-play data from this route and may return an empty JSON object.
+        Use /stats/playbyplayv3 instead.
+      parameters:
+        - name: EndPeriod
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0 }
+        - name: GameID
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{10}$' }
+        - name: StartPeriod
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200':
+          description: >-
+            Legacy endpoint response. Currently the upstream service returns an
+            empty JSON object; use PlayByPlayV3 for game events.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+              example: {}
 components:
   parameters:
     LeagueID:

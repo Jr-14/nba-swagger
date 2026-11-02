@@ -81,7 +81,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/leaguestandings`
 - ✅ `/stats/leaguestandingsv3`
 - ✅ `/stats/matchupsrollup`
-- `/stats/playbyplay`
+- ✅ `/stats/playbyplay` (deprecated upstream; use `/stats/playbyplayv3`)
 - `/stats/playbyplayv2`
 - `/stats/playbyplayv3`
 - `/stats/playerawards`
