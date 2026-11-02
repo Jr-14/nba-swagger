@@ -12063,6 +12063,93 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playercareerbycollegerollup:
+    get:
+      operationId: getPlayerCareerByCollegeRollup
+      tags: [Stats]
+      summary: playercareerbycollegerollup
+      description: Returns college career statistics grouped by tournament region and seed.
+      parameters:
+        - name: LeagueID
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{2}$', default: "00" }
+        - name: PerMode
+          in: query
+          required: true
+          schema: { type: string, enum: [Totals, PerGame], default: Totals }
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season }
+        - name: Season
+          in: query
+          required: false
+          schema: { type: string, nullable: true }
+      responses:
+        '200':
+          description: Career statistics for colleges grouped into regional result sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSet]
+                properties:
+                  resource:
+                    type: string
+                    example: playercareerbycollegerollup
+                  parameters:
+                    type: object
+                    additionalProperties: true
+                  resultSet:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [East, Midwest, South, West]
+                        headers:
+                          type: array
+                          items: { type: string }
+                        rowSet:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - { type: integer }
+                                - { type: number }
+                                - { type: string }
+                                - { type: 'null' }
+              examples:
+                regionalCollegeRollup:
+                  summary: College career statistics by regional seed
+                  value:
+                    resource: playercareerbycollegerollup
+                    parameters:
+                      LeagueID: "00"
+                      Season: null
+                      SeasonType: Regular Season
+                      PerMode: Totals
+                    resultSet:
+                      - name: East
+                        headers: [REGION, SEED, COLLEGE, PLAYERS, GP, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS]
+                        rowSet:
+                          - [East, 1, Villanova, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                      - name: South
+                        headers: [REGION, SEED, COLLEGE, PLAYERS, GP, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS]
+                        rowSet:
+                          - [South, 1, North Carolina, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                      - name: Midwest
+                        headers: [REGION, SEED, COLLEGE, PLAYERS, GP, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS]
+                        rowSet:
+                          - [Midwest, 1, Kansas, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                      - name: West
+                        headers: [REGION, SEED, COLLEGE, PLAYERS, GP, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS]
+                        rowSet:
+                          - [West, 1, Gonzaga, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   /stats/playercareerbycollege:
     get:
       operationId: getPlayerCareerByCollege
