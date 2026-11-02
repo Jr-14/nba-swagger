@@ -151,4 +151,4 @@ Base URL: `https://cdn.nba.com/static/json/liveData`
 - ✅ `/static/json/liveData/boxscore/boxscore_{game_id}.json`
 - ✅ `/static/json/liveData/odds/odds_todaysGames.json`
 - ✅ `/static/json/liveData/playbyplay/playbyplay_{game_id}.json`
-- `/static/json/liveData/scoreboard/todaysScoreboard_00.json`
+- ✅ `/static/json/liveData/scoreboard/todaysScoreboard_00.json`

@@ -56,8 +56,8 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `boxscoreadvancedv2`, `boxscorefourfactorsv2`, and `boxscoremiscv2` are
   deprecated upstream and return an empty JSON object.
 - Enabled Live routes: scoreboard, odds, boxscore, and play-by-play under
-  `/api/live/`. Boxscore, odds, and play-by-play are documented under the Live
-  API tag in Swagger. Game-specific paths require a ten-digit game ID.
+  `/api/live/`. Scoreboard, boxscore, odds, and play-by-play are documented
+  under the Live API tag in Swagger. Game-specific paths require a ten-digit ID.
 - The inventory in `docs/endpoints.md` does not automatically enable other Stats
   endpoints. This refactor changes transport, not endpoint coverage.
 - Both gateway and container use `shared/routes.ts`. Unknown paths and methods
