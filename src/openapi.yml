@@ -2509,6 +2509,131 @@ paths:
                           fieldGoalsAttempted: 94
                           fieldGoalsPercentage: 0.404255319148936
                           reboundsTotal: 58
+  /stats/boxscorescoringv2:
+    get:
+      operationId: getBoxScoreScoringV2
+      tags: [Stats]
+      summary: boxscorescoringv2
+      description: >-
+        Returns player and team scoring distribution box score statistics for a
+        game. Deprecated upstream: the NBA Stats API no longer returns data for
+        this endpoint and responds with an empty JSON object. Use
+        BoxScoreScoringV3 instead. Requests can use either the proxy Worker or
+        the NBA Stats API directly.
+      deprecated: true
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022300061"
+        - name: EndPeriod
+          in: query
+          required: true
+          description: Period to end at; 0 includes all periods.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: EndRange
+          in: query
+          required: true
+          description: End of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+        - name: RangeType
+          in: query
+          required: true
+          description: Range type; 0 selects the full period range.
+          schema:
+            type: string
+            default: "0"
+        - name: StartPeriod
+          in: query
+          required: true
+          description: Period to start at; 0 starts at the beginning of the game.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: StartRange
+          in: query
+          required: true
+          description: Start of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+      responses:
+        '200':
+          description: Player and team scoring distribution tables.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: boxscorescoringv2
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    description: One player table and one team table.
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum: [sqlPlayersScoring, sqlTeamsScoring]
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          description: Rows aligned by position with the headers array.
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: boolean
+              examples:
+                gameBoxScore:
+                  summary: Scoring distribution for one game
+                  value:
+                    resource: boxscorescoringv2
+                    parameters:
+                      GameID: "0022300061"
+                      EndPeriod: "0"
+                      EndRange: "0"
+                      RangeType: "0"
+                      StartPeriod: "0"
+                      StartRange: "0"
+                    resultSets:
+                      - name: sqlPlayersScoring
+                        headers: [GAME_ID, TEAM_ID, TEAM_ABBREVIATION, TEAM_CITY, PLAYER_ID, PLAYER_NAME, START_POSITION, COMMENT, MIN, PCT_FGA_2PT, PCT_FGA_3PT, PCT_PTS_2PT, PCT_PTS_2PT_MR, PCT_PTS_3PT, PCT_PTS_FB, PCT_PTS_FT, PCT_PTS_OFF_TOV, PCT_PTS_PAINT, PCT_AST_2PM, PCT_UAST_2PM, PCT_AST_3PM, PCT_UAST_3PM, PCT_AST_FGM, PCT_UAST_FGM]
+                        rowSet:
+                          - ["0022300061", 1610612747, LAL, Los Angeles, 2544, LeBron James, F, "", "29:01", 0.75, 0.25, 0.857, 0, 0.143, 0.381, 0, 0.19, 0.857, 0.333, 0.667, 1, 0, 0.4, 0.6]
+                      - name: sqlTeamsScoring
+                        headers: [GAME_ID, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CITY, MIN, PCT_FGA_2PT, PCT_FGA_3PT, PCT_PTS_2PT, PCT_PTS_2PT_MR, PCT_PTS_3PT, PCT_PTS_FB, PCT_PTS_FT, PCT_PTS_OFF_TOV, PCT_PTS_PAINT, PCT_AST_2PM, PCT_UAST_2PM, PCT_AST_3PM, PCT_UAST_3PM, PCT_AST_FGM, PCT_UAST_FGM]
+                        rowSet:
+                          - ["0022300061", 1610612747, Lakers, LAL, Los Angeles, "240:00", 0.678, 0.322, 0.579, 0.037, 0.28, 0.187, 0.14, 0.168, 0.542, 0.419, 0.581, 1, 0, 0.561, 0.439]
 components:
   parameters:
     LeagueID:
