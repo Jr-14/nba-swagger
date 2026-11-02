@@ -527,6 +527,133 @@ paths:
                         headers: [ASSISTS]
                         rowSet:
                           - [1692425]
+  /stats/boxscoreadvancedv2:
+    get:
+      operationId: getBoxScoreAdvancedV2
+      tags: [Stats]
+      summary: boxscoreadvancedv2
+      description: >-
+        Returns player and team advanced box score statistics for a game.
+        Deprecated upstream: the NBA Stats API no longer returns data for this
+        endpoint and responds with an empty JSON object. Use BoxScoreAdvancedV3
+        instead. Requests can use either the proxy Worker or the NBA Stats API
+        directly.
+      deprecated: true
+      parameters:
+        - name: GameID
+          in: query
+          required: true
+          description: NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022300061"
+        - name: EndPeriod
+          in: query
+          required: true
+          description: Period to end at; 0 includes all periods.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: EndRange
+          in: query
+          required: true
+          description: End of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+        - name: RangeType
+          in: query
+          required: true
+          description: Range type; 0 selects the full period range.
+          schema:
+            type: string
+            default: "0"
+        - name: StartPeriod
+          in: query
+          required: true
+          description: Period to start at; 0 starts at the beginning of the game.
+          schema:
+            type: string
+            pattern: '^\d+$'
+            default: "0"
+        - name: StartRange
+          in: query
+          required: true
+          description: Start of the clock range within the period.
+          schema:
+            type: string
+            default: "0"
+      responses:
+        '200':
+          description: Player and team advanced box score tables.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource:
+                    type: string
+                    example: boxscoreadvancedv2
+                  parameters:
+                    description: Echo of the supplied query parameters.
+                    oneOf:
+                      - type: object
+                        additionalProperties: true
+                      - type: array
+                        items:
+                          type: object
+                          additionalProperties: true
+                  resultSets:
+                    type: array
+                    description: One player table and one team table.
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name:
+                          type: string
+                          enum:
+                            - PlayerStats
+                            - TeamStats
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rowSet:
+                          type: array
+                          description: Rows aligned by position with the headers array.
+                          items:
+                            type: array
+                            items:
+                              oneOf:
+                                - type: integer
+                                - type: number
+                                - type: string
+                                - type: boolean
+              examples:
+                gameBoxScore:
+                  summary: Advanced box score for one game
+                  value:
+                    resource: boxscoreadvancedv2
+                    parameters:
+                      GameID: "0022300061"
+                      EndPeriod: "0"
+                      EndRange: "0"
+                      RangeType: "0"
+                      StartPeriod: "0"
+                      StartRange: "0"
+                    resultSets:
+                      - name: PlayerStats
+                        headers: [GAME_ID, TEAM_ID, TEAM_ABBREVIATION, TEAM_CITY, PLAYER_ID, PLAYER_NAME, START_POSITION, COMMENT, MIN, E_OFF_RATING, OFF_RATING, E_DEF_RATING, DEF_RATING, E_NET_RATING, NET_RATING, AST_PCT, AST_TOV, AST_RATIO, OREB_PCT, DREB_PCT, REB_PCT, TM_TOV_PCT, EFG_PCT, TS_PCT, USG_PCT, E_USG_PCT, E_PACE, PACE, PACE_PER40, POSS, PIE]
+                        rowSet:
+                          - ["0022300061", 1610612747, LAL, Los Angeles, 2544, LeBron James, F, "", "29:01", 132.7, 126.7, 114.6, 119, 18.1, 7.7, 0.263, 0, 23.8, 0.033, 0.25, 0.138, 0, 0.656, 0.639, 0.225, 0.245, 97.19, 97.62, 81.35, 60, 0.189]
+                      - name: TeamStats
+                        headers: [GAME_ID, TEAM_ID, TEAM_NAME, TEAM_ABBREVIATION, TEAM_CITY, MIN, E_OFF_RATING, OFF_RATING, E_DEF_RATING, DEF_RATING, E_NET_RATING, NET_RATING, AST_PCT, AST_TOV, AST_RATIO, OREB_PCT, DREB_PCT, REB_PCT, E_TM_TOV_PCT, TM_TOV_PCT, EFG_PCT, TS_PCT, USG_PCT, E_USG_PCT, E_PACE, PACE, PACE_PER40, POSS, PIE]
+                        rowSet:
+                          - ["0022300061", 1610612747, Lakers, LAL, Los Angeles, "240:00", 109.4, 111.5, 119.9, 125.3, -10.5, -13.8, 0.561, 1.92, 17.2, 0.346, 0.711, 0.515, 12.27, 12.5, 0.511, 0.541, 1, 0.199, 98.54, 95.5, 79.58, 96, 0.421]
 components:
   parameters:
     LeagueID:
