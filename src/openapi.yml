@@ -6,6 +6,8 @@ info:
 tags:
   - name: Stats
     description: NBA Stats API endpoints.
+  - name: Live
+    description: NBA Live Data CDN endpoints.
 servers:
   - url: https://nba-swagger-proxy.jr-jemerson14.workers.dev/api
     description: NBA API proxy
@@ -2105,6 +2107,162 @@ paths:
                           defendedAtRimFieldGoalsMade: 18
                           defendedAtRimFieldGoalsAttempted: 22
                           defendedAtRimFieldGoalPercentage: 0.818
+  /boxscore/boxscore_{game_id}.json:
+    get:
+      operationId: getLiveBoxScore
+      tags: [Live]
+      summary: Live game box score
+      description: >-
+        Returns the current or completed box score for a game, including game
+        details, arena, officials, home and away teams, player statistics, and
+        team statistics. This endpoint is served by the NBA Live Data CDN.
+      servers:
+        - url: https://nba-swagger-proxy.jr-jemerson14.workers.dev/api/live
+          description: NBA API proxy
+        - url: https://cdn.nba.com/static/json/liveData
+          description: NBA Live Data CDN direct
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          description: Ten-digit NBA game identifier.
+          schema:
+            type: string
+            pattern: '^\d{10}$'
+          example: "0022000180"
+      responses:
+        '200':
+          description: Live game box score JSON.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, game]
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/LiveBoxScoreMeta'
+                  game:
+                    $ref: '#/components/schemas/LiveBoxScoreGame'
+              examples:
+                completedGame:
+                  summary: Completed game box score
+                  value:
+                    meta:
+                      version: 1
+                      code: 200
+                      request: http://nba.cloud/games/0022000180/boxscore?Format=json
+                      time: "2021-01-15 23:51:25.282704"
+                    game:
+                      gameId: "0022000180"
+                      gameTimeLocal: "2021-01-15T19:30:00-05:00"
+                      gameTimeUTC: "2021-01-16T00:30:00Z"
+                      gameCode: 20210115/ORLBOS
+                      gameStatusText: Final
+                      gameStatus: 3
+                      regulationPeriods: 4
+                      period: 4
+                      gameClock: PT00M00.00S
+                      attendance: 0
+                      sellout: "0"
+                      arena:
+                        arenaId: 17
+                        arenaName: TD Garden
+                        arenaCity: Boston
+                        arenaState: MA
+                        arenaCountry: US
+                        arenaTimezone: America/New_York
+                      officials:
+                        - personId: 201638
+                          name: Brent Barnaky
+                          nameI: B. Barnaky
+                          firstName: Brent
+                          familyName: Barnaky
+                          jerseyNum: "36"
+                          assignment: OFFICIAL1
+                      homeTeam:
+                        teamId: 1610612738
+                        teamName: Celtics
+                        teamCity: Boston
+                        teamTricode: BOS
+                        score: 124
+                        inBonus: "1"
+                        timeoutsRemaining: 2
+                        periods:
+                          - period: 1
+                            periodType: REGULAR
+                            score: 34
+                        players:
+                          - status: ACTIVE
+                            order: 1
+                            personId: 1627759
+                            name: Jaylen Brown
+                            firstName: Jaylen
+                            familyName: Brown
+                            jerseyNum: "7"
+                            position: SF
+                            starter: "1"
+                            oncourt: "0"
+                            played: "1"
+                            statistics:
+                              minutes: PT25M01.00S
+                              points: 21
+                              assists: 8
+                              reboundsTotal: 2
+                              fieldGoalsMade: 6
+                              fieldGoalsAttempted: 12
+                              fieldGoalsPercentage: 0.5
+                              plusMinusPoints: 15.0
+                        statistics:
+                          points: 124
+                          pointsAgainst: 97
+                          assists: 25
+                          turnovers: 10
+                          fieldGoalsMade: 45
+                          fieldGoalsAttempted: 88
+                          fieldGoalsPercentage: 0.511363636363636
+                          reboundsTotal: 51
+                      awayTeam:
+                        teamId: 1610612753
+                        teamName: Magic
+                        teamCity: Orlando
+                        teamTricode: ORL
+                        score: 97
+                        inBonus: "1"
+                        timeoutsRemaining: 2
+                        periods:
+                          - period: 1
+                            periodType: REGULAR
+                            score: 28
+                        players:
+                          - status: ACTIVE
+                            order: 1
+                            personId: 203516
+                            name: James Ennis III
+                            firstName: James
+                            familyName: Ennis III
+                            jerseyNum: "11"
+                            position: SF
+                            starter: "1"
+                            oncourt: "0"
+                            played: "1"
+                            statistics:
+                              minutes: PT14M34.00S
+                              points: 2
+                              assists: 0
+                              reboundsTotal: 1
+                              fieldGoalsMade: 1
+                              fieldGoalsAttempted: 4
+                              fieldGoalsPercentage: 0.25
+                              plusMinusPoints: -5.0
+                        statistics:
+                          points: 97
+                          pointsAgainst: 124
+                          assists: 14
+                          turnovers: 11
+                          fieldGoalsMade: 38
+                          fieldGoalsAttempted: 94
+                          fieldGoalsPercentage: 0.404255319148936
+                          reboundsTotal: 58
 components:
   parameters:
     LeagueID:
@@ -2992,3 +3150,173 @@ components:
           type: integer
         foulsDrawn:
           type: integer
+    LiveBoxScoreMeta:
+      type: object
+      required: [version, code, request, time]
+      properties:
+        version:
+          type: integer
+        code:
+          type: integer
+        request:
+          type: string
+        time:
+          type: string
+    LiveBoxScoreGame:
+      type: object
+      required: [gameId, homeTeam, awayTeam]
+      properties:
+        gameId:
+          type: string
+          pattern: '^\d{10}$'
+        gameTimeLocal:
+          type: string
+          format: date-time
+        gameTimeUTC:
+          type: string
+          format: date-time
+        gameTimeHome:
+          type: string
+          format: date-time
+        gameTimeAway:
+          type: string
+          format: date-time
+        gameEt:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        gameCode:
+          type: string
+        gameStatusText:
+          type: string
+        gameStatus:
+          type: integer
+        regulationPeriods:
+          type: integer
+        period:
+          type: integer
+        gameClock:
+          type: string
+        attendance:
+          type: integer
+        sellout:
+          type: string
+        arena:
+          $ref: '#/components/schemas/LiveBoxScoreArena'
+        officials:
+          type: array
+          items:
+            $ref: '#/components/schemas/LiveBoxScoreOfficial'
+        homeTeam:
+          $ref: '#/components/schemas/LiveBoxScoreTeam'
+        awayTeam:
+          $ref: '#/components/schemas/LiveBoxScoreTeam'
+      additionalProperties: true
+    LiveBoxScoreArena:
+      type: object
+      properties:
+        arenaId:
+          type: integer
+        arenaName:
+          type: string
+        arenaCity:
+          type: string
+        arenaState:
+          type: string
+        arenaCountry:
+          type: string
+        arenaTimezone:
+          type: string
+      additionalProperties: true
+    LiveBoxScoreOfficial:
+      type: object
+      properties:
+        personId:
+          type: integer
+        name:
+          type: string
+        nameI:
+          type: string
+        firstName:
+          type: string
+        familyName:
+          type: string
+        jerseyNum:
+          type: string
+        assignment:
+          type: string
+      additionalProperties: true
+    LiveBoxScoreTeam:
+      type: object
+      required: [teamId, teamName, teamCity, teamTricode, score, players, statistics]
+      properties:
+        teamId:
+          type: integer
+        teamName:
+          type: string
+        teamCity:
+          type: string
+        teamTricode:
+          type: string
+        score:
+          type: integer
+        inBonus:
+          type: string
+        timeoutsRemaining:
+          type: integer
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/LiveBoxScorePeriod'
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/LiveBoxScorePlayer'
+        statistics:
+          type: object
+          description: Team box score statistics; fields vary with game state.
+          additionalProperties: true
+      additionalProperties: true
+    LiveBoxScorePeriod:
+      type: object
+      properties:
+        period:
+          type: integer
+        periodType:
+          type: string
+        score:
+          type: integer
+      additionalProperties: true
+    LiveBoxScorePlayer:
+      type: object
+      properties:
+        status:
+          type: string
+        order:
+          type: integer
+        personId:
+          type: integer
+        name:
+          type: string
+        nameI:
+          type: string
+        firstName:
+          type: string
+        familyName:
+          type: string
+        jerseyNum:
+          type: string
+        position:
+          type: string
+        starter:
+          type: string
+        oncourt:
+          type: string
+        played:
+          type: string
+        statistics:
+          type: object
+          description: Player box score statistics; fields vary with game state.
+          additionalProperties: true
+      additionalProperties: true
