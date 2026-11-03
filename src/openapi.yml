@@ -12063,6 +12063,60 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playerfantasyprofilebargraph:
+    get:
+      operationId: getPlayerFantasyProfileBarGraph
+      tags: [Stats]
+      summary: playerfantasyprofilebargraph
+      description: Returns season and recent-game fantasy scoring averages for a player.
+      parameters:
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: PlayerID, in: query, required: true, schema: { type: integer }, example: 1628378 }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - { name: SeasonType, in: query, required: false, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], nullable: true } }
+      responses:
+        '200':
+          description: Season and last-five-games fantasy averages.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: playerfantasyprofilebargraph }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [SeasonAvg, LastFiveGamesAvg] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                fantasyAverages:
+                  summary: Season and recent fantasy averages (no rows in cassette)
+                  value:
+                    resource: playerfantasyprofilebargraph
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: null
+                      PlayerID: 1628378
+                    resultSets:
+                      - name: SeasonAvg
+                        headers: [PLAYER_ID, PLAYER_NAME, TEAM_ID, TEAM_ABBREVIATION, FAN_DUEL_PTS, NBA_FANTASY_PTS, PTS, REB, AST, FG3M, FT_PCT, STL, BLK, TOV, FG_PCT]
+                        rowSet: []
+                      - name: LastFiveGamesAvg
+                        headers: [PLAYER_ID, PLAYER_NAME, TEAM_ID, TEAM_ABBREVIATION, FAN_DUEL_PTS, NBA_FANTASY_PTS, PTS, REB, AST, FG3M, FT_PCT, STL, BLK, TOV, FG_PCT]
+                        rowSet: []
   /stats/playerestimatedmetrics:
     get:
       operationId: getPlayerEstimatedMetrics
