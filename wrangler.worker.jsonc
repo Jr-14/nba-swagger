@@ -9,7 +9,7 @@
   },
   "kv_namespaces": [{
     "binding": "RESPONSE_CACHE",
-    "id": "00000000000000000000000000000000"
+    "id": "a9abd54765df4e0ba26b171fde500979"
   }],
   "containers": [{
     "class_name": "NbaProxy",
