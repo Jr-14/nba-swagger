@@ -7,6 +7,10 @@
   "vars": {
     "ALLOWED_ORIGIN": "https://nba-swagger.pages.dev"
   },
+  "kv_namespaces": [{
+    "binding": "RESPONSE_CACHE",
+    "id": "00000000000000000000000000000000"
+  }],
   "containers": [{
     "class_name": "NbaProxy",
     "image": "./containers/proxy/Dockerfile",

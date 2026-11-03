@@ -12,8 +12,9 @@ Browser
     │       └── Cloudflare Pages: Swagger UI and OpenAPI assets
     │
     └── nba-swagger-proxy.jr-jemerson14.workers.dev/api/*
-            └── Hono Worker: CORS, route guards, rate limiting
-                    └── NbaProxy Durable Object
+            └── Hono Worker: CORS, route guards, rate limiting, KV cache
+                    ├── Cloudflare KV response cache
+                    └── NbaProxy Durable Object (cache miss)
                             └── Node + Hono container
                                     ├── Stats: stats.nba.com/stats/*
                                     └── Live: cdn.nba.com/static/json/liveData/*
@@ -30,7 +31,7 @@ CORS. Production's public proxy URL is committed in `src/openapi.yml`;
 | --- | --- | --- |
 | Static UI | `src/index.html`, `src/swagger.js`, `src/openapi.yml`, `wrangler.jsonc` | Build into `dist/` and deploy to Pages |
 | Worker entry point | `src/worker.ts`, `wrangler.worker.jsonc` | Export the container class and Hono gateway |
-| Gateway | `src/gateway.ts` | CORS, early request rejection, rate limiting, forwarding and startup-error handling |
+| Gateway | `src/gateway.ts` | CORS, early request rejection, rate limiting, KV response caching, forwarding and startup-error handling |
 | Node service | `containers/proxy/app.ts`, `server.ts`, `Dockerfile` | Fixed-host NBA requests, JSON parsing and diagnostics |
 | Shared policy | `shared/routes.ts`, `shared/proxy-config.ts` | One endpoint allowlist and common resource limits |
 
@@ -171,27 +172,40 @@ for API calls.
   `503` with `Retry-After` rather than creating an unbounded queue.
 - Existing limits are preserved: 180-second upstream timeout, 5 MiB response
   limit, and 2,048-character query limit. These are in `shared/proxy-config.ts`.
-- Responses use `Cache-Control: no-store`; no stale or synthetic success response
-  hides an upstream error.
+- Responses use `Cache-Control: no-store` for browser/intermediary behavior. The
+  Worker may serve a successful cached response during its family TTL, so an
+  upstream change or failure during that window is not observed until the entry
+  expires. It does not serve entries beyond their TTL or synthesize success
+  responses for failed requests.
 
-## Response caching (proposed)
+## Response caching
 
-The Worker can use Cloudflare KV as a server-side cache in front of the
+The Worker uses Cloudflare KV as a server-side cache in front of the
 container, with a different expiration policy for each upstream family:
 
 | Route family | KV expiration | Rationale |
 | --- | --- | --- |
-| Stats (`/api/stats/*`) | **10 minutes** | Reuses repeated queries, though some game-specific Stats data can change quickly and may be noticeably stale for this long. |
-| Live (`/api/live/*`) | **1 minute** | Scoreboard, odds, boxscore, and play-by-play data changes more frequently. |
+| Other Stats (`/api/stats/*`, excluding game-state routes below) | **10 minutes** | Reuses repeated queries for data that is not expected to change during a game. |
+| Game-state Stats | **1 minute** | Box scores, game rotations, play-by-play, scoreboards, and win probability update during games. |
+| Live (`/api/live/*`) | **1 minute** | Scoreboard, odds, boxscore, and play-by-play data changes frequently. |
 
-On each API request, the gateway would derive the family from the shared route
-resolver, check KV, and return a valid cached response when present. On a miss,
-it would call the container as it does today and write the response to KV only
-when the response is successful **2xx JSON**. The proxy can return JSON error
-responses too, so JSON content type alone is not sufficient. Do not cache
-rate-limit responses, gateway/container errors, invalid JSON, or other
-unsuccessful responses. `/health` does not contact an NBA upstream and should
-remain outside this cache.
+On each valid API request, after rate limiting, the gateway derives the family
+from the shared route resolver, checks KV, and returns a cached response when
+present. On a miss, it calls the container as it does today and writes the
+response to KV only when the response is successful **2xx JSON**. The proxy can
+return JSON error responses too, so JSON content type alone is not sufficient.
+Do not cache rate-limit responses, gateway/container errors, invalid JSON, or
+other unsuccessful responses. `/health` does not contact an NBA upstream and
+remains outside this cache. The gateway schedules cache writes with the Worker
+execution context, so the origin response does not wait for KV persistence; a
+failed write simply causes a later request to miss.
+
+The 10-minute Stats TTL is the default, not a blanket rule for every Stats
+route. The shared route resolver assigns a 1-minute TTL to game-sensitive
+endpoints: box score variants, `gamerotation`, `playbyplay`/`playbyplayv2`/
+`playbyplayv3`, `scoreboardv2`/`scoreboardv3`, and `winprobabilitypbp`. This
+reduces staleness for in-progress games while preserving the longer TTL for
+other Stats queries.
 
 Build the cache key from the public API path and the complete query string. Query
 parameters can change NBA Stats results, so omitting them could return the wrong
@@ -218,19 +232,24 @@ the cache does not reduce Worker invocation costs or guarantee lower total cost.
 Its value depends on how often callers repeat the same path and query and on the
 upstream/container work avoided by those hits.
 
-Cache only the reusable response data, such as status and body. Keep
+The Worker binding is `RESPONSE_CACHE` in `wrangler.worker.jsonc`; replace its
+placeholder namespace ID with the ID of a namespace provisioned in the target
+Cloudflare account before deployment (see [development](development.md)). Wrangler
+local mode uses its local KV emulation for this binding. The Node/Docker-only
+development paths bypass the Worker gateway and therefore do not exercise KV.
+
+Cache only the reusable response data, status and body. Keep
 request-specific headers such as `X-Request-ID` fresh for every request, and
-continue applying CORS and `Cache-Control: no-store` at the gateway. The KV
-binding and namespace must be provisioned for deployment. The usual Node/Docker
-development paths bypass the Worker gateway; exercise the cache through the
-gateway in Wrangler and add coverage for cache hits, misses, status handling,
-and per-request headers.
+regenerate the JSON content type and `X-Content-Type-Options: nosniff` on hits.
+Continue applying CORS and `Cache-Control: no-store` at the gateway. Full
+path-and-query keys over KV's 512-byte key limit bypass the cache without being
+truncated or canonicalized. The cache is exercised through the gateway in
+Wrangler and covered by offline tests for hits, misses, status handling, TTLs,
+background writes, and per-request headers.
 
 This KV cache is internal to the Worker and does not require enabling browser or
 intermediary caching. The current `Cache-Control: no-store` response header can
-remain in place so clients do not independently cache proxy responses. The
-gateway currently has no KV binding; adding the binding, cache logic, and local
-development/test coverage is a separate implementation and deployment change.
+remain in place so clients do not independently cache proxy responses.
 
 These controls are not a monetary budget guarantee. Monitor Worker invocations,
 Durable Object/container usage, and NBA failures. Follow NBA.com's Terms of Use

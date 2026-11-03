@@ -124,8 +124,9 @@ pnpm dev:wrangler
 
 Vite forwards `/api` and `/health` to Wrangler. Browser requests then pass
 through the emulated Worker, including route guards, request-ID propagation,
-rate limiting, CORS, and container forwarding. Requests made directly to port
-8787 can be used to inspect CORS behavior.
+rate limiting, KV response caching, CORS, and container forwarding. Requests
+made directly to port 8787 can be used to inspect CORS behavior. Wrangler uses
+local KV emulation; local cache data is separate from the deployed namespace.
 
 Wrangler builds the container image itself and starts it in local Docker.
 - `UI_PORT` changes the Vite port (default `5173`).
@@ -139,8 +140,8 @@ UI_PORT=5174 WORKER_PORT=8788 DEV_ORIGIN=http://localhost:5174 pnpm dev:wrangler
 
 Worker or gateway changes reload automatically. Node proxy or `shared/` changes
 require pressing `r` in the Wrangler terminal to rebuild and restart the
-container. Wrangler stores local Durable Object state under `.wrangler/`, which
-is ignored by Git. The local container does not enforce `max_instances`.
+container. Wrangler stores local Durable Object and KV state under `.wrangler/`,
+which is ignored by Git. The local container does not enforce `max_instances`.
 
 ### Wrangler backend only
 
@@ -215,6 +216,17 @@ the Live API base path; there is no required `VITE_PROXY_URL` setting. Only the
 full Pages build uses the internal `LOCAL_PROXY_URL` override.
 
 ## Production verification and logs
+
+Before deploying the Worker, create the KV namespace in the target account and
+replace the placeholder `id` for `RESPONSE_CACHE` in `wrangler.worker.jsonc`
+with the returned namespace ID:
+
+```bash
+pnpm exec wrangler kv namespace create NBA_RESPONSE_CACHE
+```
+
+Do not deploy with the placeholder ID. The same binding works with Wrangler's
+local KV emulation and does not require a remote namespace for local development.
 
 Deploy the backend and Pages manually as described in
 [architecture.md](architecture.md). No browser token is required. A successful

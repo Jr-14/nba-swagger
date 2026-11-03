@@ -1,6 +1,7 @@
 export interface UpstreamRoute {
   url: URL;
   family: "stats" | "live";
+  cacheTtlSeconds: number;
 }
 
 const fixedLivePaths = new Set([
@@ -150,6 +151,36 @@ const statsPaths = new Set([
   "winprobabilitypbp",
 ]);
 
+// These Stats endpoints can change during a game. Keep their cache freshness
+// aligned with the Live API even though they are served from stats.nba.com.
+const volatileStatsPaths = new Set([
+  "boxscoreadvancedv2",
+  "boxscoreadvancedv3",
+  "boxscoredefensivev2",
+  "boxscorefourfactorsv2",
+  "boxscorefourfactorsv3",
+  "boxscorehustlev2",
+  "boxscorematchupsv3",
+  "boxscoremiscv2",
+  "boxscoremiscv3",
+  "boxscoreplayertrackv3",
+  "boxscorescoringv2",
+  "boxscorescoringv3",
+  "boxscoresummaryv2",
+  "boxscoresummaryv3",
+  "boxscoretraditionalv2",
+  "boxscoretraditionalv3",
+  "boxscoreusagev2",
+  "boxscoreusagev3",
+  "gamerotation",
+  "playbyplay",
+  "playbyplayv2",
+  "playbyplayv3",
+  "scoreboardv2",
+  "scoreboardv3",
+  "winprobabilitypbp",
+]);
+
 // One route allowlist shared by the gateway and Node service. Query parameter
 // definitions remain in OpenAPI, not in a second validator.
 export function resolveUpstream(requestUrl: URL): UpstreamRoute | null {
@@ -159,7 +190,11 @@ export function resolveUpstream(requestUrl: URL): UpstreamRoute | null {
     if (!statsPaths.has(endpoint)) return null;
     const url = new URL(`https://stats.nba.com/stats/${endpoint}`);
     url.search = requestUrl.search;
-    return { url, family: "stats" };
+    return {
+      url,
+      family: "stats",
+      cacheTtlSeconds: volatileStatsPaths.has(endpoint) ? 60 : 10 * 60,
+    };
   }
 
   if (!requestUrl.pathname.startsWith("/api/live/")) return null;
@@ -172,5 +207,5 @@ export function resolveUpstream(requestUrl: URL): UpstreamRoute | null {
 
   const url = new URL(path, "https://cdn.nba.com/static/json/liveData/");
   url.search = requestUrl.search;
-  return { url, family: "live" };
+  return { url, family: "live", cacheTtlSeconds: 60 };
 }
