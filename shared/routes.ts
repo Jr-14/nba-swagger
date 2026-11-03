@@ -112,6 +112,7 @@ const statsPaths = new Set([
   "playoffpicture",
   "scheduleleaguev2",
   "scheduleleaguev2int",
+  "scoreboardv2",
 ]);
 
 const fixedLivePaths = new Set([

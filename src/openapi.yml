@@ -12063,6 +12063,57 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/scoreboardv2:
+    get:
+      operationId: getScoreboardV2
+      tags: [Stats]
+      summary: scoreboardv2
+      description: Deprecated for 2025-26 because line-score data is missing for games from 2025-10-22 through 2025-12-25. Use ScoreboardV3, which supports historical seasons.
+      deprecated: true
+      parameters:
+        - { name: DayOffset, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: GameDate, in: query, required: true, schema: { type: string, format: date }, example: "2026-02-22" }
+        - { name: LeagueID, in: query, required: true, schema: { type: string, pattern: '^\d{2}$', default: "00" } }
+      responses:
+        '200':
+          description: Scoreboard datasets for the requested game date.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: scoreboardv2 }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                dailyScoreboard:
+                  summary: Game header and line score from smoke cassette
+                  value:
+                    resource: scoreboardv2
+                    parameters:
+                      LeagueID: "00"
+                      GameDate: "02/22/2026"
+                      DayOffset: 0
+                    resultSets:
+                      - name: GameHeader
+                        headers: [GAME_DATE_EST, GAME_SEQUENCE, GAME_ID, GAME_STATUS_ID, GAME_STATUS_TEXT, GAMECODE, HOME_TEAM_ID, VISITOR_TEAM_ID, SEASON, LIVE_PERIOD, LIVE_PC_TIME, NATL_TV_BROADCASTER_ABBREVIATION, HOME_TV_BROADCASTER_ABBREVIATION, AWAY_TV_BROADCASTER_ABBREVIATION, LIVE_PERIOD_TIME_BCAST, ARENA_NAME, WH_STATUS, WNBA_COMMISSIONER_FLAG]
+                        rowSet:
+                          - ["2026-02-22T00:00:00", 1, "0022500817", 1, "1:00 pm ET", "20260222/CLEOKC", 1610612760, 1610612739, "2025", 0, "", ABC, null, null, "Q0 - ABC", Paycom Center, 0, 0]
+                      - name: LineScore
+                        headers: [GAME_DATE_EST, GAME_SEQUENCE, GAME_ID, TEAM_ID, TEAM_ABBREVIATION, TEAM_CITY_NAME, TEAM_NAME, TEAM_WINS_LOSSES, PTS_QTR1, PTS_QTR2, PTS_QTR3, PTS_QTR4, PTS_OT1, PTS_OT2, PTS_OT3, PTS_OT4, PTS_OT5, PTS_OT6, PTS_OT7, PTS_OT8, PTS_OT9, PTS_OT10, PTS, FG_PCT, FT_PCT, FG3_PCT, AST, REB, TOV]
+                        rowSet:
+                          - ["2026-02-22T00:00:00", 1, "0022500817", 1610612760, OKC, Oklahoma City, Thunder, "43-14", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
   /stats/scheduleleaguev2:
     get:
       operationId: getScheduleLeagueV2
