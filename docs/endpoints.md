@@ -94,7 +94,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/playerdashboardbygeneralsplits`
 - ✅ `/stats/playerdashboardbylastngames`
 - ✅ `/stats/playerdashboardbyshootingsplits`
-- `/stats/playerdashboardbyteamperformance`
+- ✅ `/stats/playerdashboardbyteamperformance`
 - `/stats/playerdashboardbyyearoveryear`
 - `/stats/playerdashptpass`
 - `/stats/playerdashptreb`
