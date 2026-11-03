@@ -12063,6 +12063,52 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/winprobabilitypbp:
+    get:
+      operationId: getWinProbabilityPBP
+      tags: [Stats]
+      summary: winprobabilitypbp
+      description: "Returns game information and play-by-play win probabilities. Known upstream issue: stats.nba.com has returned HTTP 500 for all tested parameter combinations (documented 2026-10-21)."
+      parameters:
+        - { name: GameID, in: query, required: true, schema: { type: string, pattern: '^\d{10}$' }, example: "0022300061" }
+        - { name: RunType, in: query, required: true, schema: { type: string, default: each second }, example: each second }
+      responses:
+        '200':
+          description: Game summary and play-by-play win probabilities.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: winprobabilitypbp }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [GameInfo, WinProbPBP] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                winProbabilitySample:
+                  summary: Sample rows from published endpoint output (no cassette available)
+                  value:
+                    resource: winprobabilitypbp
+                    parameters: { GameID: "0022300061", RunType: each second }
+                    resultSets:
+                      - name: GameInfo
+                        headers: [GAME_ID, GAME_DATE, HOME_TEAM_ID, HOME_TEAM_ABR, HOME_TEAM_PTS, VISITOR_TEAM_ID, VISITOR_TEAM_ABR, VISITOR_TEAM_PTS]
+                        rowSet:
+                          - ["0022300061", "10/24/2023", 1610612743, DEN, 119, 1610612747, LAL, 107]
+                      - name: WinProbPBP
+                        headers: [GAME_ID, EVENT_NUM, HOME_PCT, VISITOR_PCT, HOME_PTS, VISITOR_PTS, HOME_SCORE_MARGIN, PERIOD, SECONDS_REMAINING, HOME_POSS_IND, HOME_G, DESCRIPTION, LOCATION, PCTIMESTRING, ISVISIBLE]
+                        rowSet:
+                          - ["0022300061", 2, 0.58808, 0.41192, 0, 0, 0, 1, 720, null, null, "Start of 1st Period (7:36 PM EST)", null, "12:00", 1]
   /stats/videostatus:
     get:
       operationId: getVideoStatus

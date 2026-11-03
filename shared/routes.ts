@@ -142,6 +142,7 @@ const statsPaths = new Set([
   "videoevents",
   "videoeventsasset",
   "videostatus",
+  "winprobabilitypbp",
 ]);
 
 const fixedLivePaths = new Set([

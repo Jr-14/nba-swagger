@@ -142,7 +142,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/videoevents`
 - ✅ `/stats/videoeventsasset`
 - ✅ `/stats/videostatus`
-- `/stats/winprobabilitypbp`
+- ✅ `/stats/winprobabilitypbp` (upstream currently returns HTTP 500)
 
 ## Live API
 

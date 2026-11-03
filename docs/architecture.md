@@ -120,7 +120,8 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `/api/stats/teamplayeronoffsummary`, `/api/stats/teamvsplayer`, and
   `/api/stats/teamyearbyyearstats`, `/api/stats/videodetails`, and
   `/api/stats/videodetailsasset`, `/api/stats/videoevents`,
-  `/api/stats/videoeventsasset`, and `/api/stats/videostatus`.
+  `/api/stats/videoeventsasset`, `/api/stats/videostatus`, and
+  `/api/stats/winprobabilitypbp`.
   The assist endpoints are deprecated
   upstream and currently return the NBA.com homepage instead of JSON;
   `boxscoreadvancedv2`, `boxscorefourfactorsv2`, `boxscoremiscv2`,
