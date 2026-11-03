@@ -109,7 +109,8 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `/api/stats/scoreboardv3`, `/api/stats/shotchartdetail`,
   `/api/stats/shotchartleaguewide`, `/api/stats/shotchartlineupdetail`, and
   `/api/stats/synergyplaytypes`, `/api/stats/teamandplayersvsplayers`, and
-  `/api/stats/teamdashboardbygeneralsplits`.
+  `/api/stats/teamdashboardbygeneralsplits`, and
+  `/api/stats/teamdashboardbyshootingsplits`.
   The assist endpoints are deprecated
   upstream and currently return the NBA.com homepage instead of JSON;
   `boxscoreadvancedv2`, `boxscorefourfactorsv2`, `boxscoremiscv2`,

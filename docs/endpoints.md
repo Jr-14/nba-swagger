@@ -120,7 +120,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/synergyplaytypes`
 - ✅ `/stats/teamandplayersvsplayers`
 - ✅ `/stats/teamdashboardbygeneralsplits` (PlusMinus=Y may return incorrect values)
-- `/stats/teamdashboardbyshootingsplits`
+- ✅ `/stats/teamdashboardbyshootingsplits`
 - `/stats/teamdashlineups`
 - `/stats/teamdashptpass`
 - `/stats/teamdashptreb`

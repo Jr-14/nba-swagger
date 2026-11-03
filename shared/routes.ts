@@ -120,6 +120,7 @@ const statsPaths = new Set([
   "synergyplaytypes",
   "teamandplayersvsplayers",
   "teamdashboardbygeneralsplits",
+  "teamdashboardbyshootingsplits",
 ]);
 
 const fixedLivePaths = new Set([

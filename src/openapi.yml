@@ -12063,6 +12063,98 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/teamdashboardbyshootingsplits:
+    get:
+      operationId: getTeamDashboardByShootingSplits
+      tags: [Stats]
+      summary: teamdashboardbyshootingsplits
+      description: Returns team shooting statistics broken down by shot distance, area, type, and assisted shots.
+      parameters:
+        - { name: DateFrom, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: GameSegment, in: query, required: true, schema: { type: string, enum: [First Half, Overtime, Second Half], nullable: true } }
+        - { name: ISTRound, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LastNGames, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Location, in: query, required: true, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: MeasureType, in: query, required: true, schema: { type: string, enum: [Base, Advanced, Misc, Four Factors, Scoring, Opponent, Usage, Defense], default: Base } }
+        - { name: Month, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: OpponentTeamID, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: Outcome, in: query, required: true, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: PaceAdjust, in: query, required: true, schema: { type: string, enum: [Y, N], default: N } }
+        - { name: PerMode, in: query, required: true, schema: { type: string, enum: [Totals, PerGame, MinutesPer, Per48, Per40, Per36, PerMinute, PerPossession, PerPlay, Per100Possessions, Per100Plays], default: Totals } }
+        - { name: Period, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: PORound, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: PlusMinus, in: query, required: true, schema: { type: string, enum: [Y, N], default: N } }
+        - { name: Rank, in: query, required: true, schema: { type: string, enum: [Y, N], default: N } }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - { name: SeasonSegment, in: query, required: true, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: ShotClockRange, in: query, required: false, schema: { type: string, enum: [24-22, 22-18 Very Early, 18-15 Early, 15-7 Average, 7-4 Late, 4-0 Very Late, ShotClock Off], nullable: true } }
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612739 }
+        - { name: VsConference, in: query, required: true, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: true, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+      responses:
+        '200':
+          description: Team shooting dashboard results across seven result sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: teamdashboardbyshootingsplits }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [AssistedBy, AssitedShotTeamDashboard, OverallTeamDashboard, Shot5FTTeamDashboard, Shot8FTTeamDashboard, ShotAreaTeamDashboard, ShotTypeTeamDashboard] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                teamShootingSplits:
+                  summary: Overall team shooting dashboard result from smoke cassette
+                  value:
+                    resource: teamdashboardbyshootingsplits
+                    parameters:
+                      MeasureType: Base
+                      PerMode: Totals
+                      PlusMinus: N
+                      PaceAdjust: N
+                      Rank: N
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PORound: 0
+                      TeamID: 1610612739
+                      Outcome: null
+                      Location: null
+                      Month: 0
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: 0
+                      VsConference: null
+                      VsDivision: null
+                      GameSegment: null
+                      Period: 0
+                      ShotClockRange: null
+                      LastNGames: 0
+                      ISTRound: null
+                    resultSets:
+                      - name: OverallTeamDashboard
+                        headers: [GROUP_SET, GROUP_VALUE, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, EFG_PCT, BLKA, PCT_AST_2PM, PCT_UAST_2PM, PCT_AST_3PM, PCT_UAST_3PM, PCT_AST_FGM, PCT_UAST_FGM, FGM_RANK, FGA_RANK, FG_PCT_RANK, FG3M_RANK, FG3A_RANK, FG3_PCT_RANK, EFG_PCT_RANK, BLKA_RANK, PCT_AST_2PM_RANK, PCT_UAST_2PM_RANK, PCT_AST_3PM_RANK, PCT_UAST_3PM_RANK, PCT_AST_FGM_RANK, PCT_UAST_FGM_RANK]
+                        rowSet:
+                          - [Overall, "2025-26", 2484, 5203, 0.477, 831, 2314, 0.359, 0.557, 249, 0.57, 0.43, 0.822, 0.178, 0.654, 0.346, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
   /stats/teamdashboardbygeneralsplits:
     get:
       operationId: getTeamDashboardByGeneralSplits
