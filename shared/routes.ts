@@ -3,6 +3,11 @@ export interface UpstreamRoute {
   family: "stats" | "live";
 }
 
+const fixedLivePaths = new Set([
+  "odds/odds_todaysGames.json",
+  "scoreboard/todaysScoreboard_00.json",
+]);
+
 const statsPaths = new Set([
   "alltimeleadersgrids",
   "assistleaders",
@@ -143,11 +148,6 @@ const statsPaths = new Set([
   "videoeventsasset",
   "videostatus",
   "winprobabilitypbp",
-]);
-
-const fixedLivePaths = new Set([
-  "odds/odds_todaysGames.json",
-  "scoreboard/todaysScoreboard_00.json",
 ]);
 
 // One route allowlist shared by the gateway and Node service. Query parameter
