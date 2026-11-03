@@ -96,6 +96,7 @@ const statsPaths = new Set([
   "playerdashboardbyshootingsplits",
   "playerdashboardbyteamperformance",
   "playerdashboardbyyearoveryear",
+  "playerdashptpass",
 ]);
 
 const fixedLivePaths = new Set([

@@ -12063,6 +12063,88 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playerdashptpass:
+    get:
+      operationId: getPlayerDashPtPass
+      tags: [Stats]
+      summary: playerdashptpass
+      description: Returns passing statistics made and received by the selected player.
+      parameters:
+        - { name: DateFrom, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: ISTRound, in: query, required: false, schema: { type: string, enum: [Group, East Group A, East Group B, East Group C, West Group A, West Group B, West Group C, Knockout, Championship], nullable: true } }
+        - { name: LastNGames, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, default: "00" } }
+        - { name: Location, in: query, required: false, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: Month, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: OpponentTeamID, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: Outcome, in: query, required: false, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: PerMode, in: query, required: false, schema: { type: string, enum: [Totals, PerGame], default: Totals } }
+        - { name: PlayerID, in: query, required: true, schema: { type: integer }, example: 1628378 }
+        - name: Season
+          in: query
+          required: false
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - { name: SeasonSegment, in: query, required: false, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: false, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612739 }
+        - { name: VsConference, in: query, required: false, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: false, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+      responses:
+        '200':
+          description: Passing statistics made and received by the player.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: playerdashptpass }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [PassesMade, PassesReceived] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                playerPasses:
+                  summary: Player passes made and received
+                  value:
+                    resource: playerdashptpass
+                    parameters:
+                      PerMode: Totals
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PlayerID: 1628378
+                      TeamID: 1610612739
+                      Outcome: null
+                      Location: null
+                      Month: 0
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: 0
+                      VsConference: null
+                      VsDivision: null
+                      LastNGames: 0
+                      ISTRound: null
+                    resultSets:
+                      - name: PassesMade
+                        headers: [PLAYER_ID, PLAYER_NAME_LAST_FIRST, TEAM_NAME, TEAM_ID, TEAM_ABBREVIATION, PASS_TYPE, G, PASS_TO, PASS_TEAMMATE_PLAYER_ID, FREQUENCY, PASS, AST, FGM, FGA, FG_PCT, FG2M, FG2A, FG2_PCT, FG3M, FG3A, FG3_PCT]
+                        rowSet:
+                          - [1628378, "Mitchell, Donovan", Cleveland Cavaliers, 1610612739, CLE, made, 53, "Proctor, Tyrese", 1642878, 0.027, 64, 7, 7, 25, 0.28, 1, 8, 0.125, 6, 17, 0.353]
+                      - name: PassesReceived
+                        headers: [PLAYER_ID, PLAYER_NAME_LAST_FIRST, TEAM_NAME, TEAM_ID, TEAM_ABBREVIATION, PASS_TYPE, G, PASS_FROM, PASS_TEAMMATE_PLAYER_ID, FREQUENCY, PASS, AST, FGM, FGA, FG_PCT, FG2M, FG2A, FG2_PCT, FG3M, FG3A, FG3_PCT]
+                        rowSet:
+                          - [1628378, "Mitchell, Donovan", Cleveland Cavaliers, 1610612739, CLE, received, 53, "Proctor, Tyrese", 1642878, 0.02, 62, 6, 8, 23, 0.348, 2, 8, 0.25, 6, 15, 0.4]
   /stats/playerdashboardbyyearoveryear:
     get:
       operationId: getPlayerDashboardByYearOverYear
