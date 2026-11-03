@@ -12063,6 +12063,90 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playerdashptshotdefend:
+    get:
+      operationId: getPlayerDashPtShotDefend
+      tags: [Stats]
+      summary: playerdashptshotdefend
+      description: Returns defended-shot statistics for the selected player and team.
+      parameters:
+        - { name: DateFrom, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GameSegment, in: query, required: false, schema: { type: string, enum: [First Half, Overtime, Second Half], nullable: true } }
+        - { name: LastNGames, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, default: "00" } }
+        - { name: Location, in: query, required: false, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: Month, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: OpponentTeamID, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: Outcome, in: query, required: false, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: PerMode, in: query, required: false, schema: { type: string, enum: [Totals, PerGame], default: Totals } }
+        - { name: Period, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: PlayerID, in: query, required: true, schema: { type: integer }, example: 1628378 }
+        - name: Season
+          in: query
+          required: false
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - { name: SeasonSegment, in: query, required: false, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: false, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612739 }
+        - { name: VsConference, in: query, required: false, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: false, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+        - { name: ISTRound, in: query, required: false, schema: { type: string, enum: [Group, East Group A, East Group B, East Group C, West Group A, West Group B, West Group C, Knockout, Championship], nullable: true } }
+      responses:
+        '200':
+          description: Defending-shot frequency and field-goal results.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: playerdashptshotdefend }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [DefendingShots] }
+                        headers:
+                          type: array
+                          items: { type: string }
+                          example: [MATCHUPID, GP, G, DEFENSE_CATEGORY, FREQ, D_FGM, D_FGA, D_FG_PCT, NORMAL_FG_PCT, PCT_PLUSMINUS]
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                defendedShotResults:
+                  summary: Defended-shot result set (cassette contains no rows)
+                  value:
+                    resource: playerdashptshotdefend
+                    parameters:
+                      PerMode: Totals
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PlayerID: 1628378
+                      TeamID: 1610612739
+                      Outcome: null
+                      Location: null
+                      Month: 0
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: 0
+                      VsConference: null
+                      VsDivision: null
+                      GameSegment: null
+                      Period: 0
+                      LastNGames: 0
+                      ISTRound: null
+                    resultSets:
+                      - name: DefendingShots
+                        headers: [MATCHUPID, GP, G, DEFENSE_CATEGORY, FREQ, D_FGM, D_FGA, D_FG_PCT, NORMAL_FG_PCT, PCT_PLUSMINUS]
+                        rowSet: []
   /stats/playerdashptreb:
     get:
       operationId: getPlayerDashPtReb

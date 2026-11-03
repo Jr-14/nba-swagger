@@ -98,6 +98,7 @@ const statsPaths = new Set([
   "playerdashboardbyyearoveryear",
   "playerdashptpass",
   "playerdashptreb",
+  "playerdashptshotdefend",
 ]);
 
 const fixedLivePaths = new Set([
