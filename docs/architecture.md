@@ -174,6 +174,64 @@ for API calls.
 - Responses use `Cache-Control: no-store`; no stale or synthetic success response
   hides an upstream error.
 
+## Response caching (proposed)
+
+The Worker can use Cloudflare KV as a server-side cache in front of the
+container, with a different expiration policy for each upstream family:
+
+| Route family | KV expiration | Rationale |
+| --- | --- | --- |
+| Stats (`/api/stats/*`) | **10 minutes** | Reuses repeated queries, though some game-specific Stats data can change quickly and may be noticeably stale for this long. |
+| Live (`/api/live/*`) | **1 minute** | Scoreboard, odds, boxscore, and play-by-play data changes more frequently. |
+
+On each API request, the gateway would derive the family from the shared route
+resolver, check KV, and return a valid cached response when present. On a miss,
+it would call the container as it does today and write the response to KV only
+when the response is successful **2xx JSON**. The proxy can return JSON error
+responses too, so JSON content type alone is not sufficient. Do not cache
+rate-limit responses, gateway/container errors, invalid JSON, or other
+unsuccessful responses. `/health` does not contact an NBA upstream and should
+remain outside this cache.
+
+Build the cache key from the public API path and the complete query string. Query
+parameters can change NBA Stats results, so omitting them could return the wrong
+data. Keeping the original query-string representation also avoids accidentally
+merging requests unless key canonicalization is deliberately designed and
+tested. The route family selects the TTL; it should not replace the path and
+query as part of the key.
+
+KV is an eventually consistent, distributed cache. Expiration sets the maximum
+intended cache lifetime, but writes and deletes are not guaranteed to become
+visible everywhere immediately. Treat TTL expiry as the freshness policy rather
+than promising immediate invalidation. This proxy has no manual purge endpoint;
+the NBA response is allowed to age out under its family TTL. For the initial
+implementation, perform the KV lookup after the existing rate limiter. Cache
+hits then still count toward the per-client limit, while avoiding the container
+and NBA request. Moving cache lookup ahead of rate limiting would change the
+abuse-control policy because hits would no longer count.
+
+KV does not coalesce concurrent misses or provide request locking. Several
+simultaneous requests for a cold key can all call the container and upstream;
+they can still encounter the container's four-request concurrency limit. Each
+request also incurs a Worker invocation and a KV read, including cache hits, so
+the cache does not reduce Worker invocation costs or guarantee lower total cost.
+Its value depends on how often callers repeat the same path and query and on the
+upstream/container work avoided by those hits.
+
+Cache only the reusable response data, such as status and body. Keep
+request-specific headers such as `X-Request-ID` fresh for every request, and
+continue applying CORS and `Cache-Control: no-store` at the gateway. The KV
+binding and namespace must be provisioned for deployment. The usual Node/Docker
+development paths bypass the Worker gateway; exercise the cache through the
+gateway in Wrangler and add coverage for cache hits, misses, status handling,
+and per-request headers.
+
+This KV cache is internal to the Worker and does not require enabling browser or
+intermediary caching. The current `Cache-Control: no-store` response header can
+remain in place so clients do not independently cache proxy responses. The
+gateway currently has no KV binding; adding the binding, cache logic, and local
+development/test coverage is a separate implementation and deployment change.
+
 These controls are not a monetary budget guarantee. Monitor Worker invocations,
 Durable Object/container usage, and NBA failures. Follow NBA.com's Terms of Use
 and applicable data-use restrictions.
