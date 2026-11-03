@@ -106,7 +106,8 @@ and manifests needed for the image; credentials and `.git` are excluded.
   `/api/stats/playoffpicture` (deprecated by NBA.com; use `LeagueStandingsV3`), and
   `/api/stats/scheduleleaguev2`, `/api/stats/scheduleleaguev2int`, and
   `/api/stats/scoreboardv2` (deprecated; use `ScoreboardV3`), and
-  `/api/stats/scoreboardv3`, and `/api/stats/shotchartdetail`.
+  `/api/stats/scoreboardv3`, `/api/stats/shotchartdetail`, and
+  `/api/stats/shotchartleaguewide`.
   The assist endpoints are deprecated
   upstream and currently return the NBA.com homepage instead of JSON;
   `boxscoreadvancedv2`, `boxscorefourfactorsv2`, `boxscoremiscv2`,

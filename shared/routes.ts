@@ -115,6 +115,7 @@ const statsPaths = new Set([
   "scoreboardv2",
   "scoreboardv3",
   "shotchartdetail",
+  "shotchartleaguewide",
 ]);
 
 const fixedLivePaths = new Set([

@@ -12063,6 +12063,55 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/shotchartleaguewide:
+    get:
+      operationId: getShotChartLeagueWide
+      tags: [Stats]
+      summary: shotchartleaguewide
+      description: Returns league-wide field-goal attempts, makes, and percentages by shot-chart zone for a season.
+      parameters:
+        - { name: LeagueID, in: query, required: true, schema: { type: string, pattern: '^\d{2}$', default: "00" } }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+      responses:
+        '200':
+          description: League-wide shot chart averages grouped by shot zone.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: shotchartleaguewide }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [League_Wide] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                leagueShotZones:
+                  summary: First shot zones from smoke cassette
+                  value:
+                    resource: shotchartleaguewide
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                    resultSets:
+                      - name: League_Wide
+                        headers: [GRID_TYPE, SHOT_ZONE_BASIC, SHOT_ZONE_AREA, SHOT_ZONE_RANGE, FGA, FGM, FG_PCT]
+                        rowSet:
+                          - ["League Averages", "Above the Break 3", "Back Court(BC)", "Back Court Shot", 4, 3, 0.75]
+                          - ["League Averages", "Above the Break 3", "Center(C)", "24+ ft.", 11857, 4144, 0.349]
   /stats/shotchartdetail:
     get:
       operationId: getShotChartDetail
