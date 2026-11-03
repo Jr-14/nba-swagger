@@ -121,6 +121,7 @@ const statsPaths = new Set([
   "teamandplayersvsplayers",
   "teamdashboardbygeneralsplits",
   "teamdashboardbyshootingsplits",
+  "teamdashlineups",
 ]);
 
 const fixedLivePaths = new Set([
