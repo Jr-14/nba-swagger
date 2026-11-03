@@ -12063,6 +12063,98 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playerdashboardbygamesplits:
+    get:
+      operationId: getPlayerDashboardByGameSplits
+      tags: [Stats]
+      summary: playerdashboardbygamesplits
+      description: Returns player statistics split by game segments, periods, score margins, and actual margins.
+      parameters:
+        - { name: DateFrom, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GameSegment, in: query, required: false, schema: { type: string, enum: [First Half, Overtime, Second Half], nullable: true } }
+        - { name: LastNGames, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Location, in: query, required: false, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: MeasureType, in: query, required: false, schema: { type: string, enum: [Base, Advanced, Misc, Four Factors, Scoring, Opponent, Usage], default: Base } }
+        - { name: Month, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: OpponentTeamID, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: Outcome, in: query, required: false, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: PORound, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: PaceAdjust, in: query, required: false, schema: { type: string, enum: [Y, N], default: N } }
+        - { name: PerMode, in: query, required: false, schema: { type: string, enum: [Totals, PerGame, MinutesPer, Per48, Per40, Per36, PerMinute, PerPossession, PerPlay, Per100Possessions, Per100Plays], default: Totals } }
+        - { name: Period, in: query, required: false, schema: { type: integer, default: 0 } }
+        - { name: PlayerID, in: query, required: true, schema: { type: integer }, example: 1628378 }
+        - { name: PlusMinus, in: query, required: false, schema: { type: string, enum: [Y, N], default: N } }
+        - { name: Rank, in: query, required: false, schema: { type: string, enum: [Y, N], default: N } }
+        - name: Season
+          in: query
+          required: false
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - { name: SeasonSegment, in: query, required: false, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: false, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs], default: Regular Season } }
+        - { name: ShotClockRange, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: VsConference, in: query, required: false, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: false, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+        - { name: ISTRound, in: query, required: false, schema: { type: string, enum: [Group, East Group A, East Group B, East Group C, West Group A, West Group B, West Group C, Knockout, Championship], nullable: true } }
+      responses:
+        '200':
+          description: Player game split statistics in multiple grouped result sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: playerdashboardbygamesplits }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                playerGameSplits:
+                  summary: Overall player statistics across game splits
+                  value:
+                    resource: playerdashboardbygamesplits
+                    parameters:
+                      MeasureType: Base
+                      PerMode: Totals
+                      PlusMinus: N
+                      PaceAdjust: N
+                      Rank: N
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PORound: 0
+                      PlayerID: 1628378
+                      Outcome: null
+                      Location: null
+                      Month: 0
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: 0
+                      VsConference: null
+                      VsDivision: null
+                      GameSegment: null
+                      Period: 0
+                      ShotClockRange: null
+                      LastNGames: 0
+                      ISTRound: ""
+                    resultSets:
+                      - name: OverallPlayerDashboard
+                        headers: [GROUP_SET, GROUP_VALUE, GP, W, L, W_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, TOV, STL, BLK, BLKA, PF, PFD, PTS, PLUS_MINUS, NBA_FANTASY_PTS, DD2, TD3, WNBA_FANTASY_PTS, GP_RANK, W_RANK, L_RANK, W_PCT_RANK, MIN_RANK, FGM_RANK, FGA_RANK, FG_PCT_RANK, FG3M_RANK, FG3A_RANK, FG3_PCT_RANK, FTM_RANK, FTA_RANK, FT_PCT_RANK, OREB_RANK, DREB_RANK, REB_RANK, AST_RANK, TOV_RANK, STL_RANK, BLK_RANK, BLKA_RANK, PF_RANK, PFD_RANK, PTS_RANK, PLUS_MINUS_RANK, NBA_FANTASY_PTS_RANK, DD2_RANK, TD3_RANK, WNBA_FANTASY_PTS_RANK, TEAM_COUNT]
+                        rowSet:
+                          - [Overall, "2025-26", 53, 34, 19, 0.642, 1773.5783333333334, 532, 1094, 0.486, 189, 503, 0.376, 274, 320, 0.856, 41, 194, 235, 311, 164, 81, 15, 33, 130, 249, 1527, 337, 2399.5, 4, 0, 2454.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
   /stats/playerdashboardbyclutch:
     get:
       operationId: getPlayerDashboardByClutch
