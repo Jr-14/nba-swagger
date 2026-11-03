@@ -12063,6 +12063,49 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/teamhistoricalleaders:
+    get:
+      operationId: getTeamHistoricalLeaders
+      tags: [Stats]
+      summary: teamhistoricalleaders
+      description: Returns a team's career leaders in points, assists, rebounds, blocks, and steals.
+      parameters:
+        - { name: LeagueID, in: query, required: true, schema: { type: string, enum: ["00", "01", "10", "15", "20"], default: "00" } }
+        - { name: SeasonID, in: query, required: true, schema: { type: string, pattern: '^\d{4}-\d{2}$' }, example: "2023-24" }
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612742 }
+      responses:
+        '200':
+          description: Team career leaders in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: teamhistoricalleaders }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [CareerLeadersByTeam] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                teamCareerLeaders:
+                  summary: Historical team leaders from the endpoint output documentation
+                  value:
+                    resource: teamhistoricalleaders
+                    parameters: { TeamID: 1610612742, LeagueID: "00", SeasonID: "2023-24" }
+                    resultSets:
+                      - name: CareerLeadersByTeam
+                        headers: [TEAM_ID, PTS, PTS_PERSON_ID, PTS_PLAYER, AST, AST_PERSON_ID, AST_PLAYER, REB, REB_PERSON_ID, REB_PLAYER, BLK, BLK_PERSON_ID, BLK_PLAYER, STL, STL_PERSON_ID, STL_PLAYER, SEASON_YEAR]
+                        rowSet:
+                          - [1610612742, 31560, 1717, Dirk Nowitzki, 5111, 157, Derek Harper, 11489, 1717, Dirk Nowitzki, 1281, 1717, Dirk Nowitzki, 1551, 157, Derek Harper, "2023-24"]
   /stats/teamgamestreakfinder:
     get:
       operationId: getTeamGameStreakFinder
