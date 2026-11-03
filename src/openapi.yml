@@ -12063,6 +12063,60 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playernextngames:
+    get:
+      operationId: getPlayerNextNGames
+      tags: [Stats]
+      summary: playernextngames
+      description: Returns upcoming games for a player in the selected season and season type.
+      parameters:
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true, default: "00" } }
+        - { name: NumberOfGames, in: query, required: true, schema: { type: integer }, example: 2147483647 }
+        - { name: PlayerID, in: query, required: true, schema: { type: integer }, example: 1628378 }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^(\d{4}-\d{2}|ALL)$' }
+          example: "2025-26"
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All-Star, All Star] } }
+      responses:
+        '200':
+          description: Upcoming player games in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: playernextngames }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [NextNGames] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                upcomingGames:
+                  summary: First upcoming game from smoke cassette
+                  value:
+                    resource: playernextngames
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PlayerID: 1628378
+                      NumberOfGames: 2147483647
+                    resultSets:
+                      - name: NextNGames
+                        headers: [GAME_ID, GAME_DATE, HOME_TEAM_ID, VISITOR_TEAM_ID, HOME_TEAM_NAME, VISITOR_TEAM_NAME, HOME_TEAM_ABBREVIATION, VISITOR_TEAM_ABBREVIATION, HOME_TEAM_NICKNAME, VISITOR_TEAM_NICKNAME, GAME_TIME, HOME_WL, VISITOR_WL]
+                        rowSet:
+                          - ["0022500817", "FEB 22, 2026", 1610612760, 1610612739, Oklahoma City, Cleveland, OKC, CLE, Thunder, Cavaliers, "01:00 PM", "43-14", "36-21"]
   /stats/playerindex:
     get:
       operationId: getPlayerIndex
