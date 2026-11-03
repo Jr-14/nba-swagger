@@ -100,7 +100,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/playerdashptreb`
 - ✅ `/stats/playerdashptshotdefend`
 - ✅ `/stats/playerdashptshots`
-- `/stats/playerestimatedmetrics`
+- ✅ `/stats/playerestimatedmetrics`
 - `/stats/playerfantasyprofilebargraph`
 - `/stats/playergamelog`
 - `/stats/playergamelogs`

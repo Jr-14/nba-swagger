@@ -100,6 +100,7 @@ const statsPaths = new Set([
   "playerdashptreb",
   "playerdashptshotdefend",
   "playerdashptshots",
+  "playerestimatedmetrics",
 ]);
 
 const fixedLivePaths = new Set([
