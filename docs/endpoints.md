@@ -139,7 +139,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/teamyearbyyearstats`
 - ✅ `/stats/videodetails` (no cassette/response dataset metadata available)
 - ✅ `/stats/videodetailsasset`
-- `/stats/videoevents`
+- ✅ `/stats/videoevents`
 - `/stats/videoeventsasset`
 - `/stats/videostatus`
 - `/stats/winprobabilitypbp`

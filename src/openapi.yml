@@ -12063,6 +12063,44 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/videoevents:
+    get:
+      operationId: getVideoEvents
+      tags: [Stats]
+      summary: videoevents
+      description: Returns video metadata and playlist data for a game event.
+      parameters:
+        - { name: GameEventID, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: GameID, in: query, required: true, schema: { type: string, pattern: '^\d{10}$' }, example: "0022200552" }
+      responses:
+        '200':
+          description: Video metadata and playlist data for the requested event.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, parameters, resultSets]
+                properties:
+                  resource: { type: string, example: videoevents }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: object
+                    required: [Meta, playlist]
+                    properties:
+                      Meta:
+                        type: object
+                        properties:
+                          videoUrls: { type: array, items: { type: object, additionalProperties: true } }
+                      playlist: { type: array, items: { type: object, additionalProperties: true } }
+              examples:
+                videoEventResponse:
+                  summary: Video event response from smoke cassette (no clips available)
+                  value:
+                    resource: videoevents
+                    parameters: { GameID: "0022200552", GameEventID: 0 }
+                    resultSets:
+                      Meta: { videoUrls: [] }
+                      playlist: []
   /stats/videodetailsasset:
     get:
       operationId: getVideoDetailsAsset

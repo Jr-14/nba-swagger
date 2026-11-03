@@ -139,6 +139,7 @@ const statsPaths = new Set([
   "teamyearbyyearstats",
   "videodetails",
   "videodetailsasset",
+  "videoevents",
 ]);
 
 const fixedLivePaths = new Set([
