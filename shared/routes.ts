@@ -99,6 +99,7 @@ const statsPaths = new Set([
   "playerdashptpass",
   "playerdashptreb",
   "playerdashptshotdefend",
+  "playerdashptshots",
 ]);
 
 const fixedLivePaths = new Set([
