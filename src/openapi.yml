@@ -12063,6 +12063,55 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/videodetails:
+    get:
+      operationId: getVideoDetails
+      tags: [Stats]
+      summary: videodetails
+      description: Requests video details for a player and team using play-context and game filters. The current nba_api endpoint exposes no expected result datasets, and no cassette was available for a response example.
+      parameters:
+        - { name: AheadBehind, in: query, required: false, schema: { type: string, enum: [Ahead, Behind, Tied], nullable: true } }
+        - { name: ClutchTime, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: ContextFilter, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: ContextMeasure, in: query, required: true, schema: { type: string, default: PTS } }
+        - { name: DateFrom, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EndPeriod, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: EndRange, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: GameID, in: query, required: false, schema: { type: string, pattern: '^\d{10}$', nullable: true } }
+        - { name: GameSegment, in: query, required: false, schema: { type: string, enum: [First Half, Overtime, Second Half], nullable: true } }
+        - { name: LastNGames, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true, default: "00" } }
+        - { name: Location, in: query, required: false, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: Month, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: OpponentTeamID, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: Outcome, in: query, required: false, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: Period, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: PlayerID, in: query, required: true, schema: { type: integer }, example: 2544 }
+        - { name: PointDiff, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: Position, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: RangeType, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: RookieYear, in: query, required: false, schema: { type: string, nullable: true } }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2019-20"
+        - { name: SeasonSegment, in: query, required: false, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: StartPeriod, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: StartRange, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612739 }
+        - { name: VsConference, in: query, required: false, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: false, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+      responses:
+        '200':
+          description: Upstream video details payload; its response schema is not represented by current endpoint metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
   /stats/teamyearbyyearstats:
     get:
       operationId: getTeamYearByYearStats
