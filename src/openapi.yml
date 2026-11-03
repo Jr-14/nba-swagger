@@ -12063,6 +12063,51 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playoffpicture:
+    get:
+      operationId: getPlayoffPicture
+      tags: [Stats]
+      summary: playoffpicture
+      description: Deprecated by NBA.com; current upstream responses may be the NBA.com homepage instead of JSON. Use LeagueStandingsV3 for playoff seeding and clinch status. The example is from a recorded smoke cassette.
+      deprecated: true
+      parameters:
+        - { name: LeagueID, in: query, required: true, schema: { type: string, pattern: '^\d{2}$', default: "00" } }
+        - { name: SeasonID, in: query, required: true, schema: { type: string }, example: "22025" }
+      responses:
+        '200':
+          description: Playoff picture datasets (availability is no longer supported by NBA.com).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: playoffpicture }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                playoffPictureSnapshot:
+                  summary: East conference playoff picture from smoke cassette
+                  value:
+                    resource: playoffpicture
+                    parameters:
+                      LeagueID: "00"
+                      SeasonID: "22025"
+                    resultSets:
+                      - name: EastConfPlayoffPicture
+                        headers: [CONFERENCE, HIGH_SEED_RANK, HIGH_SEED_TEAM, HIGH_SEED_TEAM_ID, LOW_SEED_RANK, LOW_SEED_TEAM, LOW_SEED_TEAM_ID, HIGH_SEED_SERIES_W, HIGH_SEED_SERIES_L, HIGH_SEED_SERIES_REMAINING_G, HIGH_SEED_SERIES_REMAINING_HOME_G, HIGH_SEED_SERIES_REMAINING_AWAY_G]
+                        rowSet:
+                          - [East, 1, Detroit, 1610612765, 8, Orlando, 1610612753, 1, 1, 2, 0, 2]
   /stats/playervsplayer:
     get:
       operationId: getPlayerVsPlayer
