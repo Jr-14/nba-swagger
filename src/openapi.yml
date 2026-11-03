@@ -12063,6 +12063,113 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/shotchartdetail:
+    get:
+      operationId: getShotChartDetail
+      tags: [Stats]
+      summary: shotchartdetail
+      description: Returns individual shot locations and league shooting averages for the requested player, team, and filters.
+      parameters:
+        - { name: AheadBehind, in: query, required: false, schema: { type: string, enum: [Ahead or Behind, Ahead or Tied, Behind or Tied], nullable: true } }
+        - { name: ClutchTime, in: query, required: false, schema: { type: string, enum: [Last 5 Minutes, Last 4 Minutes, Last 3 Minutes, Last 2 Minutes, Last 1 Minute, Last 30 Seconds, Last 10 Seconds], nullable: true } }
+        - { name: ContextFilter, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: ContextMeasure, in: query, required: true, schema: { type: string, enum: [PTS, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, PF, EFG_PCT, TS_PCT, PTS_FB, PTS_OFF_TOV, PTS_2ND_CHANCE], default: PTS } }
+        - { name: DateFrom, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: EndPeriod, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: EndRange, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: GameID, in: query, required: true, schema: { type: string, pattern: '^\d{10}$', nullable: true } }
+        - { name: GameSegment, in: query, required: true, schema: { type: string, enum: [First Half, Overtime, Second Half], nullable: true } }
+        - { name: ISTRound, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LastNGames, in: query, required: true, schema: { type: integer } }
+        - { name: LeagueID, in: query, required: true, schema: { type: string, default: "00" } }
+        - { name: Location, in: query, required: true, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: Month, in: query, required: true, schema: { type: integer } }
+        - { name: OpponentTeamID, in: query, required: true, schema: { type: integer } }
+        - { name: Outcome, in: query, required: true, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: Period, in: query, required: true, schema: { type: integer } }
+        - { name: PlayerID, in: query, required: true, schema: { type: integer }, example: 1628378 }
+        - { name: PlayerPosition, in: query, required: true, schema: { type: string, enum: [Guard, Center, Forward], nullable: true } }
+        - { name: PointDiff, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: Position, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: RangeType, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: RookieYear, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: Season, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: SeasonSegment, in: query, required: true, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: StartPeriod, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: StartRange, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612739 }
+        - { name: VsConference, in: query, required: true, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: true, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+      responses:
+        '200':
+          description: Shot chart detail and league average result sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: shotchartdetail }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [Shot_Chart_Detail, LeagueAverages] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                playerShotChart:
+                  summary: Shot location and league average examples from smoke cassette
+                  value:
+                    resource: shotchartdetail
+                    parameters:
+                      LeagueID: "00"
+                      Season: null
+                      SeasonType: Regular Season
+                      TeamID: 1610612739
+                      PlayerID: 1628378
+                      GameID: null
+                      Outcome: null
+                      Location: null
+                      Month: 0
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: 0
+                      VsConference: null
+                      VsDivision: null
+                      Position: null
+                      RookieYear: null
+                      GameSegment: null
+                      Period: 0
+                      LastNGames: 0
+                      ISTRound: null
+                      ClutchTime: null
+                      AheadBehind: null
+                      PointDiff: null
+                      RangeType: null
+                      StartPeriod: null
+                      EndPeriod: null
+                      StartRange: null
+                      EndRange: null
+                      ContextFilter: null
+                      ContextMeasure: PTS
+                    resultSets:
+                      - name: Shot_Chart_Detail
+                        headers: [GRID_TYPE, GAME_ID, GAME_EVENT_ID, PLAYER_ID, PLAYER_NAME, TEAM_ID, TEAM_NAME, PERIOD, MINUTES_REMAINING, SECONDS_REMAINING, EVENT_TYPE, ACTION_TYPE, SHOT_TYPE, SHOT_ZONE_BASIC, SHOT_ZONE_AREA, SHOT_ZONE_RANGE, SHOT_DISTANCE, LOC_X, LOC_Y, SHOT_ATTEMPTED_FLAG, SHOT_MADE_FLAG, GAME_DATE, HTM, VTM]
+                        rowSet:
+                          - ["Shot Chart Detail", "0022500003", 18, 1628378, Donovan Mitchell, 1610612739, Cleveland Cavaliers, 1, 10, 44, "Made Shot", "Driving Layup Shot", "2PT Field Goal", "Restricted Area", "Center(C)", "Less Than 8 ft.", 1, 10, 8, 1, 1, "20251022", NYK, CLE]
+                      - name: LeagueAverages
+                        headers: [GRID_TYPE, SHOT_ZONE_BASIC, SHOT_ZONE_AREA, SHOT_ZONE_RANGE, FGA, FGM, FG_PCT]
+                        rowSet:
+                          - ["League Averages", "Above the Break 3", "Back Court(BC)", "Back Court Shot", 3, 3, 1.0]
   /stats/scoreboardv3:
     get:
       operationId: getScoreboardV3
