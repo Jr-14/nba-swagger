@@ -88,7 +88,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/playercareerbycollege` (upstream currently returns HTTP 500)
 - ✅ `/stats/playercareerbycollegerollup`
 - ✅ `/stats/playercareerstats`
-- `/stats/playercompare`
+- ✅ `/stats/playercompare`
 - `/stats/playerdashboardbyclutch`
 - `/stats/playerdashboardbygamesplits`
 - `/stats/playerdashboardbygeneralsplits`
