@@ -185,8 +185,9 @@ container, with a different expiration policy for each upstream family:
 
 | Route family | KV expiration | Rationale |
 | --- | --- | --- |
-| Stats (`/api/stats/*`) | **10 minutes** | Reuses repeated queries, though some game-specific Stats data can change quickly and may be noticeably stale for this long. |
-| Live (`/api/live/*`) | **1 minute** | Scoreboard, odds, boxscore, and play-by-play data changes more frequently. |
+| Other Stats (`/api/stats/*`, excluding game-state routes below) | **10 minutes** | Reuses repeated queries for data that is not expected to change during a game. |
+| Game-state Stats | **1 minute** | Box scores, game rotations, play-by-play, scoreboards, and win probability update during games. |
+| Live (`/api/live/*`) | **1 minute** | Scoreboard, odds, boxscore, and play-by-play data changes frequently. |
 
 On each valid API request, after rate limiting, the gateway derives the family
 from the shared route resolver, checks KV, and returns a cached response when
@@ -198,6 +199,13 @@ other unsuccessful responses. `/health` does not contact an NBA upstream and
 remains outside this cache. The gateway schedules cache writes with the Worker
 execution context, so the origin response does not wait for KV persistence; a
 failed write simply causes a later request to miss.
+
+The 10-minute Stats TTL is the default, not a blanket rule for every Stats
+route. The shared route resolver assigns a 1-minute TTL to game-sensitive
+endpoints: box score variants, `gamerotation`, `playbyplay`/`playbyplayv2`/
+`playbyplayv3`, `scoreboardv2`/`scoreboardv3`, and `winprobabilitypbp`. This
+reduces staleness for in-progress games while preserving the longer TTL for
+other Stats queries.
 
 Build the cache key from the public API path and the complete query string. Query
 parameters can change NBA Stats results, so omitting them could return the wrong

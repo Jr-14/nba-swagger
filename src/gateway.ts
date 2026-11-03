@@ -102,12 +102,11 @@ app.get("*", async (c) => {
   if (route && response.status >= 200 && response.status < 300 && isJsonContentType(response.headers.get("content-type"))) {
     const cacheKey = `response:${original.pathname}${original.search}`;
     if (new TextEncoder().encode(cacheKey).byteLength <= 512) {
-      const ttl = route.family === "stats" ? 10 * 60 : 60;
       c.executionCtx.waitUntil((async () => {
         try {
           const body = await response.clone().text();
           JSON.parse(body);
-          await c.env.RESPONSE_CACHE.put(cacheKey, JSON.stringify({ status: response.status, body }), { expirationTtl: ttl });
+          await c.env.RESPONSE_CACHE.put(cacheKey, JSON.stringify({ status: response.status, body }), { expirationTtl: route.cacheTtlSeconds });
         } catch {
           // Invalid JSON and KV write failures do not affect the origin response.
         }

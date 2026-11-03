@@ -69,6 +69,17 @@ test("successful JSON responses are cached by the complete public path and query
   assert.equal(second.headers.get("access-control-allow-origin"), "https://nba-swagger.pages.dev");
 });
 
+test("game-state Stats endpoints use the one-minute TTL; other Stats keep ten minutes", async () => {
+  const h = harness();
+  await h.invoke("/api/stats/boxscoretraditionalv3?GameID=0022500001");
+  await h.invoke("/api/stats/playbyplayv3?GameID=0022500001");
+  await h.invoke("/api/stats/scoreboardv3?GameDate=11%2F04%2F2026");
+  await h.invoke(statsPath);
+  await h.flush();
+
+  assert.deepEqual(h.writes.map(({ options }) => options.expirationTtl), [60, 60, 60, 600]);
+});
+
 test("Live cache uses a one-minute TTL and query order remains part of the key", async () => {
   const h = harness();
   const path = "/api/live/scoreboard/todaysScoreboard_00.json?x=1&y=2";
