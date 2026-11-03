@@ -12063,6 +12063,62 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/teamgamelog:
+    get:
+      operationId: getTeamGameLog
+      tags: [Stats]
+      summary: teamgamelog
+      description: Returns a team's game-by-game results and box-score statistics for a season, with optional date filtering.
+      parameters:
+        - { name: DateFrom, in: query, required: true, schema: { type: string, nullable: true }, example: "01/01/2024" }
+        - { name: DateTo, in: query, required: true, schema: { type: string, nullable: true }, example: "01/31/2024" }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true, default: "00" } }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2023-24"
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612747 }
+      responses:
+        '200':
+          description: Team game log in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: teamgamelog }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [TeamGameLog] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                lakersTeamGameLog:
+                  summary: First game row from the TeamGameLog scenario cassette
+                  value:
+                    resource: teamgamelog
+                    parameters:
+                      TeamID: 1610612747
+                      LeagueID: "00"
+                      Season: "2023-24"
+                      SeasonType: Regular Season
+                      DateFrom: null
+                      DateTo: null
+                    resultSets:
+                      - name: TeamGameLog
+                        headers: [Team_ID, Game_ID, GAME_DATE, MATCHUP, WL, W, L, W_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS]
+                        rowSet:
+                          - [1610612747, "0022301195", "APR 14, 2024", LAL @ NOP, W, 47, 35, 0.573, 240, 48, 87, 0.552, 11, 29, 0.379, 17, 18, 0.944, 7, 32, 39, 32, 12, 3, 14, 13, 124]
   /stats/teamestimatedmetrics:
     get:
       operationId: getTeamEstimatedMetrics
