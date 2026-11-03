@@ -122,6 +122,7 @@ const statsPaths = new Set([
   "teamdashboardbygeneralsplits",
   "teamdashboardbyshootingsplits",
   "teamdashlineups",
+  "teamdashptpass",
 ]);
 
 const fixedLivePaths = new Set([
