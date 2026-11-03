@@ -125,7 +125,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/teamdashptpass`
 - ✅ `/stats/teamdashptreb`
 - ✅ `/stats/teamdashptshots`
-- `/stats/teamdetails`
+- ✅ `/stats/teamdetails`
 - `/stats/teamestimatedmetrics`
 - `/stats/teamgamelog`
 - `/stats/teamgamelogs`

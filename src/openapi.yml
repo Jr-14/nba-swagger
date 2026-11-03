@@ -12063,6 +12063,47 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/teamdetails:
+    get:
+      operationId: getTeamDetails
+      tags: [Stats]
+      summary: teamdetails
+      description: Returns team background, history, social links, awards, Hall of Fame members, and retired players.
+      parameters:
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612739 }
+      responses:
+        '200':
+          description: Team information returned as result sets. The response may include datasets not listed in older client metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: teamdetails }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [TeamAwardsChampionships, TeamAwardsCommCup, TeamAwardsConf, TeamAwardsDiv, TeamBackground, TeamHistory, TeamHof, TeamRetired, TeamSocialSites] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                clevelandTeamDetails:
+                  summary: Cleveland team background from smoke cassette
+                  value:
+                    resource: teamdetails
+                    parameters: { TeamID: 1610612739 }
+                    resultSets:
+                      - name: TeamBackground
+                        headers: [TEAM_ID, ABBREVIATION, NICKNAME, YEARFOUNDED, CITY, ARENA, ARENACAPACITY, OWNER, GENERALMANAGER, HEADCOACH, DLEAGUEAFFILIATION]
+                        rowSet:
+                          - [1610612739, CLE, Cavaliers, 1970, Cleveland, Rocket Arena, "20562", Dan Gilbert, Koby Altman, Kenny Atkinson, Cleveland Charge]
   /stats/teamdashptshots:
     get:
       operationId: getTeamDashPtShots

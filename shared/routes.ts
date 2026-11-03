@@ -125,6 +125,7 @@ const statsPaths = new Set([
   "teamdashptpass",
   "teamdashptreb",
   "teamdashptshots",
+  "teamdetails",
 ]);
 
 const fixedLivePaths = new Set([
