@@ -1,7 +1,14 @@
 name: Deploy Swagger Pages
 
 on:
+  push:
+    tags: ['v*']
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Tag or commit to deploy (defaults to this workflow's ref)"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -12,7 +19,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     environment:
       name: prod
@@ -20,6 +27,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
