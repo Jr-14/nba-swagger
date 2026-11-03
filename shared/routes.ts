@@ -91,6 +91,7 @@ const statsPaths = new Set([
   "playercompare",
   "playerdashboardbyclutch",
   "playerdashboardbygamesplits",
+  "playerdashboardbygeneralsplits",
 ]);
 
 const fixedLivePaths = new Set([
