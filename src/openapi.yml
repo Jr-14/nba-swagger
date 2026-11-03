@@ -12063,6 +12063,65 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playergamelog:
+    get:
+      operationId: getPlayerGameLog
+      tags: [Stats]
+      summary: playergamelog
+      description: Returns the player's game-by-game box score log for a season.
+      parameters:
+        - { name: PlayerID, in: query, required: true, schema: { type: integer }, example: 1628378 }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - name: SeasonType
+          in: query
+          required: true
+          schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All-Star, All Star], default: Regular Season }
+        - { name: DateFrom, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true } }
+      responses:
+        '200':
+          description: Player game log rows in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: playergamelog }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [PlayerGameLog] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                playerGames:
+                  summary: Player game log entry
+                  value:
+                    resource: playergamelog
+                    parameters:
+                      PlayerID: 1628378
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      DateFrom: null
+                      DateTo: null
+                    resultSets:
+                      - name: PlayerGameLog
+                        headers: [SEASON_ID, Player_ID, Game_ID, GAME_DATE, MATCHUP, WL, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS, PLUS_MINUS, VIDEO_AVAILABLE]
+                        rowSet:
+                          - ["22025", 1628378, "0022500802", "Feb 20, 2026", "CLE @ CHA", W, 34, 9, 22, 0.409, 2, 7, 0.286, 12, 13, 0.923, 0, 3, 3, 4, 2, 0, 3, 5, 32, -4, 1]
   /stats/playerfantasyprofilebargraph:
     get:
       operationId: getPlayerFantasyProfileBarGraph
