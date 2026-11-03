@@ -12063,6 +12063,223 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/teamgamestreakfinder:
+    get:
+      operationId: getTeamGameStreakFinder
+      tags: [Stats]
+      summary: teamgamestreakfinder
+      description: "Finds team game streaks using optional streak, team, date, and statistical filters. Known upstream issue: stats.nba.com has returned HTTP 500 for all tested parameter combinations (as documented 2026-10-21)."
+      parameters:
+        - { name: ActiveStreaksOnly, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: ActiveTeamsOnly, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPFG3PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPPTS2NDCHANCE, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPPTSFB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPPTSOFFTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPPTSPAINT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: BtrOPPTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Conference, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DateFrom, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Division, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqDD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFG3_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqMINUTES, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqOPPPTS2NDCHANCE, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqOPPPTSFB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqOPPPTSOFFTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqOPPPTSPAINT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqPTS2NDCHANCE, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqPTSFB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqPTSOFFTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqPTSPAINT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqTD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: EqTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GameID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtDD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFG3_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtMINUTES, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPFG3PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPPTS2NDCHANCE, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPPTSFB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPPTSOFFTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPPTSPAINT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOPPTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtPTS2NDCHANCE, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtPTSFB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtPTSOFFTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtPTSPAINT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtTD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: GtTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LStreak, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Location, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtDD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFG3_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtMINUTES, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPFG3PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPPTS2NDCHANCE, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPPTSFB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPPTSOFFTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPPTSPAINT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOPPTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtPTS2NDCHANCE, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtPTSFB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtPTSOFFTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtPTSPAINT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtTD, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LtTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: MinGames, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Outcome, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: PORound, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: Season, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: SeasonSegment, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: SeasonType, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: TeamID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: VsConference, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: VsDivision, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: VsTeamID, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WStreak, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPAST, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPBLK, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPDREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPFG3A, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPFG3M, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPFG3PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPFGA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPFGM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPFG_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPFTA, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPFTM, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPFT_PCT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPOREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPPF, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPPTS, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPPTS2NDCHANCE, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPPTSFB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPPTSOFFTOV, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPPTSPAINT, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPREB, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPSTL, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: WrsOPPTOV, in: query, required: false, schema: { type: string, nullable: true } }
+      responses:
+        '200':
+          description: Team streak results; the upstream endpoint is currently known to return HTTP 500.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: teamgamestreakfinder }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [TeamGameStreakFinderParametersResults] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
   /stats/teamgamelogs:
     get:
       operationId: getTeamGameLogs
