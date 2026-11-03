@@ -141,7 +141,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/videodetailsasset`
 - ✅ `/stats/videoevents`
 - ✅ `/stats/videoeventsasset`
-- `/stats/videostatus`
+- ✅ `/stats/videostatus`
 - `/stats/winprobabilitypbp`
 
 ## Live API

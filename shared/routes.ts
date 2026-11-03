@@ -141,6 +141,7 @@ const statsPaths = new Set([
   "videodetailsasset",
   "videoevents",
   "videoeventsasset",
+  "videostatus",
 ]);
 
 const fixedLivePaths = new Set([

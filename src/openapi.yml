@@ -12063,6 +12063,48 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/videostatus:
+    get:
+      operationId: getVideoStatus
+      tags: [Stats]
+      summary: videostatus
+      description: Returns game schedule and video-availability status for the requested date and league.
+      parameters:
+        - { name: GameDate, in: query, required: true, schema: { type: string, format: date }, example: "2026-02-22" }
+        - { name: LeagueID, in: query, required: true, schema: { type: string, enum: ["00", "01", "10", "15", "20"], default: "00" } }
+      responses:
+        '200':
+          description: Game video availability status in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: videostatus }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [VideoStatus] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                videoStatusByDate:
+                  summary: First game status row from smoke cassette
+                  value:
+                    resource: videostatus
+                    parameters: { LeagueID: "00", GameDate: "02/22/2026" }
+                    resultSets:
+                      - name: VideoStatus
+                        headers: [GAME_ID, GAME_DATE, VISITOR_TEAM_ID, VISITOR_TEAM_CITY, VISITOR_TEAM_NAME, VISITOR_TEAM_ABBREVIATION, HOME_TEAM_ID, HOME_TEAM_CITY, HOME_TEAM_NAME, HOME_TEAM_ABBREVIATION, GAME_STATUS, GAME_STATUS_TEXT, IS_AVAILABLE, PT_XYZ_AVAILABLE]
+                        rowSet:
+                          - ["0022500817", "02/22/2026", 1610612739, Cleveland, Cavaliers, CLE, 1610612760, Oklahoma City, Thunder, OKC, 1, "1:00 pm ET", 0, 0]
   /stats/videoeventsasset:
     get:
       operationId: getVideoEventsAsset
