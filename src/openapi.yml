@@ -12063,6 +12063,98 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/teamplayerdashboard:
+    get:
+      operationId: getTeamPlayerDashboard
+      tags: [Stats]
+      summary: teamplayerdashboard
+      description: Returns team season totals and player season totals for a team, with optional filters and ranking controls.
+      parameters:
+        - { name: DateFrom, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: GameSegment, in: query, required: true, schema: { type: string, enum: [First Half, Overtime, Second Half], nullable: true } }
+        - { name: ISTRound, in: query, required: false, schema: { type: string, nullable: true } }
+        - { name: LastNGames, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true, default: "00" } }
+        - { name: Location, in: query, required: true, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: MeasureType, in: query, required: true, schema: { type: string, enum: [Base, Advanced, Misc, Four Factors, Scoring, Opponent, Usage, Defense], default: Base } }
+        - { name: Month, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: OpponentTeamID, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: Outcome, in: query, required: true, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: PaceAdjust, in: query, required: true, schema: { type: string, enum: [Y, N], default: N } }
+        - { name: PerMode, in: query, required: true, schema: { type: string, enum: [Totals, PerGame, MinutesPer, Per48, Per40, Per36, PerMinute, PerPossession, PerPlay, Per100Possessions, Per100Plays], default: Totals } }
+        - { name: Period, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: PORound, in: query, required: false, schema: { type: integer, nullable: true } }
+        - { name: PlusMinus, in: query, required: true, schema: { type: string, enum: [Y, N], default: N } }
+        - { name: Rank, in: query, required: true, schema: { type: string, enum: [Y, N], default: N } }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - { name: SeasonSegment, in: query, required: true, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: ShotClockRange, in: query, required: false, schema: { type: string, enum: [24-22, 22-18 Very Early, 18-15 Early, 15-7 Average, 7-4 Late, 4-0 Very Late, ShotClock Off], nullable: true } }
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612739 }
+        - { name: VsConference, in: query, required: true, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: true, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+      responses:
+        '200':
+          description: Team and player season totals in two result sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: teamplayerdashboard }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [PlayersSeasonTotals, TeamOverall] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                teamPlayerDashboard:
+                  summary: Team overall row from smoke cassette
+                  value:
+                    resource: teamplayerdashboard
+                    parameters:
+                      MeasureType: Base
+                      PerMode: Totals
+                      PlusMinus: N
+                      PaceAdjust: N
+                      Rank: N
+                      LeagueId: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      PORound: 0
+                      TeamID: 1610612739
+                      Outcome: null
+                      Location: null
+                      Month: 0
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: 0
+                      VsConference: null
+                      VsDivision: null
+                      GameSegment: null
+                      Period: 0
+                      ShotClockRange: null
+                      LastNGames: 0
+                      ISTRound: null
+                    resultSets:
+                      - name: TeamOverall
+                        headers: [GROUP_SET, TEAM_ID, TEAM_NAME, GROUP_VALUE, GP, W, L, W_PCT, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, TOV, STL, BLK, BLKA, PF, PFD, PTS, PLUS_MINUS, GP_RANK, W_RANK, L_RANK, W_PCT_RANK, MIN_RANK, FGM_RANK, FGA_RANK, FG_PCT_RANK, FG3M_RANK, FG3A_RANK, FG3_PCT_RANK, FTM_RANK, FTA_RANK, FT_PCT_RANK, OREB_RANK, DREB_RANK, REB_RANK, AST_RANK, TOV_RANK, STL_RANK, BLK_RANK, BLKA_RANK, PF_RANK, PFD_RANK, PTS_RANK, PLUS_MINUS_RANK]
+                        rowSet:
+                          - [Overall, 1610612739, Cleveland Cavaliers, "2025-26", 57, 36, 21, 0.632, 2746.0, 2484, 5203, 0.477, 831, 2314, 0.359, 1030, 1314, 0.784, 689, 1858, 2547, 1625, 821.0, 513, 294, 249, 1134, 1150, 6829, 257.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
   /stats/teaminfocommon:
     get:
       operationId: getTeamInfoCommon

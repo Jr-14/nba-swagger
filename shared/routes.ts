@@ -132,6 +132,7 @@ const statsPaths = new Set([
   "teamgamestreakfinder",
   "teamhistoricalleaders",
   "teaminfocommon",
+  "teamplayerdashboard",
 ]);
 
 const fixedLivePaths = new Set([

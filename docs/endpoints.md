@@ -132,7 +132,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/teamgamestreakfinder` (upstream currently returns HTTP 500)
 - ✅ `/stats/teamhistoricalleaders`
 - ✅ `/stats/teaminfocommon`
-- `/stats/teamplayerdashboard`
+- ✅ `/stats/teamplayerdashboard`
 - `/stats/teamplayeronoffdetails`
 - `/stats/teamplayeronoffsummary`
 - `/stats/teamvsplayer`
