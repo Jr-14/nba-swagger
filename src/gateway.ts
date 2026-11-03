@@ -9,6 +9,7 @@ type Environment = {
   Bindings: {
     PROXY: DurableObjectNamespace<NbaProxy>;
     RATE_LIMITER: RateLimit;
+    RESPONSE_CACHE: KVNamespace;
     ALLOWED_ORIGIN: string;
   };
   Variables: { requestId: string };
@@ -50,6 +51,39 @@ app.use("*", async (c, next) => {
 
 app.get("*", async (c) => {
   const original = new URL(c.req.url);
+  const route = resolveUpstream(original);
+  if (route) {
+    const cacheKey = `response:${original.pathname}${original.search}`;
+    // KV keys are limited to 512 bytes. Oversized full path/query keys simply
+    // bypass caching rather than being truncated or normalized into collisions.
+    if (new TextEncoder().encode(cacheKey).byteLength <= 512) {
+      try {
+        const cached = await c.env.RESPONSE_CACHE.get(cacheKey, "json") as CachedResponse | null;
+        if (cached && Number.isInteger(cached.status) && cached.status >= 200 && cached.status < 300 && typeof cached.body === "string") {
+          JSON.parse(cached.body);
+          return new Response(cached.body, {
+            status: cached.status,
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              "X-Content-Type-Options": "nosniff",
+            },
+          });
+        }
+      } catch {
+        // KV is an optimization: an unavailable or malformed entry is a cache miss.
+      }
+    }
+  }
+
+  if (original.pathname === "/health") {
+    const request = new Request("http://container/health", {
+      method: "GET",
+      headers: { "X-Request-ID": c.get("requestId"), Accept: "application/json" },
+      signal: c.req.raw.signal,
+    });
+    return c.env.PROXY.getByName("nba-proxy").fetch(request);
+  }
+
   const target = new URL("http://container");
   target.pathname = original.pathname;
   target.search = original.search;
@@ -65,8 +99,30 @@ app.get("*", async (c) => {
     void response.body?.cancel().catch(() => {});
     return errorResponse(502, "container_unavailable", "Proxy container returned a non-JSON response; check Worker logs");
   }
+  if (route && response.status >= 200 && response.status < 300 && isJsonContentType(response.headers.get("content-type"))) {
+    const cacheKey = `response:${original.pathname}${original.search}`;
+    if (new TextEncoder().encode(cacheKey).byteLength <= 512) {
+      const ttl = route.family === "stats" ? 10 * 60 : 60;
+      c.executionCtx.waitUntil((async () => {
+        try {
+          const body = await response.clone().text();
+          JSON.parse(body);
+          await c.env.RESPONSE_CACHE.put(cacheKey, JSON.stringify({ status: response.status, body }), { expirationTtl: ttl });
+        } catch {
+          // Invalid JSON and KV write failures do not affect the origin response.
+        }
+      })());
+    }
+  }
   return response;
 });
+
+type CachedResponse = { status: number; body: string };
+
+function isJsonContentType(contentType: string | null): boolean {
+  const mediaType = contentType?.split(";", 1)[0].trim().toLowerCase();
+  return mediaType === "application/json" || mediaType?.endsWith("+json") === true;
+}
 
 app.notFound(() => errorResponse(404, "not_found", "This API route is not enabled"));
 app.onError((error, c) => {
