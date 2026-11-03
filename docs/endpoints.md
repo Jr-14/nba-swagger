@@ -136,7 +136,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/teamplayeronoffdetails`
 - ✅ `/stats/teamplayeronoffsummary`
 - ✅ `/stats/teamvsplayer`
-- `/stats/teamyearbyyearstats`
+- ✅ `/stats/teamyearbyyearstats`
 - `/stats/videodetails`
 - `/stats/videodetailsasset`
 - `/stats/videoevents`

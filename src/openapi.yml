@@ -12063,6 +12063,50 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/teamyearbyyearstats:
+    get:
+      operationId: getTeamYearByYearStats
+      tags: [Stats]
+      summary: teamyearbyyearstats
+      description: Returns a team's statistics for each season in its history.
+      parameters:
+        - { name: LeagueID, in: query, required: true, schema: { type: string, enum: ["00", "01", "10", "15", "20"], default: "00" } }
+        - { name: PerMode, in: query, required: true, schema: { type: string, enum: [Totals, PerGame], default: Totals } }
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: TeamID, in: query, required: true, schema: { type: integer }, example: 1610612739 }
+      responses:
+        '200':
+          description: Year-by-year team statistics in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: teamyearbyyearstats }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [TeamStats] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                clevelandYearByYear:
+                  summary: First season row from smoke cassette
+                  value:
+                    resource: teamyearbyyearstats
+                    parameters: { LeagueID: "00", SeasonType: Regular Season, PerMode: Totals, TeamID: 1610612739 }
+                    resultSets:
+                      - name: TeamStats
+                        headers: [TEAM_ID, TEAM_CITY, TEAM_NAME, YEAR, GP, WINS, LOSSES, WIN_PCT, CONF_RANK, DIV_RANK, PO_WINS, PO_LOSSES, CONF_COUNT, DIV_COUNT, NBA_FINALS_APPEARANCE, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, PF, STL, TOV, BLK, PTS, PTS_RANK]
+                        rowSet:
+                          - [1610612739, Cleveland, Cavaliers, "1970-71", 82, 15, 67, 0.183, 8, 4, 0, 0, 8, 4, N/A, 3299, 0, 0.0, 0, 0, 0.0, 0, 2380, 0.746, 0, 0, 0, 2065, 2114, 0, 0, 0, 8373, 17]
   /stats/teamvsplayer:
     get:
       operationId: getTeamVsPlayer
