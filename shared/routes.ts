@@ -126,6 +126,7 @@ const statsPaths = new Set([
   "teamdashptreb",
   "teamdashptshots",
   "teamdetails",
+  "teamestimatedmetrics",
 ]);
 
 const fixedLivePaths = new Set([

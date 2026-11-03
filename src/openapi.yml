@@ -12063,6 +12063,51 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/teamestimatedmetrics:
+    get:
+      operationId: getTeamEstimatedMetrics
+      tags: [Stats]
+      summary: teamestimatedmetrics
+      description: Returns estimated team performance metrics and league ranking columns for the specified season.
+      parameters:
+        - { name: LeagueID, in: query, required: true, schema: { type: string, pattern: '^\d{2}$', default: "00" } }
+        - name: Season
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+          example: "2025-26"
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs], default: Regular Season } }
+      responses:
+        '200':
+          description: Team estimated metrics in a single result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, parameters, resultSet]
+                properties:
+                  resource: { type: string, example: teamestimatedmetrics }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSet:
+                    type: object
+                    required: [name, headers, rowSet]
+                    properties:
+                      name: { type: string, enum: [TeamEstimatedMetrics] }
+                      headers: { type: array, items: { type: string } }
+                      rowSet:
+                        type: array
+                        items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                teamEstimatedMetrics:
+                  summary: First team metrics row from smoke cassette
+                  value:
+                    resource: teamestimatedmetrics
+                    parameters: { Season: "2025-26", SeasonType: Regular Season, LeagueID: "00" }
+                    resultSet:
+                      name: TeamEstimatedMetrics
+                      headers: [TEAM_NAME, TEAM_ID, GP, W, L, W_PCT, MIN, E_OFF_RATING, E_DEF_RATING, E_NET_RATING, E_PACE, E_AST_RATIO, E_OREB_PCT, E_DREB_PCT, E_REB_PCT, E_TM_TOV_PCT, GP_RANK, W_RANK, L_RANK, W_PCT_RANK, MIN_RANK, E_OFF_RATING_RANK, E_DEF_RATING_RANK, E_NET_RATING_RANK, E_AST_RATIO_RANK, E_OREB_PCT_RANK, E_DREB_PCT_RANK, E_REB_PCT_RANK, E_TM_TOV_PCT_RANK, E_PACE_RANK]
+                      rowSet:
+                        - [Miami Heat, 1610612748, 58, 31, 27, 0.534, 2789.0, 112.2, 109.3, 2.9, 106.8, 19.4, 0.255, 0.748, 0.5, 0.132, 1, 13, 15, 14, 4, 15, 4, 10, 9, 16, 6, 12, 4, 1]
   /stats/teamdetails:
     get:
       operationId: getTeamDetails
