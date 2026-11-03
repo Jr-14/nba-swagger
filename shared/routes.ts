@@ -110,6 +110,7 @@ const statsPaths = new Set([
   "playerprofilev2",
   "playervsplayer",
   "playoffpicture",
+  "scheduleleaguev2",
 ]);
 
 const fixedLivePaths = new Set([

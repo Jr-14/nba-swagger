@@ -110,7 +110,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/playerprofilev2`
 - ✅ `/stats/playervsplayer`
 - ✅ `/stats/playoffpicture` (deprecated upstream)
-- `/stats/scheduleleaguev2`
+- ✅ `/stats/scheduleleaguev2`
 - `/stats/scheduleleaguev2int`
 - `/stats/scoreboardv2`
 - `/stats/scoreboardv3`
