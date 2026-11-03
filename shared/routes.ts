@@ -107,6 +107,7 @@ const statsPaths = new Set([
   "playergamestreakfinder",
   "playerindex",
   "playernextngames",
+  "playerprofilev2",
 ]);
 
 const fixedLivePaths = new Set([

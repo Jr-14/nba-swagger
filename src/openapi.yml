@@ -12063,6 +12063,56 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/playerprofilev2:
+    get:
+      operationId: getPlayerProfileV2
+      tags: [Stats]
+      summary: playerprofilev2
+      description: Returns career totals, season totals and rankings, highs, and next-game data for a player.
+      parameters:
+        - { name: PerMode, in: query, required: true, schema: { type: string, enum: [Totals, PerGame, Per36], default: Totals } }
+        - { name: PlayerID, in: query, required: true, schema: { type: integer }, example: 1628378 }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, nullable: true } }
+      responses:
+        '200':
+          description: Player profile data across multiple result sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: playerprofilev2 }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                playerCareerProfile:
+                  summary: Regular season totals from smoke cassette
+                  value:
+                    resource: playerprofilev2
+                    parameters:
+                      PerMode: Totals
+                      PlayerID: 1628378
+                      LeagueID: "00"
+                    resultSets:
+                      - name: SeasonTotalsRegularSeason
+                        headers: [PLAYER_ID, SEASON_ID, LEAGUE_ID, TEAM_ID, TEAM_ABBREVIATION, PLAYER_AGE, GP, GS, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS]
+                        rowSet:
+                          - [1628378, "2017-18", "00", 1610612762, UTA, 21.0, 79, 71, 2638, 595, 1362, 0.437, 187, 550, 0.34, 239, 297, 0.805, 52, 244, 296, 291, 118, 27, 215, 213, 1616]
+                      - name: CareerTotalsRegularSeason
+                        headers: [PLAYER_ID, LEAGUE_ID, TEAM_ID, GP, GS, MIN, FGM, FGA, FG_PCT, FG3M, FG3A, FG3_PCT, FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV, PF, PTS]
+                        rowSet:
+                          - [1628378, "00", 0, 592, 584, 20018, 5252, 11606, 0.453, 1807, 4922, 0.367, 2536, 3012, 0.842, 476, 2083, 2559, 2841, 821, 188, 1611, 1430, 14847]
   /stats/playernextngames:
     get:
       operationId: getPlayerNextNGames
