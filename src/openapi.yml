@@ -12063,6 +12063,47 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/videoeventsasset:
+    get:
+      operationId: getVideoEventsAsset
+      tags: [Stats]
+      summary: videoeventsasset
+      description: Returns video URLs and playlist metadata for a game event. NBA's response uses resource `videoevents`.
+      parameters:
+        - { name: GameEventID, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: GameID, in: query, required: true, schema: { type: string, pattern: '^\d{10}$' }, example: "0022200552" }
+      responses:
+        '200':
+          description: Video URLs and playlist metadata for the requested event.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, parameters, resultSets]
+                properties:
+                  resource: { type: string, example: videoevents }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: object
+                    required: [Meta, playlist]
+                    properties:
+                      Meta:
+                        type: object
+                        properties:
+                          videoUrls: { type: array, items: { type: object, additionalProperties: true } }
+                      playlist: { type: array, items: { type: object, additionalProperties: true } }
+              examples:
+                videoEventAssetResponse:
+                  summary: Video asset response from smoke cassette
+                  value:
+                    resource: videoevents
+                    parameters: { GameID: "0022200552", GameEventID: 0 }
+                    resultSets:
+                      Meta:
+                        videoUrls:
+                          - { uuid: 4549dfbf-fde2-4dcc-8065-afade5ada267, sdur: 0, surl: "", sth: "", mdur: 0, murl: "", mth: "", ldur: 0, lurl: "", lth: "", vtt: "", scc: "", srt: "", mediaId: null }
+                      playlist:
+                        - { gi: "0022200552", ei: 0, y: 2023, m: "01", d: "02", gc: "2023-01-02/CHICLE", p: 5, dsc: Final Box Printed, ha: CLE, hid: 1610612739, va: CHI, vid: 1610612741, hpb: 0, hpa: 0, vpb: 0, vpa: 0, pta: 0 }
   /stats/videoevents:
     get:
       operationId: getVideoEvents
