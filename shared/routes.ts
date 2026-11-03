@@ -108,6 +108,7 @@ const statsPaths = new Set([
   "playerindex",
   "playernextngames",
   "playerprofilev2",
+  "playervsplayer",
 ]);
 
 const fixedLivePaths = new Set([
