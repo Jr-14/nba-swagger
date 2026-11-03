@@ -103,6 +103,7 @@ const statsPaths = new Set([
   "playerestimatedmetrics",
   "playerfantasyprofilebargraph",
   "playergamelog",
+  "playergamelogs",
 ]);
 
 const fixedLivePaths = new Set([
