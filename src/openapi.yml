@@ -12063,6 +12063,59 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/synergyplaytypes:
+    get:
+      operationId: getSynergyPlayTypes
+      tags: [Stats]
+      summary: synergyplaytypes
+      description: Returns Synergy play-type statistics for players or teams by season and play type.
+      parameters:
+        - { name: LeagueID, in: query, required: true, schema: { type: string, pattern: '^\d{2}$', default: "00" } }
+        - { name: PerMode, in: query, required: true, schema: { type: string, enum: [Totals, PerGame], default: Totals } }
+        - { name: PlayerOrTeam, in: query, required: true, schema: { type: string, enum: [P, T], default: T } }
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star, All-Star], default: Regular Season } }
+        - { name: SeasonYear, in: query, required: true, schema: { type: string, pattern: '^(\d{4}-\d{2}|\d{4})$' }, example: "2025-26" }
+        - { name: PlayType, in: query, required: false, schema: { type: string, enum: [Transition, Isolation, PRBallHandler, PRRollman, Postup, Spotup, Handoff, Cut, OffScreen, OffRebound, Misc], nullable: true } }
+        - { name: TypeGrouping, in: query, required: false, schema: { type: string, enum: [offensive, defensive], nullable: true } }
+      responses:
+        '200':
+          description: Synergy play-type statistics in one result set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: synergyplaytypes }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [SynergyPlayType] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                synergyTeamPlayTypes:
+                  summary: Team play-type result (no rows in smoke cassette)
+                  value:
+                    resource: synergyplaytypes
+                    parameters:
+                      LeagueID: "00"
+                      SeasonYear: "2025-26"
+                      SeasonType: Regular Season
+                      PerMode: Totals
+                      PlayerOrTeam: T
+                      PlayType: null
+                      TypeGrouping: null
+                    resultSets:
+                      - name: SynergyPlayType
+                        headers: [SEASON_ID, TEAM_ID, TEAM_ABBREVIATION, TEAM_NAME, PLAY_TYPE, TYPE_GROUPING, PERCENTILE, GP, POSS_PCT, PPP, FG_PCT, FT_POSS_PCT, TOV_POSS_PCT, SF_POSS_PCT, PLUSONE_POSS_PCT, SCORE_POSS_PCT, EFG_PCT, POSS, PTS, FGM, FGA, FGMX]
+                        rowSet: []
   /stats/shotchartlineupdetail:
     get:
       operationId: getShotChartLineupDetail

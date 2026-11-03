@@ -117,6 +117,7 @@ const statsPaths = new Set([
   "shotchartdetail",
   "shotchartleaguewide",
   "shotchartlineupdetail",
+  "synergyplaytypes",
 ]);
 
 const fixedLivePaths = new Set([
