@@ -128,6 +128,7 @@ const statsPaths = new Set([
   "teamdetails",
   "teamestimatedmetrics",
   "teamgamelog",
+  "teamgamelogs",
 ]);
 
 const fixedLivePaths = new Set([
