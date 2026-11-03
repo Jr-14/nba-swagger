@@ -89,7 +89,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/playercareerbycollegerollup`
 - ✅ `/stats/playercareerstats`
 - ✅ `/stats/playercompare`
-- `/stats/playerdashboardbyclutch`
+- ✅ `/stats/playerdashboardbyclutch`
 - `/stats/playerdashboardbygamesplits`
 - `/stats/playerdashboardbygeneralsplits`
 - `/stats/playerdashboardbylastngames`

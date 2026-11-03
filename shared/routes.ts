@@ -89,6 +89,7 @@ const statsPaths = new Set([
   "playercareerbycollegerollup",
   "playercareerstats",
   "playercompare",
+  "playerdashboardbyclutch",
 ]);
 
 const fixedLivePaths = new Set([
