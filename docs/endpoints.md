@@ -118,7 +118,7 @@ Base URL: `https://stats.nba.com`
 - ✅ `/stats/shotchartleaguewide`
 - ✅ `/stats/shotchartlineupdetail`
 - ✅ `/stats/synergyplaytypes`
-- `/stats/teamandplayersvsplayers`
+- ✅ `/stats/teamandplayersvsplayers`
 - `/stats/teamdashboardbygeneralsplits`
 - `/stats/teamdashboardbyshootingsplits`
 - `/stats/teamdashlineups`
