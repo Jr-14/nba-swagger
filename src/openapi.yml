@@ -12063,6 +12063,84 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/scoreboardv3:
+    get:
+      operationId: getScoreboardV3
+      tags: [Stats]
+      summary: scoreboardv3
+      description: Returns daily scoreboard details, including game status, scores, leaders, and broadcast information. Recommended replacement for ScoreboardV2.
+      parameters:
+        - { name: GameDate, in: query, required: true, schema: { type: string, format: date }, example: "2025-11-05" }
+        - { name: LeagueID, in: query, required: false, schema: { type: string, pattern: '^\d{2}$', default: "00" } }
+      responses:
+        '200':
+          description: Nested scoreboard data for the requested date.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [meta, scoreboard]
+                properties:
+                  meta: { type: object, additionalProperties: true }
+                  scoreboard:
+                    type: object
+                    required: [gameDate, leagueId, leagueName, games]
+                    properties:
+                      gameDate: { type: string, format: date }
+                      leagueId: { type: string }
+                      leagueName: { type: string }
+                      games:
+                        type: array
+                        items:
+                          type: object
+                          required: [gameId, gameStatus, gameStatusText]
+                          properties:
+                            gameId: { type: string }
+                            gameCode: { type: string }
+                            gameStatus: { type: integer }
+                            gameStatusText: { type: string }
+                            period: { type: integer }
+                            gameClock: { type: string }
+                            homeTeam: { type: object, additionalProperties: true }
+                            awayTeam: { type: object, additionalProperties: true }
+                            gameLeaders: { type: object, additionalProperties: true }
+                            teamLeaders: { type: object, additionalProperties: true }
+                            broadcasters: { type: object, additionalProperties: true }
+                          additionalProperties: true
+                    additionalProperties: true
+              examples:
+                dailyScoreboard:
+                  summary: Regular season game from smoke scenario cassette
+                  value:
+                    meta:
+                      version: 1
+                      request: "http://nba.cloud/league/00/2025/11/05/scoreboard?Format=json"
+                      time: "2026-01-22T14:21:16.2116Z"
+                    scoreboard:
+                      gameDate: "2025-11-05"
+                      leagueId: "00"
+                      leagueName: National Basketball Association
+                      games:
+                        - gameId: "0022500171"
+                          gameCode: "20251105/PHICLE"
+                          gameStatus: 3
+                          gameStatusText: Final
+                          period: 4
+                          gameClock: ""
+                          gameTimeUTC: "2025-11-06T00:00:00Z"
+                          gameEt: "2025-11-05T19:00:00Z"
+                          homeTeam:
+                            teamId: 1610612739
+                            teamName: Cavaliers
+                            teamCity: Cleveland
+                            teamTricode: CLE
+                            score: 132
+                          awayTeam:
+                            teamId: 1610612755
+                            teamName: 76ers
+                            teamCity: Philadelphia
+                            teamTricode: PHI
+                            score: 121
   /stats/scoreboardv2:
     get:
       operationId: getScoreboardV2

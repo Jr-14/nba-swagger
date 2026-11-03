@@ -113,6 +113,7 @@ const statsPaths = new Set([
   "scheduleleaguev2",
   "scheduleleaguev2int",
   "scoreboardv2",
+  "scoreboardv3",
 ]);
 
 const fixedLivePaths = new Set([
