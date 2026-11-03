@@ -12063,6 +12063,90 @@ paths:
                           videoAvailable: 0
                           shotValue: 0
                           actionId: 1
+  /stats/shotchartlineupdetail:
+    get:
+      operationId: getShotChartLineupDetail
+      tags: [Stats]
+      summary: shotchartlineupdetail
+      description: Returns shot chart data for a specified lineup group alongside league shot-zone averages.
+      parameters:
+        - { name: ContextFilter, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: ContextMeasure, in: query, required: true, schema: { type: string, default: PTS } }
+        - { name: DateFrom, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: DateTo, in: query, required: true, schema: { type: string, nullable: true } }
+        - { name: GROUP_ID, in: query, required: true, schema: { type: string, example: "-202689-203493-203501-1626174-1627827-" } }
+        - { name: GameID, in: query, required: true, schema: { type: string, pattern: '^\d{10}$', nullable: true } }
+        - { name: GameSegment, in: query, required: true, schema: { type: string, enum: [First Half, Overtime, Second Half], nullable: true } }
+        - { name: LastNGames, in: query, required: true, schema: { type: integer, nullable: true } }
+        - { name: LeagueID, in: query, required: true, schema: { type: string, pattern: '^\d{2}$', default: "00" } }
+        - { name: Location, in: query, required: true, schema: { type: string, enum: [Home, Road], nullable: true } }
+        - { name: Month, in: query, required: true, schema: { type: integer, nullable: true } }
+        - { name: OpponentTeamID, in: query, required: true, schema: { type: integer, nullable: true } }
+        - { name: Outcome, in: query, required: true, schema: { type: string, enum: [W, L], nullable: true } }
+        - { name: Period, in: query, required: true, schema: { type: integer, default: 0 } }
+        - { name: Season, in: query, required: true, schema: { type: string, pattern: '^\d{4}-\d{2}$' }, example: "2025-26" }
+        - { name: SeasonSegment, in: query, required: true, schema: { type: string, enum: [Post All-Star, Pre All-Star], nullable: true } }
+        - { name: SeasonType, in: query, required: true, schema: { type: string, enum: [Regular Season, Pre Season, Playoffs, All Star], default: Regular Season } }
+        - { name: TeamID, in: query, required: true, schema: { type: integer, nullable: true } }
+        - { name: VsConference, in: query, required: true, schema: { type: string, enum: [East, West], nullable: true } }
+        - { name: VsDivision, in: query, required: true, schema: { type: string, enum: [Atlantic, Central, Northwest, Pacific, Southeast, Southwest, East, West], nullable: true } }
+      responses:
+        '200':
+          description: Lineup shot attempts and league-wide shot-zone averages in separate result sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resource, resultSets]
+                properties:
+                  resource: { type: string, example: shotchartlineupdetail }
+                  parameters: { type: object, additionalProperties: true }
+                  resultSets:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, headers, rowSet]
+                      properties:
+                        name: { type: string, enum: [ShotChartLineupDetail, ShotChartLineupLeagueAverage] }
+                        headers: { type: array, items: { type: string } }
+                        rowSet:
+                          type: array
+                          items: { type: array, items: { oneOf: [{ type: integer }, { type: number }, { type: string }, { type: 'null' }] } }
+              examples:
+                lineupShotChart:
+                  summary: Empty lineup shot results and league average data from smoke cassette
+                  value:
+                    resource: shotchartlineupdetail
+                    parameters:
+                      LeagueID: "00"
+                      Season: "2025-26"
+                      SeasonType: Regular Season
+                      TeamID: null
+                      Outcome: null
+                      Location: null
+                      Month: null
+                      SeasonSegment: null
+                      DateFrom: null
+                      DateTo: null
+                      OpponentTeamID: null
+                      VsConference: null
+                      VsDivision: null
+                      GameSegment: null
+                      Period: 0
+                      LastNGames: null
+                      GameID: null
+                      GroupID: "-202689-203493-203501-1626174-1627827-"
+                      ContextFilter: null
+                      ContextMeasure: PTS
+                    resultSets:
+                      - name: ShotChartLineupDetail
+                        headers: [GRID_TYPE, GAME_ID, GAME_EVENT_ID, GROUP_ID, GROUP_NAME, PLAYER_ID, PLAYER_NAME, TEAM_ID, TEAM_NAME, PERIOD, MINUTES_REMAINING, SECONDS_REMAINING, EVENT_TYPE, ACTION_TYPE, SHOT_TYPE, SHOT_ZONE_BASIC, SHOT_ZONE_AREA, SHOT_ZONE_RANGE, SHOT_DISTANCE, LOC_X, LOC_Y, SHOT_ATTEMPTED_FLAG, SHOT_MADE_FLAG, GAME_DATE, HTM, VTM]
+                        rowSet: []
+                      - name: ShotChartLineupLeagueAverage
+                        headers: [GRID_TYPE, SHOT_ZONE_BASIC, SHOT_ZONE_AREA, SHOT_ZONE_RANGE, FGA, FGM, FG_PCT]
+                        rowSet:
+                          - ["League Averages", "Above the Break 3", "Back Court(BC)", "Back Court Shot", 3, 3, 1.0]
+                          - ["League Averages", "Above the Break 3", "Center(C)", "24+ ft.", 4144, 4144, 1.0]
   /stats/shotchartleaguewide:
     get:
       operationId: getShotChartLeagueWide
